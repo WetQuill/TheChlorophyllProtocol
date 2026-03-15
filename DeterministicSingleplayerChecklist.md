@@ -9,16 +9,18 @@
 - [ ] 闸门 G3：回放 100 次状态哈希一致后，才允许进入联机开发。
 
 ## 1. 项目脚手架与工程配置（P0）
-- [ ] 建立目录：`src/app`、`src/logic`、`src/render`、`src/data`、`src/tests`、`assets`、`tools`。
-- [ ] 增加 CMake：根 `CMakeLists.txt` + 测试 target。
-- [ ] 增加基础依赖接入：SFML、EnTT、GoogleTest（或同等测试框架）。
-- [ ] 定义编译选项：C++20、警告级别、Debug/Release 配置。
-- [ ] 在 `AGENTS.md` 中更新实际可执行 build/test/lint 命令。
+- [x] 建立目录：`src/app`、`src/logic`、`src/render`、`src/data`、`src/tests`、`assets`、`tools`。
+- [x] 增加 CMake：根 `CMakeLists.txt` + 测试 target。
+- [x] 增加基础依赖接入：SFML、EnTT、GoogleTest（可选开关集成）。
+- [x] 定义编译选项：C++20、警告级别、Debug/Release 配置。
+- [x] 在 `AGENTS.md` 中更新实际可执行 build/test/lint 命令。
 
 验收标准：
 - [ ] `cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug` 可成功配置。
 - [ ] `cmake --build build --config Debug -j` 可成功构建。
 - [ ] `ctest --test-dir build --output-on-failure` 可执行并产出结果。
+
+当前阻塞：本执行环境缺少 `cmake` 命令，待安装 CMake 后执行上述三项验收。
 
 ## 2. 确定性基础设施（P0）
 - [ ] 实现 `FixedPoint`（`int32_t` + 固定缩放，例如 1000 或 1024）。

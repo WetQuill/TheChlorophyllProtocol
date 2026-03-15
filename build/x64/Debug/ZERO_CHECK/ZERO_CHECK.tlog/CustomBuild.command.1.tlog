@@ -1,0 +1,10 @@
+^C:\WETQUILL_PROJECT\THECHLOROPHYLLPROTOCOL\BUILD\CMAKEFILES\ACC74144E6B7D5E62BF6DA528E820F8C\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/WetQuill_project/TheChlorophyllProtocol -BC:/WetQuill_project/TheChlorophyllProtocol/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/WetQuill_project/TheChlorophyllProtocol/build/TheChlorophyllProtocol.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

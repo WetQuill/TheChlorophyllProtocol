@@ -1,0 +1,2 @@
+DeterminismSmoke 1 0.0680976
+---

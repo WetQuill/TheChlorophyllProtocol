@@ -25,14 +25,12 @@ If these files are added later, update this document and treat those rules as hi
 ## Build / Lint / Test Commands
 
 ### Current Status
-No executable build/test configuration files are present yet in the repository root.
-Before running commands, detect toolchain files and select matching command set.
+Build/test is now configured with CMake + CTest in repository root.
+Use the commands below as the default workflow.
 
 ### Command Discovery Order
-1. If `CMakeLists.txt` exists, use CMake workflow.
-2. If `Makefile` exists, use make targets.
-3. If `build.sh`/`scripts/*.sh` exists, use project scripts.
-4. If none exist, do not invent commands in automation; report "not configured".
+1. Use CMake workflow (`CMakeLists.txt` is present).
+2. If CMake is unavailable in an environment, report toolchain missing; do not invent alternatives.
 
 ### Preferred CMake Workflow (when CMake exists)
 - Configure:
@@ -42,19 +40,17 @@ Before running commands, detect toolchain files and select matching command set.
 - Run all tests:
   - `ctest --test-dir build --output-on-failure`
 - Run single test by exact name:
-  - `ctest --test-dir build -R "^TestName$" --output-on-failure`
+  - `ctest --test-dir build -R "^DeterminismSmoke$" --output-on-failure`
 - Run tests matching pattern:
-  - `ctest --test-dir build -R "Movement|Pathfinding" --output-on-failure`
+  - `ctest --test-dir build -R "Determinism|Smoke" --output-on-failure`
 - Re-run only failed tests:
   - `ctest --test-dir build --rerun-failed --output-on-failure`
 
-### If GoogleTest binary is used directly
-- List tests:
-  - `./build/tests/game_tests --gtest_list_tests`
-- Run one test:
-  - `./build/tests/game_tests --gtest_filter=SuiteName.TestName`
-- Run one suite:
-  - `./build/tests/game_tests --gtest_filter=SuiteName.*`
+### Dependency Integration Status
+- SFML integration: optional via CMake option `-DTCP_ENABLE_SFML=ON` and installed SFML 2.6.
+- EnTT integration: optional via CMake option `-DTCP_ENABLE_ENTT=ON` and available `entt/entt.hpp` include path.
+- GoogleTest integration: optional via CMake option `-DTCP_ENABLE_GTEST=ON` and installed GTest.
+- Current baseline tests use plain CTest executables and do not require GTest.
 
 ### Lint / Formatting (expected for C++)
 Use these only when corresponding config files exist:

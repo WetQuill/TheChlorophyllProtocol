@@ -1,0 +1,6 @@
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/tcp_logic.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/chlorophyll_app.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/determinism_smoke_test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/RUN_TESTS.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ALL_BUILD.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ZERO_CHECK.dir
