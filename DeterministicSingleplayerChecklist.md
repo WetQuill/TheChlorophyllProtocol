@@ -130,18 +130,25 @@
 - [ ] `ctest --test-dir build -C Debug -R "ReplayDeterminism" --output-on-failure`
 
 ## 7. 数据驱动配置（P1）
-- [ ] 引入 JSON 单位/建筑定义（成本、血量、射程、攻速、移动方式等）。
-- [ ] 配置加载校验（字段缺失、范围错误时 fail-fast）。
-- [ ] 单位工厂 `UnitFactory`：根据配置实例化 ECS 组件。
+- [x] 引入 JSON 单位/建筑定义（成本、血量、射程、攻速、移动方式等）。
+- [x] 配置加载校验（字段缺失、范围错误时 fail-fast）。
+- [x] 单位工厂 `UnitFactory`：根据配置实例化 ECS 组件。
 
 建议文件：
 - `src/data/UnitConfig.h`
+- `src/data/UnitConfigLoader.h`
 - `src/data/UnitConfigLoader.cpp`
+- `src/logic/factory/UnitFactory.h`
 - `src/logic/factory/UnitFactory.cpp`
-- `assets/data/units/*.json`
+- `assets/data/units/pea_militia.json`
+- `assets/data/units/sunflower_generator.json`
+- `src/tests/UnitConfigFactoryTest.cpp`
 
 验收标准：
-- [ ] 新增一个单位配置无需改逻辑代码即可生成实体。
+- [x] 新增一个单位配置无需改逻辑代码即可生成实体（测试用例 `UnitConfigFactory` 已实现）。
+
+待本机执行验证命令：
+- [ ] `ctest --test-dir build -C Debug -R "UnitConfigFactory" --output-on-failure`
 
 ## 8. 测试策略与清单（P0/P1）
 - [ ] 单元测试：`FixedPoint`、`DeterministicRng`、资源结算、伤害计算。

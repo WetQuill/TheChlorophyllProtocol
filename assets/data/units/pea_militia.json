@@ -1,0 +1,11 @@
+{
+  "id": 101,
+  "name": "PeaMilitia",
+  "movementMode": "ground",
+  "costSun": 50,
+  "maxHealth": 35,
+  "moveSpeedPerTick": 1,
+  "weaponRangeCells": 4,
+  "weaponDamage": 6,
+  "weaponCooldownTicks": 2
+}

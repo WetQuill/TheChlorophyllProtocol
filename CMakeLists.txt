@@ -12,6 +12,7 @@ option(TCP_ENABLE_ENTT "Enable EnTT integration if installed" OFF)
 option(TCP_ENABLE_GTEST "Enable GoogleTest integration if installed" OFF)
 
 add_library(tcp_logic STATIC
+    src/data/UnitConfigLoader.cpp
     src/logic/commands/CommandQueue.cpp
     src/logic/core/DeterministicRng.cpp
     src/logic/core/SimulationConfig.cpp
@@ -20,6 +21,7 @@ add_library(tcp_logic STATIC
     src/logic/ecs/World.cpp
     src/logic/ecs/systems/BuiltInSystems.cpp
     src/logic/math/FixedPoint.cpp
+    src/logic/factory/UnitFactory.cpp
     src/logic/path/AStarGrid.cpp
     src/logic/replay/ReplayPlayer.cpp
     src/logic/replay/ReplayRecorder.cpp
@@ -152,6 +154,14 @@ add_executable(replay_determinism_test
 target_link_libraries(replay_determinism_test PRIVATE tcp_logic)
 
 add_test(NAME ReplayDeterminism COMMAND replay_determinism_test)
+
+add_executable(unit_config_factory_test
+    src/tests/UnitConfigFactoryTest.cpp
+)
+
+target_link_libraries(unit_config_factory_test PRIVATE tcp_logic)
+
+add_test(NAME UnitConfigFactory COMMAND unit_config_factory_test)
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)

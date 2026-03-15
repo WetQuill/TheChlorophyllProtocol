@@ -1,0 +1,11 @@
+{
+  "id": 201,
+  "name": "SunflowerGenerator",
+  "movementMode": "static",
+  "costSun": 25,
+  "maxHealth": 45,
+  "moveSpeedPerTick": 0,
+  "weaponRangeCells": 0,
+  "weaponDamage": 0,
+  "weaponCooldownTicks": 0
+}
