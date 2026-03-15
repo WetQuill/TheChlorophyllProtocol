@@ -41,6 +41,7 @@ public:
     bool setCommandBuffer(EntityId entityId, const CommandBuffer& component);
     bool setSunProducer(EntityId entityId, const SunProducer& component);
     bool setHeadquarters(EntityId entityId, const Headquarters& component);
+    bool setBuilding(EntityId entityId, const Building& component);
 
     [[nodiscard]] const std::map<EntityId, Transform>& transforms() const noexcept;
     [[nodiscard]] const std::map<EntityId, Velocity>& velocities() const noexcept;
@@ -54,6 +55,7 @@ public:
     [[nodiscard]] const std::map<EntityId, CommandBuffer>& commandBuffers() const noexcept;
     [[nodiscard]] const std::map<EntityId, SunProducer>& sunProducers() const noexcept;
     [[nodiscard]] const std::map<EntityId, Headquarters>& headquarters() const noexcept;
+    [[nodiscard]] const std::map<EntityId, Building>& buildings() const noexcept;
 
     [[nodiscard]] std::map<EntityId, Transform>& mutableTransforms() noexcept;
     [[nodiscard]] std::map<EntityId, Velocity>& mutableVelocities() noexcept;
@@ -69,6 +71,10 @@ public:
     [[nodiscard]] std::int32_t winnerTeam() const noexcept;
     void setWinnerTeam(std::int32_t teamId) noexcept;
     void clearWinnerTeam() noexcept;
+
+    void setMoveTarget(EntityId entityId, GridTarget target) noexcept;
+    void clearMoveTarget(EntityId entityId) noexcept;
+    [[nodiscard]] const std::map<EntityId, GridTarget>& moveTargets() const noexcept;
 
 private:
     [[nodiscard]] bool hasEntity(EntityId entityId) const noexcept;
@@ -91,6 +97,9 @@ private:
     std::map<EntityId, CommandBuffer> commandBuffers_{};
     std::map<EntityId, SunProducer> sunProducers_{};
     std::map<EntityId, Headquarters> headquarters_{};
+    std::map<EntityId, Building> buildings_{};
+
+    std::map<EntityId, GridTarget> moveTargets_{};
 
     std::map<std::uint8_t, std::int32_t> teamSun_{};
     std::int32_t winnerTeam_{-1};

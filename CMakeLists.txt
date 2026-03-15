@@ -18,6 +18,7 @@ add_library(tcp_logic STATIC
     src/logic/ecs/World.cpp
     src/logic/ecs/systems/BuiltInSystems.cpp
     src/logic/math/FixedPoint.cpp
+    src/logic/path/AStarGrid.cpp
 )
 
 target_include_directories(tcp_logic
@@ -131,6 +132,14 @@ add_executable(gameplay_loop_test
 target_link_libraries(gameplay_loop_test PRIVATE tcp_logic)
 
 add_test(NAME GameplayLoopCore COMMAND gameplay_loop_test)
+
+add_executable(placement_pathfinding_test
+    src/tests/PlacementAndPathfindingTest.cpp
+)
+
+target_link_libraries(placement_pathfinding_test PRIVATE tcp_logic)
+
+add_test(NAME PlacementAndPathfinding COMMAND placement_pathfinding_test)
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)

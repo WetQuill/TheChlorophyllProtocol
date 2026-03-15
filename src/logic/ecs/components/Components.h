@@ -63,6 +63,15 @@ struct Headquarters {
     bool value{true};
 };
 
+struct Building {
+    bool blocksMovement{true};
+};
+
+struct GridTarget {
+    std::int32_t x{0};
+    std::int32_t y{0};
+};
+
 enum class CommandType : std::uint8_t {
     kBuild = 0,
     kMove = 1,

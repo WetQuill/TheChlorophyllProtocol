@@ -4,3 +4,4 @@ C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\TickScheduler.cpp;C:\W
 C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\World.cpp;C:\WetQuill_project\TheChlorophyllProtocol\build\tcp_logic.dir\Debug\World.obj
 C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\systems\BuiltInSystems.cpp;C:\WetQuill_project\TheChlorophyllProtocol\build\tcp_logic.dir\Debug\BuiltInSystems.obj
 C:\WetQuill_project\TheChlorophyllProtocol\src\logic\math\FixedPoint.cpp;C:\WetQuill_project\TheChlorophyllProtocol\build\tcp_logic.dir\Debug\FixedPoint.obj
+C:\WetQuill_project\TheChlorophyllProtocol\src\logic\path\AStarGrid.cpp;C:\WetQuill_project\TheChlorophyllProtocol\build\tcp_logic.dir\Debug\AStarGrid.obj

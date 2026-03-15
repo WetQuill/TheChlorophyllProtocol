@@ -19,6 +19,9 @@
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\math\FixedPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\path\AStarGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\WetQuill_project\TheChlorophyllProtocol\CMakeLists.txt" />

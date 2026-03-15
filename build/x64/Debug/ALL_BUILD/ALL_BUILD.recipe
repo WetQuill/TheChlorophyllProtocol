@@ -26,6 +26,9 @@
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\gameplay_loop_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\placement_pathfinding_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\tick_scheduler_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>

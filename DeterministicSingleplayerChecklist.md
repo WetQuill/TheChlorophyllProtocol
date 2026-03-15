@@ -84,8 +84,8 @@
 - [ ] `ctest --test-dir build -C Debug -R "EcsWorldPipeline|EcsCoreSystems" --output-on-failure`
 
 ## 5. 最小玩法闭环（P0）
-- [ ] 格点建造：基地附近可建区域 + 放置校验。
-- [ ] 自由移动：单位右键移动，基础 A* 可达且不穿障碍。
+- [x] 格点建造：基地附近可建区域 + 放置校验（邻近 HQ 半径、占用校验、阳光扣费）。
+- [x] 自由移动：单位右键移动，基础 A* 可达且不穿障碍。
 - [x] 资源：向日葵产阳光，生产单位消耗阳光（`SunProducer` + `Production`）。
 - [x] 战斗：基础攻击/受伤/死亡（`Weapon` + `Combat/Cleanup`）。
 - [x] 胜负：最小胜负判定（主基地摧毁后设置 `winnerTeam`）。
@@ -94,12 +94,15 @@
 - `src/logic/ecs/systems/BuiltInSystems.h`
 - `src/logic/ecs/systems/BuiltInSystems.cpp`
 - `src/tests/GameplayLoopTest.cpp`
+- `src/logic/path/AStarGrid.h`
+- `src/logic/path/AStarGrid.cpp`
+- `src/tests/PlacementAndPathfindingTest.cpp`
 
 验收标准：
 - [x] 逻辑层可完成“生产 -> 移动 -> 战斗 -> 胜负”闭环（测试用例 `GameplayLoopCore` 已实现）。
 
 待本机执行验证命令：
-- [ ] `ctest --test-dir build -C Debug -R "GameplayLoopCore" --output-on-failure`
+- [ ] `ctest --test-dir build -C Debug -R "GameplayLoopCore|PlacementAndPathfinding" --output-on-failure`
 
 ## 6. 命令流与回放系统（P0）
 - [ ] 统一输入为 `PlayerCommand`，带 `tick/playerId/type/payload`。

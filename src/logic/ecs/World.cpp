@@ -147,6 +147,14 @@ bool World::setHeadquarters(EntityId entityId, const Headquarters& component) {
     return true;
 }
 
+bool World::setBuilding(EntityId entityId, const Building& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    buildings_[entityId] = component;
+    return true;
+}
+
 const std::map<EntityId, Transform>& World::transforms() const noexcept {
     return transforms_;
 }
@@ -193,6 +201,10 @@ const std::map<EntityId, SunProducer>& World::sunProducers() const noexcept {
 
 const std::map<EntityId, Headquarters>& World::headquarters() const noexcept {
     return headquarters_;
+}
+
+const std::map<EntityId, Building>& World::buildings() const noexcept {
+    return buildings_;
 }
 
 std::map<EntityId, Transform>& World::mutableTransforms() noexcept {
@@ -257,6 +269,18 @@ void World::clearWinnerTeam() noexcept {
     winnerTeam_ = -1;
 }
 
+void World::setMoveTarget(EntityId entityId, GridTarget target) noexcept {
+    moveTargets_[entityId] = target;
+}
+
+void World::clearMoveTarget(EntityId entityId) noexcept {
+    moveTargets_.erase(entityId);
+}
+
+const std::map<EntityId, GridTarget>& World::moveTargets() const noexcept {
+    return moveTargets_;
+}
+
 bool World::hasEntity(EntityId entityId) const noexcept {
     return std::find(entities_.begin(), entities_.end(), entityId) != entities_.end();
 }
@@ -274,6 +298,8 @@ void World::removeComponents(EntityId entityId) {
     commandBuffers_.erase(entityId);
     sunProducers_.erase(entityId);
     headquarters_.erase(entityId);
+    buildings_.erase(entityId);
+    moveTargets_.erase(entityId);
 }
 
 }  // namespace tcp::logic::ecs

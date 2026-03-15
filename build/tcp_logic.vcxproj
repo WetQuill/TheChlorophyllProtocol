@@ -314,6 +314,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\World.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\systems\BuiltInSystems.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\math\FixedPoint.cpp" />
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\path\AStarGrid.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

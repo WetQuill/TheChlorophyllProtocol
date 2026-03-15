@@ -1,5 +1,7 @@
 #include "BuiltInSystems.h"
 
+#include "../../path/AStarGrid.h"
+
 #include <algorithm>
 #include <cstdint>
 #include <set>
@@ -8,6 +10,96 @@
 namespace tcp::logic::ecs {
 
 namespace {
+
+constexpr std::int32_t kBuildRadiusCells = 4;
+constexpr std::int32_t kDefaultBuildCostSun = 20;
+constexpr std::int32_t kBuildingHealth = 20;
+
+[[nodiscard]] path::GridCoord toGridCoord(const Transform& transform) noexcept {
+    return {
+        transform.x.toIntTrunc(),
+        transform.y.toIntTrunc(),
+    };
+}
+
+[[nodiscard]] Transform toTransform(path::GridCoord grid) noexcept {
+    Transform transform{};
+    transform.x = math::FixedPoint::fromInt(grid.x);
+    transform.y = math::FixedPoint::fromInt(grid.y);
+    return transform;
+}
+
+[[nodiscard]] bool isCellOccupied(const World& world, path::GridCoord cell) {
+    const auto& buildings = world.buildings();
+    const auto& transforms = world.transforms();
+    for (const auto& [entityId, building] : buildings) {
+        (void)building;
+        const auto trIt = transforms.find(entityId);
+        if (trIt == transforms.end()) {
+            continue;
+        }
+        if (toGridCoord(trIt->second) == cell) {
+            return true;
+        }
+    }
+    return false;
+}
+
+[[nodiscard]] bool hasFriendlyHqInRange(const World& world, std::uint8_t teamId, path::GridCoord cell) {
+    const auto& hqs = world.headquarters();
+    const auto& teams = world.teams();
+    const auto& transforms = world.transforms();
+    for (const auto& [entityId, marker] : hqs) {
+        if (!marker.value) {
+            continue;
+        }
+
+        const auto teamIt = teams.find(entityId);
+        const auto trIt = transforms.find(entityId);
+        if (teamIt == teams.end() || trIt == transforms.end()) {
+            continue;
+        }
+        if (teamIt->second.value != teamId) {
+            continue;
+        }
+
+        const auto base = toGridCoord(trIt->second);
+        const auto dx = (base.x > cell.x) ? (base.x - cell.x) : (cell.x - base.x);
+        const auto dy = (base.y > cell.y) ? (base.y - cell.y) : (cell.y - base.y);
+        if (dx + dy <= kBuildRadiusCells) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void tryHandleBuildCommand(World& world, EntityId issuerId, const QueuedCommand& cmd) {
+    const auto teamIt = world.teams().find(issuerId);
+    if (teamIt == world.teams().end()) {
+        return;
+    }
+
+    const path::GridCoord buildCell{cmd.arg0, cmd.arg1};
+    if (isCellOccupied(world, buildCell)) {
+        return;
+    }
+
+    if (!hasFriendlyHqInRange(world, teamIt->second.value, buildCell)) {
+        return;
+    }
+
+    const auto cost = (cmd.arg2 > 0) ? cmd.arg2 : kDefaultBuildCostSun;
+    if (!world.spendSunForTeam(teamIt->second.value, cost)) {
+        return;
+    }
+
+    const auto buildingEntity = world.createEntity();
+    world.setTeam(buildingEntity, Team{teamIt->second.value});
+    world.setTransform(buildingEntity, toTransform(buildCell));
+    world.setHealth(buildingEntity, Health{kBuildingHealth, kBuildingHealth});
+    world.setBuilding(buildingEntity, Building{true});
+    world.setIdentity(buildingEntity, Identity{900, 1});
+}
 
 [[nodiscard]] math::FixedPoint distanceSquared(const Transform& a, const Transform& b) noexcept {
     const auto dx = a.x - b.x;
@@ -20,8 +112,19 @@ namespace {
 void runInputPhase(World& world, std::int64_t tick) {
     auto& buffers = world.mutableCommandBuffers();
     for (auto& [entityId, commandBuffer] : buffers) {
-        (void)entityId;
         auto& queue = commandBuffer.queued;
+        for (const auto& cmd : queue) {
+            if (cmd.tick > tick) {
+                continue;
+            }
+
+            if (cmd.type == CommandType::kMove) {
+                world.setMoveTarget(entityId, GridTarget{cmd.arg0, cmd.arg1});
+            } else if (cmd.type == CommandType::kBuild) {
+                tryHandleBuildCommand(world, entityId, cmd);
+            }
+        }
+
         queue.erase(
             std::remove_if(queue.begin(), queue.end(), [&](const QueuedCommand& cmd) {
                 return cmd.tick <= tick;
@@ -95,8 +198,59 @@ void runProductionPhase(World& world, std::int64_t tick) {
 }
 
 void runPathfindingPhase(World& world, std::int64_t tick) {
-    (void)world;
     (void)tick;
+
+    const auto& targets = world.moveTargets();
+    const auto& transforms = world.transforms();
+    const auto& buildings = world.buildings();
+
+    std::vector<EntityId> clearTargets;
+
+    for (const auto& [entityId, target] : targets) {
+        const auto trIt = transforms.find(entityId);
+        if (trIt == transforms.end()) {
+            clearTargets.push_back(entityId);
+            continue;
+        }
+
+        const auto start = toGridCoord(trIt->second);
+        const path::GridCoord goal{target.x, target.y};
+
+        if (start == goal) {
+            world.setVelocity(entityId, Velocity{});
+            clearTargets.push_back(entityId);
+            continue;
+        }
+
+        std::set<path::GridCoord> blocked;
+        for (const auto& [blockEntity, marker] : buildings) {
+            (void)marker;
+            if (blockEntity == entityId) {
+                continue;
+            }
+            const auto blockTrIt = transforms.find(blockEntity);
+            if (blockTrIt == transforms.end()) {
+                continue;
+            }
+            blocked.insert(toGridCoord(blockTrIt->second));
+        }
+
+        const auto path = path::findPathAStar(start, goal, blocked, path::GridBounds{-32, 32, -32, 32});
+        if (path.size() < 2U) {
+            world.setVelocity(entityId, Velocity{});
+            continue;
+        }
+
+        const auto next = path[1];
+        Velocity velocity{};
+        velocity.xPerTick = math::FixedPoint::fromInt(next.x - start.x);
+        velocity.yPerTick = math::FixedPoint::fromInt(next.y - start.y);
+        world.setVelocity(entityId, velocity);
+    }
+
+    for (const auto entityId : clearTargets) {
+        world.clearMoveTarget(entityId);
+    }
 }
 
 void runMovementPhase(World& world, std::int64_t tick) {
