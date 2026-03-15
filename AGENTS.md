@@ -34,17 +34,23 @@ Use the commands below as the default workflow.
 
 ### Preferred CMake Workflow (when CMake exists)
 - Configure:
-  - `cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug`
+  - `cmake -S . -B build -G "Visual Studio 17 2022" -A x64`
 - Build:
   - `cmake --build build --config Debug -j`
 - Run all tests:
-  - `ctest --test-dir build --output-on-failure`
+  - `ctest --test-dir build -C Debug --output-on-failure`
 - Run single test by exact name:
-  - `ctest --test-dir build -R "^DeterminismSmoke$" --output-on-failure`
+  - `ctest --test-dir build -C Debug -R "^ReplayDeterminism$" --output-on-failure`
 - Run tests matching pattern:
-  - `ctest --test-dir build -R "Determinism|Smoke" --output-on-failure`
+  - `ctest --test-dir build -C Debug -R "Determinism|RuntimeTelemetry|Regression" --output-on-failure`
 - Re-run only failed tests:
-  - `ctest --test-dir build --rerun-failed --output-on-failure`
+  - `ctest --test-dir build -C Debug --rerun-failed --output-on-failure`
+
+### Current CTest Targets
+- `DeterminismSmoke`, `FixedPointMath`, `DeterministicRngSequence`, `TickSchedulerDeterminism`
+- `EcsWorldPipeline`, `EcsCoreSystems`, `GameplayLoopCore`, `PlacementAndPathfinding`
+- `ReplayDeterminism`, `UnitConfigFactory`, `CommandQueueOrder`, `DualInstanceDeterminism`
+- `RegressionBuildPlacement`, `RuntimeTelemetry`, `LogicNoFloatCheck`
 
 ### Dependency Integration Status
 - SFML integration: optional via CMake option `-DTCP_ENABLE_SFML=ON` and installed SFML 2.6.
@@ -161,10 +167,13 @@ Use these only when corresponding config files exist:
 - After receiving user assets, place them in the agreed path and update references deterministically (no arbitrary renaming).
 
 ## Practical Notes for This Repository (Now)
-- Repository currently appears to be planning/docs stage only.
-- If you add initial scaffolding, also add and document:
-  - concrete build command(s)
-  - lint/format command(s)
-  - test command(s)
-  - single-test invocation examples
-- Update this `AGENTS.md` immediately after toolchain choices become concrete.
+- Repository now has CMake scaffold + deterministic simulation baseline + CTest suite.
+- Prefer adding new tests under category folders when possible:
+  - `src/tests/systems`
+  - `src/tests/integration`
+  - `src/tests/regression`
+- Keep deterministic checks enabled as part of regular test runs:
+  - replay hash consistency
+  - dual-instance hash lockstep checks
+  - no-float policy check for `src/logic`
+- Update this `AGENTS.md` whenever build/test commands or test target names change.

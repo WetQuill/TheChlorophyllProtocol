@@ -222,6 +222,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{2C74575F-1FFB-3881-9FB5-75FCDDC50D3F}</Project>
       <Name>replay_determinism_test</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\runtime_telemetry_test.vcxproj">
+      <Project>{B4C2610C-4E6F-3255-9996-90C59E4CF704}</Project>
+      <Name>runtime_telemetry_test</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\tcp_logic.vcxproj">
       <Project>{C25D9D24-2C5D-3588-AB9B-5AABD5592C57}</Project>
       <Name>tcp_logic</Name>

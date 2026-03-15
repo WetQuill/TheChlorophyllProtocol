@@ -41,6 +41,9 @@
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\replay_determinism_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\runtime_telemetry_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\tick_scheduler_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>

@@ -40,15 +40,23 @@ int main() {
     ok &= verify(world.setHealth(entity, health), "set health failed");
 
     tcp::logic::ecs::CommandBuffer commands{};
-    commands.queued.push_back({0, 0, tcp::logic::ecs::CommandType::kMove, 1, 2, 3});
-    commands.queued.push_back({2, 0, tcp::logic::ecs::CommandType::kMove, 4, 5, 6});
+    commands.queued.push_back({0, 0, tcp::logic::ecs::CommandType::kStop, 1, 2, 3});
+    commands.queued.push_back({2, 0, tcp::logic::ecs::CommandType::kStop, 4, 5, 6});
     ok &= verify(world.setCommandBuffer(entity, commands), "set command buffer failed");
 
     world.tick();
 
     const auto transformAfterTick1 = world.transforms().at(entity);
-    ok &= verify(transformAfterTick1.x.raw() == tcp::logic::math::FixedPoint::fromInt(2).raw(), "movement x step failed");
-    ok &= verify(transformAfterTick1.y.raw() == tcp::logic::math::FixedPoint::fromInt(-1).raw(), "movement y step failed");
+    const auto expectedX = tcp::logic::math::FixedPoint::fromInt(2).raw();
+    const auto expectedY = tcp::logic::math::FixedPoint::fromInt(-1).raw();
+    if (transformAfterTick1.x.raw() != expectedX) {
+        std::cerr << "movement x step failed: expected=" << expectedX << " actual=" << transformAfterTick1.x.raw() << '\n';
+        ok = false;
+    }
+    if (transformAfterTick1.y.raw() != expectedY) {
+        std::cerr << "movement y step failed: expected=" << expectedY << " actual=" << transformAfterTick1.y.raw() << '\n';
+        ok = false;
+    }
     ok &= verify(world.commandBuffers().at(entity).queued.size() == 1U, "input phase should consume current tick commands");
 
     auto& mutableHealths = world.mutableHealths();

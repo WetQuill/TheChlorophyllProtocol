@@ -1,12 +1,16 @@
-DeterminismSmoke 1 0.0680976
-TickSchedulerDeterminism 1 0.0477928
-EcsWorldPipeline 3 0.0046071
-EcsCoreSystems 2 0.00694025
-GameplayLoopCore 3 0.00486343
-PlacementAndPathfinding 2 0.00769915
-ReplayDeterminism 1 0.0722012
-UnitConfigFactory 1 0.0532832
-CommandQueueOrder 1 0.0512205
-DualInstanceDeterminism 1 0.051967
-RegressionBuildPlacement 1 0.0477731
+DeterminismSmoke 4 0.00194407
+TickSchedulerDeterminism 4 0.00154425
+EcsWorldPipeline 6 0.00134413
+EcsCoreSystems 4 0.00212197
+GameplayLoopCore 6 0.00137367
+PlacementAndPathfinding 5 0.00173588
+ReplayDeterminism 4 0.00691587
+UnitConfigFactory 4 0.00310525
+CommandQueueOrder 5 0.00161814
+DualInstanceDeterminism 5 0.00178822
+RegressionBuildPlacement 5 0.0016134
+RuntimeTelemetry 4 0.00209663
+FixedPointMath 3 0.00240617
+DeterministicRngSequence 3 0.00197847
+LogicNoFloatCheck 3 0.0112117
 ---
