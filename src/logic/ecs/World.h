@@ -39,6 +39,8 @@ public:
     bool setVision(EntityId entityId, const Vision& component);
     bool setPowerConsumer(EntityId entityId, const PowerConsumer& component);
     bool setCommandBuffer(EntityId entityId, const CommandBuffer& component);
+    bool setSunProducer(EntityId entityId, const SunProducer& component);
+    bool setHeadquarters(EntityId entityId, const Headquarters& component);
 
     [[nodiscard]] const std::map<EntityId, Transform>& transforms() const noexcept;
     [[nodiscard]] const std::map<EntityId, Velocity>& velocities() const noexcept;
@@ -50,11 +52,23 @@ public:
     [[nodiscard]] const std::map<EntityId, Vision>& visions() const noexcept;
     [[nodiscard]] const std::map<EntityId, PowerConsumer>& powerConsumers() const noexcept;
     [[nodiscard]] const std::map<EntityId, CommandBuffer>& commandBuffers() const noexcept;
+    [[nodiscard]] const std::map<EntityId, SunProducer>& sunProducers() const noexcept;
+    [[nodiscard]] const std::map<EntityId, Headquarters>& headquarters() const noexcept;
 
     [[nodiscard]] std::map<EntityId, Transform>& mutableTransforms() noexcept;
     [[nodiscard]] std::map<EntityId, Velocity>& mutableVelocities() noexcept;
     [[nodiscard]] std::map<EntityId, Health>& mutableHealths() noexcept;
     [[nodiscard]] std::map<EntityId, CommandBuffer>& mutableCommandBuffers() noexcept;
+    [[nodiscard]] std::map<EntityId, Weapon>& mutableWeapons() noexcept;
+
+    [[nodiscard]] std::int32_t sunForTeam(std::uint8_t teamId) const noexcept;
+    void setSunForTeam(std::uint8_t teamId, std::int32_t value) noexcept;
+    void addSunForTeam(std::uint8_t teamId, std::int32_t delta) noexcept;
+    [[nodiscard]] bool spendSunForTeam(std::uint8_t teamId, std::int32_t amount) noexcept;
+
+    [[nodiscard]] std::int32_t winnerTeam() const noexcept;
+    void setWinnerTeam(std::int32_t teamId) noexcept;
+    void clearWinnerTeam() noexcept;
 
 private:
     [[nodiscard]] bool hasEntity(EntityId entityId) const noexcept;
@@ -75,6 +89,11 @@ private:
     std::map<EntityId, Vision> visions_{};
     std::map<EntityId, PowerConsumer> powerConsumers_{};
     std::map<EntityId, CommandBuffer> commandBuffers_{};
+    std::map<EntityId, SunProducer> sunProducers_{};
+    std::map<EntityId, Headquarters> headquarters_{};
+
+    std::map<std::uint8_t, std::int32_t> teamSun_{};
+    std::int32_t winnerTeam_{-1};
 };
 
 }  // namespace tcp::logic::ecs

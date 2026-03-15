@@ -1,10 +1,10 @@
-Start testing: Mar 15 20:11 中国标准时间
+Start testing: Mar 15 20:21 中国标准时间
 ----------------------------------------------------------
-5/7 Testing: EcsWorldPipeline
-5/7 Test: EcsWorldPipeline
+5/8 Testing: EcsWorldPipeline
+5/8 Test: EcsWorldPipeline
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/ecs_world_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"EcsWorldPipeline" start time: Mar 15 20:11 中国标准时间
+"EcsWorldPipeline" start time: Mar 15 20:21 中国标准时间
 Output:
 ----------------------------------------------------------
 ECS world tests passed
@@ -12,24 +12,40 @@ ECS world tests passed
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"EcsWorldPipeline" end time: Mar 15 20:11 中国标准时间
+"EcsWorldPipeline" end time: Mar 15 20:21 中国标准时间
 "EcsWorldPipeline" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-6/7 Testing: EcsCoreSystems
-6/7 Test: EcsCoreSystems
+6/8 Testing: EcsCoreSystems
+6/8 Test: EcsCoreSystems
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/ecs_core_systems_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"EcsCoreSystems" start time: Mar 15 20:11 中国标准时间
+"EcsCoreSystems" start time: Mar 15 20:21 中国标准时间
 Output:
 ----------------------------------------------------------
 ECS core systems tests passed
 <end of output>
-Test time =   0.05 sec
+Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"EcsCoreSystems" end time: Mar 15 20:11 中国标准时间
+"EcsCoreSystems" end time: Mar 15 20:21 中国标准时间
 "EcsCoreSystems" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 15 20:11 中国标准时间
+7/8 Testing: GameplayLoopCore
+7/8 Test: GameplayLoopCore
+Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/gameplay_loop_test.exe"
+Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
+"GameplayLoopCore" start time: Mar 15 20:21 中国标准时间
+Output:
+----------------------------------------------------------
+Gameplay loop tests passed
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"GameplayLoopCore" end time: Mar 15 20:21 中国标准时间
+"GameplayLoopCore" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Mar 15 20:21 中国标准时间

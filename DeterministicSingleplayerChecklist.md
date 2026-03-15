@@ -86,12 +86,20 @@
 ## 5. 最小玩法闭环（P0）
 - [ ] 格点建造：基地附近可建区域 + 放置校验。
 - [ ] 自由移动：单位右键移动，基础 A* 可达且不穿障碍。
-- [ ] 资源：向日葵产阳光，生产单位消耗阳光。
-- [ ] 战斗：基础攻击/受伤/死亡。
-- [ ] 胜负：最小胜负判定（例如主基地摧毁）。
+- [x] 资源：向日葵产阳光，生产单位消耗阳光（`SunProducer` + `Production`）。
+- [x] 战斗：基础攻击/受伤/死亡（`Weapon` + `Combat/Cleanup`）。
+- [x] 胜负：最小胜负判定（主基地摧毁后设置 `winnerTeam`）。
+
+建议文件：
+- `src/logic/ecs/systems/BuiltInSystems.h`
+- `src/logic/ecs/systems/BuiltInSystems.cpp`
+- `src/tests/GameplayLoopTest.cpp`
 
 验收标准：
-- [ ] 单机可完成“建造 -> 生产 -> 移动 -> 战斗 -> 胜负”一局流程。
+- [x] 逻辑层可完成“生产 -> 移动 -> 战斗 -> 胜负”闭环（测试用例 `GameplayLoopCore` 已实现）。
+
+待本机执行验证命令：
+- [ ] `ctest --test-dir build -C Debug -R "GameplayLoopCore" --output-on-failure`
 
 ## 6. 命令流与回放系统（P0）
 - [ ] 统一输入为 `PlayerCommand`，带 `tick/playerId/type/payload`。

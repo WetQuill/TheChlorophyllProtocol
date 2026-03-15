@@ -124,6 +124,14 @@ target_link_libraries(ecs_core_systems_test PRIVATE tcp_logic)
 
 add_test(NAME EcsCoreSystems COMMAND ecs_core_systems_test)
 
+add_executable(gameplay_loop_test
+    src/tests/GameplayLoopTest.cpp
+)
+
+target_link_libraries(gameplay_loop_test PRIVATE tcp_logic)
+
+add_test(NAME GameplayLoopCore COMMAND gameplay_loop_test)
+
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
     add_test(

@@ -198,6 +198,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{54C9A3FD-4F44-3FC6-8077-8D00D2083A95}</Project>
       <Name>fixed_point_test</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\gameplay_loop_test.vcxproj">
+      <Project>{4B38D417-65AE-3C12-8A0B-1793BF1555C8}</Project>
+      <Name>gameplay_loop_test</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\tcp_logic.vcxproj">
       <Project>{C25D9D24-2C5D-3588-AB9B-5AABD5592C57}</Project>
       <Name>tcp_logic</Name>

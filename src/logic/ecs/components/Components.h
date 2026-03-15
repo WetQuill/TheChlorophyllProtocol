@@ -35,6 +35,8 @@ struct Production {
     std::int32_t costSun{0};
     std::int32_t buildTicks{0};
     std::int32_t progressTicks{0};
+    std::uint32_t producedArchetypeId{0};
+    std::int32_t producedHealth{0};
 };
 
 struct Weapon {
@@ -51,6 +53,14 @@ struct Vision {
 struct PowerConsumer {
     std::int32_t requiredPower{0};
     bool enabled{true};
+};
+
+struct SunProducer {
+    std::int32_t amountPerTick{0};
+};
+
+struct Headquarters {
+    bool value{true};
 };
 
 enum class CommandType : std::uint8_t {

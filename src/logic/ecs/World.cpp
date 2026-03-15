@@ -131,6 +131,22 @@ bool World::setCommandBuffer(EntityId entityId, const CommandBuffer& component) 
     return true;
 }
 
+bool World::setSunProducer(EntityId entityId, const SunProducer& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    sunProducers_[entityId] = component;
+    return true;
+}
+
+bool World::setHeadquarters(EntityId entityId, const Headquarters& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    headquarters_[entityId] = component;
+    return true;
+}
+
 const std::map<EntityId, Transform>& World::transforms() const noexcept {
     return transforms_;
 }
@@ -171,6 +187,14 @@ const std::map<EntityId, CommandBuffer>& World::commandBuffers() const noexcept 
     return commandBuffers_;
 }
 
+const std::map<EntityId, SunProducer>& World::sunProducers() const noexcept {
+    return sunProducers_;
+}
+
+const std::map<EntityId, Headquarters>& World::headquarters() const noexcept {
+    return headquarters_;
+}
+
 std::map<EntityId, Transform>& World::mutableTransforms() noexcept {
     return transforms_;
 }
@@ -185,6 +209,52 @@ std::map<EntityId, Health>& World::mutableHealths() noexcept {
 
 std::map<EntityId, CommandBuffer>& World::mutableCommandBuffers() noexcept {
     return commandBuffers_;
+}
+
+std::map<EntityId, Weapon>& World::mutableWeapons() noexcept {
+    return weapons_;
+}
+
+std::int32_t World::sunForTeam(std::uint8_t teamId) const noexcept {
+    const auto it = teamSun_.find(teamId);
+    if (it == teamSun_.end()) {
+        return 0;
+    }
+    return it->second;
+}
+
+void World::setSunForTeam(std::uint8_t teamId, std::int32_t value) noexcept {
+    teamSun_[teamId] = value;
+}
+
+void World::addSunForTeam(std::uint8_t teamId, std::int32_t delta) noexcept {
+    teamSun_[teamId] = sunForTeam(teamId) + delta;
+}
+
+bool World::spendSunForTeam(std::uint8_t teamId, std::int32_t amount) noexcept {
+    if (amount <= 0) {
+        return true;
+    }
+
+    const auto available = sunForTeam(teamId);
+    if (available < amount) {
+        return false;
+    }
+
+    teamSun_[teamId] = available - amount;
+    return true;
+}
+
+std::int32_t World::winnerTeam() const noexcept {
+    return winnerTeam_;
+}
+
+void World::setWinnerTeam(std::int32_t teamId) noexcept {
+    winnerTeam_ = teamId;
+}
+
+void World::clearWinnerTeam() noexcept {
+    winnerTeam_ = -1;
 }
 
 bool World::hasEntity(EntityId entityId) const noexcept {
@@ -202,6 +272,8 @@ void World::removeComponents(EntityId entityId) {
     visions_.erase(entityId);
     powerConsumers_.erase(entityId);
     commandBuffers_.erase(entityId);
+    sunProducers_.erase(entityId);
+    headquarters_.erase(entityId);
 }
 
 }  // namespace tcp::logic::ecs

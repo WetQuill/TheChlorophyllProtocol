@@ -1,5 +1,6 @@
 DeterminismSmoke 1 0.0680976
 TickSchedulerDeterminism 1 0.0477928
-EcsWorldPipeline 2 0.00573345
-EcsCoreSystems 1 0.0471818
+EcsWorldPipeline 3 0.0046071
+EcsCoreSystems 2 0.00694025
+GameplayLoopCore 1 0.0441095
 ---

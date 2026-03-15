@@ -6,6 +6,7 @@ C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/deterministic_rng_te
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/tick_scheduler_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ecs_world_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ecs_core_systems_test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/gameplay_loop_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/RUN_TESTS.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ALL_BUILD.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ZERO_CHECK.dir
