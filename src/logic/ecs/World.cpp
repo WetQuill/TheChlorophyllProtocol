@@ -9,6 +9,7 @@ EntityId World::createEntity() {
     const auto entityId = nextEntityId_;
     ++nextEntityId_;
     entities_.push_back(entityId);
+    ++telemetry_.spawnedEntities;
     return entityId;
 }
 
@@ -20,6 +21,7 @@ bool World::destroyEntity(EntityId entityId) {
 
     entities_.erase(it);
     removeComponents(entityId);
+    ++telemetry_.destroyedEntities;
     return true;
 }
 
@@ -40,6 +42,12 @@ void World::registerSystem(SystemPhase phase, SystemCallback callback) {
 }
 
 void World::tick() {
+    telemetry_.tickIndex = currentTick_;
+    telemetry_.pathRequests = 0;
+    telemetry_.commandsProcessed = 0;
+    telemetry_.spawnedEntities = 0;
+    telemetry_.destroyedEntities = 0;
+
     for (const auto phase : orderedSystemPhases()) {
         auto& phaseSystems = systems_[systemPhaseIndex(phase)];
         for (const auto& callback : phaseSystems) {
@@ -48,6 +56,8 @@ void World::tick() {
             }
         }
     }
+
+    telemetry_.entityCount = static_cast<std::int32_t>(entities_.size());
     ++currentTick_;
 }
 
@@ -279,6 +289,38 @@ void World::clearMoveTarget(EntityId entityId) noexcept {
 
 const std::map<EntityId, GridTarget>& World::moveTargets() const noexcept {
     return moveTargets_;
+}
+
+void World::setTickDurationMicros(std::int64_t micros) noexcept {
+    telemetry_.tickDurationMicros = (micros < 0) ? 0 : micros;
+}
+
+void World::addPathRequest() noexcept {
+    ++telemetry_.pathRequests;
+}
+
+void World::addCommandProcessed() noexcept {
+    ++telemetry_.commandsProcessed;
+}
+
+const TickTelemetry& World::telemetry() const noexcept {
+    return telemetry_;
+}
+
+void World::setDeterminismDebugEnabled(bool enabled) noexcept {
+    determinismDebugEnabled_ = enabled;
+}
+
+bool World::determinismDebugEnabled() const noexcept {
+    return determinismDebugEnabled_;
+}
+
+void World::setLastStateHash(std::uint64_t hash) noexcept {
+    lastStateHash_ = hash;
+}
+
+std::uint64_t World::lastStateHash() const noexcept {
+    return lastStateHash_;
 }
 
 bool World::hasEntity(EntityId entityId) const noexcept {

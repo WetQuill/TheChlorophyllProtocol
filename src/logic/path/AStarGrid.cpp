@@ -1,5 +1,6 @@
 #include "AStarGrid.h"
 
+#include <array>
 #include <algorithm>
 #include <cstdint>
 #include <limits>
@@ -21,8 +22,8 @@ namespace {
     return p.x >= b.minX && p.x <= b.maxX && p.y >= b.minY && p.y <= b.maxY;
 }
 
-[[nodiscard]] std::vector<GridCoord> neighbors(GridCoord p) {
-    return {
+[[nodiscard]] std::array<GridCoord, 4> neighbors(GridCoord p) {
+    return std::array<GridCoord, 4>{
         GridCoord{p.x + 1, p.y},
         GridCoord{p.x - 1, p.y},
         GridCoord{p.x, p.y + 1},

@@ -75,4 +75,12 @@ std::uint64_t hashWorldState(const ecs::World& world) noexcept {
     return hash;
 }
 
+void updateDeterminismSnapshot(ecs::World& world) noexcept {
+    if (!world.determinismDebugEnabled()) {
+        return;
+    }
+
+    world.setLastStateHash(hashWorldState(world));
+}
+
 }  // namespace tcp::logic::debug

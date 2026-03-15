@@ -118,6 +118,8 @@ void runInputPhase(World& world, std::int64_t tick) {
                 continue;
             }
 
+            world.addCommandProcessed();
+
             if (cmd.type == CommandType::kMove) {
                 world.setMoveTarget(entityId, GridTarget{cmd.arg0, cmd.arg1});
             } else if (cmd.type == CommandType::kBuild) {
@@ -147,6 +149,7 @@ void runProductionPhase(World& world, std::int64_t tick) {
     };
 
     std::vector<SpawnPlan> spawns;
+    spawns.reserve(productions.size());
 
     for (const auto& [entityId, productionConst] : productions) {
         auto prod = productionConst;
@@ -205,6 +208,7 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
     const auto& buildings = world.buildings();
 
     std::vector<EntityId> clearTargets;
+    clearTargets.reserve(targets.size());
 
     for (const auto& [entityId, target] : targets) {
         const auto trIt = transforms.find(entityId);
@@ -236,6 +240,7 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
         }
 
         const auto path = path::findPathAStar(start, goal, blocked, path::GridBounds{-32, 32, -32, 32});
+        world.addPathRequest();
         if (path.size() < 2U) {
             world.setVelocity(entityId, Velocity{});
             continue;
@@ -342,6 +347,7 @@ void runCleanupPhase(World& world, std::int64_t tick) {
     (void)tick;
     std::vector<EntityId> toDestroy;
     const auto& healths = world.healths();
+    toDestroy.reserve(healths.size());
     for (const auto& [entityId, health] : healths) {
         if (health.current <= 0) {
             toDestroy.push_back(entityId);

@@ -11,6 +11,7 @@ struct DeterminismConfig {
     std::int32_t maxCatchUpTicks{5};
     std::uint32_t matchSeed{0xA341316CU};
     std::int32_t fixedPointScale{math::FixedPoint::kScale};
+    bool enableDeterminismDebug{false};
 };
 
 }  // namespace tcp::logic

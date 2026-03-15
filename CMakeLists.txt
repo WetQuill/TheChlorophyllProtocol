@@ -187,6 +187,14 @@ target_link_libraries(build_placement_regression_test PRIVATE tcp_logic)
 
 add_test(NAME RegressionBuildPlacement COMMAND build_placement_regression_test)
 
+add_executable(runtime_telemetry_test
+    src/tests/systems/RuntimeTelemetryTest.cpp
+)
+
+target_link_libraries(runtime_telemetry_test PRIVATE tcp_logic)
+
+add_test(NAME RuntimeTelemetry COMMAND runtime_telemetry_test)
+
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
     add_test(

@@ -15,6 +15,16 @@ using EntityId = std::uint32_t;
 
 using SystemCallback = std::function<void(class World&, std::int64_t)>;
 
+struct TickTelemetry {
+    std::int64_t tickIndex{0};
+    std::int64_t tickDurationMicros{0};
+    std::int32_t entityCount{0};
+    std::int32_t pathRequests{0};
+    std::int32_t commandsProcessed{0};
+    std::int32_t spawnedEntities{0};
+    std::int32_t destroyedEntities{0};
+};
+
 class World final {
 public:
     World() = default;
@@ -76,6 +86,16 @@ public:
     void clearMoveTarget(EntityId entityId) noexcept;
     [[nodiscard]] const std::map<EntityId, GridTarget>& moveTargets() const noexcept;
 
+    void setTickDurationMicros(std::int64_t micros) noexcept;
+    void addPathRequest() noexcept;
+    void addCommandProcessed() noexcept;
+    [[nodiscard]] const TickTelemetry& telemetry() const noexcept;
+
+    void setDeterminismDebugEnabled(bool enabled) noexcept;
+    [[nodiscard]] bool determinismDebugEnabled() const noexcept;
+    void setLastStateHash(std::uint64_t hash) noexcept;
+    [[nodiscard]] std::uint64_t lastStateHash() const noexcept;
+
 private:
     [[nodiscard]] bool hasEntity(EntityId entityId) const noexcept;
     void removeComponents(EntityId entityId);
@@ -103,6 +123,10 @@ private:
 
     std::map<std::uint8_t, std::int32_t> teamSun_{};
     std::int32_t winnerTeam_{-1};
+
+    TickTelemetry telemetry_{};
+    bool determinismDebugEnabled_{false};
+    std::uint64_t lastStateHash_{0};
 };
 
 }  // namespace tcp::logic::ecs

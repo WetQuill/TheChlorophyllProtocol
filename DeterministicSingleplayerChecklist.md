@@ -169,17 +169,28 @@
 - [ ] `ctest --test-dir build -C Debug -R "CommandQueueOrder|DualInstanceDeterminism|RegressionBuildPlacement" --output-on-failure`
 
 ## 9. 性能与可观测性（P1）
-- [ ] 热路径减少每 Tick 动态分配。
-- [ ] 增加 Tick 时长、实体数、路径请求数统计。
-- [ ] 增加 determinism 调试开关（输出关键系统摘要）。
+- [x] 热路径减少每 Tick 动态分配（关键路径增加 `reserve`，A* 邻居改为固定数组）。
+- [x] 增加 Tick 时长、实体数、路径请求数统计（`TickTelemetry`）。
+- [x] 增加 determinism 调试开关（输出关键系统摘要与哈希快照）。
+
+建议文件：
+- `src/logic/ecs/World.h`
+- `src/logic/ecs/World.cpp`
+- `src/logic/path/AStarGrid.cpp`
+- `src/logic/debug/StateHasher.h`
+- `src/logic/debug/StateHasher.cpp`
+- `src/tests/systems/RuntimeTelemetryTest.cpp`
 
 验收标准：
 - [ ] 目标场景下逻辑 30 TPS 稳定，无持续超时帧。
 
+待本机执行验证命令：
+- [ ] `ctest --test-dir build -C Debug -R "RuntimeTelemetry" --output-on-failure`
+
 ## 10. 进入联机阶段前检查单（Gate）
 - [x] 已有回放工具，且可离线复盘问题。
 - [x] 哈希一致性达到目标（建议 100 次一致）。
-- [ ] 关键玩法闭环完整且测试覆盖核心规则。
+- [x] 关键玩法闭环完整且测试覆盖核心规则。
 - [ ] `AGENTS.md` 中命令与流程已更新为真实可执行版本。
 
 ---
