@@ -330,4 +330,17 @@ CMAKE_STATIC_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Compiler reason failure
+_Python3_Compiler_REASON_FAILURE:INTERNAL=
+//Development reason failure
+_Python3_Development_REASON_FAILURE:INTERNAL=
+//Path to a program.
+_Python3_EXECUTABLE:INTERNAL=C:/Users/KaiYuanZhang/AppData/Local/Programs/Python/Python313/python.exe
+//Path to a program.
+_Python3_EXECUTABLE_DEBUG:INTERNAL=_Python3_EXECUTABLE_DEBUG-NOTFOUND
+//Python3 Properties
+_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;13;5;64;32;<none>;cp313-win_amd64;;C:\Users\KaiYuanZhang\AppData\Local\Programs\Python\Python313\Lib;C:\Users\KaiYuanZhang\AppData\Local\Programs\Python\Python313\Lib;C:\Users\KaiYuanZhang\AppData\Local\Programs\Python\Python313\Lib\site-packages;C:\Users\KaiYuanZhang\AppData\Local\Programs\Python\Python313\Lib\site-packages
+_Python3_INTERPRETER_SIGNATURE:INTERNAL=652258c3ec351e76d0f35987a88c2ea8
+//NumPy reason failure
+_Python3_NumPy_REASON_FAILURE:INTERNAL=
 

@@ -11,6 +11,18 @@
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\determinism_smoke_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\deterministic_rng_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\ecs_world_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\fixed_point_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\tick_scheduler_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\x64\Debug\ALL_BUILD</FullPath>
     </ProjectOutput>
   </ProjectOutputs>

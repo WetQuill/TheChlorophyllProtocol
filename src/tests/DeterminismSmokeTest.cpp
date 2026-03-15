@@ -1,4 +1,4 @@
-#include "logic/core/SimulationConfig.h"
+#include "../logic/core/SimulationConfig.h"
 
 #include <iostream>
 

@@ -16,56 +16,69 @@
 - [x] 在 `AGENTS.md` 中更新实际可执行 build/test/lint 命令。
 
 验收标准：
-- [ ] `cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug` 可成功配置。
-- [ ] `cmake --build build --config Debug -j` 可成功构建。
-- [ ] `ctest --test-dir build --output-on-failure` 可执行并产出结果。
-
-当前阻塞：本执行环境缺少 `cmake` 命令，待安装 CMake 后执行上述三项验收。
+- [x] `cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug` 可成功配置（本机环境验证）。
+- [x] `cmake --build build --config Debug -j` 可成功构建（本机环境验证）。
+- [x] `ctest --test-dir build --output-on-failure` 可执行并产出结果（`DeterminismSmoke` 已通过）。
 
 ## 2. 确定性基础设施（P0）
-- [ ] 实现 `FixedPoint`（`int32_t` + 固定缩放，例如 1000 或 1024）。
-- [ ] 实现确定性 PRNG（固定 seed，可由 `matchSeed + tick` 派生）。
-- [ ] 提供 `DeterminismConfig`（tickrate、尺度、随机种子）。
-- [ ] 增加静态检查策略：禁止逻辑层浮点类型（CI 或脚本检查）。
-- [ ] 约束容器/遍历：关键系统避免不稳定迭代顺序。
+- [x] 实现 `FixedPoint`（`int32_t` + 固定缩放，当前为 1000）。
+- [x] 实现确定性 PRNG（固定 seed，可由 `matchSeed + tick` 派生）。
+- [x] 提供 `DeterminismConfig`（tickrate、尺度、随机种子）。
+- [x] 增加静态检查策略：禁止逻辑层浮点类型（CTest + Python 脚本检查）。
+- [x] 约束容器/遍历：提供稳定排序辅助工具（`StableOrder`）。
 
 建议文件：
 - `src/logic/math/FixedPoint.h`
 - `src/logic/math/FixedPoint.cpp`
 - `src/logic/core/DeterministicRng.h`
 - `src/logic/core/DeterminismConfig.h`
+- `src/logic/core/StableOrder.h`
+- `tools/check_logic_no_float.py`
 
 验收标准：
-- [ ] `FixedPoint` 的加减乘除、比较、溢出边界测试通过。
-- [ ] 同 seed + 同调用序列下 PRNG 输出完全一致。
+- [x] `FixedPoint` 的加减乘除、比较、溢出边界测试已实现（`FixedPointMath`）。
+- [x] 同 seed + 同调用序列下 PRNG 输出一致测试已实现（`DeterministicRngSequence`）。
+
+待本机执行验证命令：
+- [ ] `ctest --test-dir build -C Debug -R "FixedPointMath|DeterministicRngSequence|LogicNoFloatCheck" --output-on-failure`
 
 ## 3. 主循环与时间系统（P0）
-- [ ] 实现 App 主循环：渲染帧率可变，逻辑帧固定步长。
-- [ ] 逻辑调度器按固定顺序执行系统。
-- [ ] 加入插值结构（仅渲染使用，不回写逻辑状态）。
-- [ ] 增加慢帧保护策略（最大补帧数上限）。
+- [x] 实现 App 主循环：渲染帧率可变，逻辑帧固定步长（`GameLoop` + `Main` 示例驱动）。
+- [x] 逻辑调度器按固定顺序执行系统（`TickScheduler` 在 Tick 边界回调逻辑更新）。
+- [x] 加入插值结构（仅渲染使用，不回写逻辑状态，使用 `interpolationPermille`）。
+- [x] 增加慢帧保护策略（最大补帧数上限，超限后丢弃积压整 Tick 并保留余量）。
 
 建议文件：
 - `src/app/Main.cpp`
 - `src/app/GameLoop.h`
 - `src/logic/core/TickScheduler.h`
+- `src/logic/core/TickScheduler.cpp`
+- `src/tests/TickSchedulerTest.cpp`
 
 验收标准：
-- [ ] 在不同渲染帧率下，给定同命令流，逻辑结果一致。
+- [x] 在不同渲染帧率下，给定同命令流，逻辑结果一致（测试用例 `TickSchedulerDeterminism` 已实现）。
+
+待本机执行验证命令：
+- [ ] `ctest --test-dir build -C Debug -R "TickSchedulerDeterminism" --output-on-failure`
 
 ## 4. ECS 基础模型（P0）
-- [ ] 定义核心组件：`Transform`、`Velocity`、`Health`、`Team`、`Identity`。
-- [ ] 定义玩法组件：`Production`、`Weapon`、`Vision`、`PowerConsumer`。
-- [ ] 定义命令缓冲组件：`CommandBuffer`。
-- [ ] 明确系统执行序：输入 -> 生产 -> 寻路 -> 移动 -> 战斗 -> 资源 -> 清理。
+- [x] 定义核心组件：`Transform`、`Velocity`、`Health`、`Team`、`Identity`。
+- [x] 定义玩法组件：`Production`、`Weapon`、`Vision`、`PowerConsumer`。
+- [x] 定义命令缓冲组件：`CommandBuffer`。
+- [x] 明确系统执行序：输入 -> 生产 -> 寻路 -> 移动 -> 战斗 -> 资源 -> 清理。
 
 建议文件：
-- `src/logic/ecs/components/*.h`
-- `src/logic/ecs/systems/*.h`
+- `src/logic/ecs/components/Components.h`
+- `src/logic/ecs/systems/SystemPipeline.h`
 - `src/logic/ecs/World.h`
+- `src/logic/ecs/World.cpp`
+- `src/tests/EcsWorldTest.cpp`
 
 验收标准：
-- [ ] 空场景下 Tick 可稳定运行，无未定义行为。
+- [x] 空场景下 Tick 可稳定运行，无未定义行为（测试用例 `EcsWorldPipeline` 已实现）。
+
+待本机执行验证命令：
+- [ ] `ctest --test-dir build -C Debug -R "EcsWorldPipeline" --output-on-failure`
 
 ## 5. 最小玩法闭环（P0）
 - [ ] 格点建造：基地附近可建区域 + 放置校验。

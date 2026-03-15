@@ -1,2 +1,4 @@
 DeterminismSmoke 1 0.0680976
+TickSchedulerDeterminism 1 0.0477928
+EcsWorldPipeline 1 0.0489333
 ---

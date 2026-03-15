@@ -1,19 +1,19 @@
-Start testing: Mar 15 19:44 中国标准时间
+Start testing: Mar 15 20:08 中国标准时间
 ----------------------------------------------------------
-1/1 Testing: DeterminismSmoke
-1/1 Test: DeterminismSmoke
-Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/determinism_smoke_test.exe"
+5/6 Testing: EcsWorldPipeline
+5/6 Test: EcsWorldPipeline
+Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/ecs_world_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"DeterminismSmoke" start time: Mar 15 19:44 中国标准时间
+"EcsWorldPipeline" start time: Mar 15 20:08 中国标准时间
 Output:
 ----------------------------------------------------------
-Determinism smoke test passed
+ECS world tests passed
 <end of output>
-Test time =   0.07 sec
+Test time =   0.05 sec
 ----------------------------------------------------------
 Test Passed.
-"DeterminismSmoke" end time: Mar 15 19:44 中国标准时间
-"DeterminismSmoke" time elapsed: 00:00:00
+"EcsWorldPipeline" end time: Mar 15 20:08 中国标准时间
+"EcsWorldPipeline" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 15 19:44 中国标准时间
+End testing: Mar 15 20:08 中国标准时间

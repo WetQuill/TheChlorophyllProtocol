@@ -12,7 +12,11 @@ option(TCP_ENABLE_ENTT "Enable EnTT integration if installed" OFF)
 option(TCP_ENABLE_GTEST "Enable GoogleTest integration if installed" OFF)
 
 add_library(tcp_logic STATIC
+    src/logic/core/DeterministicRng.cpp
     src/logic/core/SimulationConfig.cpp
+    src/logic/core/TickScheduler.cpp
+    src/logic/ecs/World.cpp
+    src/logic/math/FixedPoint.cpp
 )
 
 target_include_directories(tcp_logic
@@ -78,3 +82,45 @@ add_executable(determinism_smoke_test
 target_link_libraries(determinism_smoke_test PRIVATE tcp_logic)
 
 add_test(NAME DeterminismSmoke COMMAND determinism_smoke_test)
+
+add_executable(fixed_point_test
+    src/tests/FixedPointTest.cpp
+)
+
+target_link_libraries(fixed_point_test PRIVATE tcp_logic)
+
+add_test(NAME FixedPointMath COMMAND fixed_point_test)
+
+add_executable(deterministic_rng_test
+    src/tests/DeterministicRngTest.cpp
+)
+
+target_link_libraries(deterministic_rng_test PRIVATE tcp_logic)
+
+add_test(NAME DeterministicRngSequence COMMAND deterministic_rng_test)
+
+add_executable(tick_scheduler_test
+    src/tests/TickSchedulerTest.cpp
+)
+
+target_link_libraries(tick_scheduler_test PRIVATE tcp_logic)
+
+add_test(NAME TickSchedulerDeterminism COMMAND tick_scheduler_test)
+
+add_executable(ecs_world_test
+    src/tests/EcsWorldTest.cpp
+)
+
+target_link_libraries(ecs_world_test PRIVATE tcp_logic)
+
+add_test(NAME EcsWorldPipeline COMMAND ecs_world_test)
+
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if(Python3_Interpreter_FOUND)
+    add_test(
+        NAME LogicNoFloatCheck
+        COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tools/check_logic_no_float.py ${PROJECT_SOURCE_DIR}/src/logic
+    )
+else()
+    message(WARNING "Python3 interpreter not found, LogicNoFloatCheck test is disabled.")
+endif()
