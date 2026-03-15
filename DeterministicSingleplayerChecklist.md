@@ -105,21 +105,29 @@
 - [ ] `ctest --test-dir build -C Debug -R "GameplayLoopCore|PlacementAndPathfinding" --output-on-failure`
 
 ## 6. 命令流与回放系统（P0）
-- [ ] 统一输入为 `PlayerCommand`，带 `tick/playerId/type/payload`。
-- [ ] 命令应用仅在逻辑 Tick 边界生效。
-- [ ] 命令录制器：保存全局命令流到文件。
-- [ ] 回放器：离线读取命令流并重放。
-- [ ] 状态哈希：每 N Tick 输出世界摘要哈希。
+- [x] 统一输入为 `PlayerCommand`，带 `tick/playerId/type/payload`。
+- [x] 命令应用仅在逻辑 Tick 边界生效（`CommandQueue::popForTick + applyCommandsAtTick`）。
+- [x] 命令录制器：保存全局命令流到文件。
+- [x] 回放器：离线读取命令流并重放。
+- [x] 状态哈希：每 N Tick 输出世界摘要哈希（`hashWorldState`）。
 
 建议文件：
 - `src/logic/commands/PlayerCommand.h`
 - `src/logic/commands/CommandQueue.h`
+- `src/logic/commands/CommandQueue.cpp`
 - `src/logic/replay/ReplayRecorder.h`
+- `src/logic/replay/ReplayRecorder.cpp`
 - `src/logic/replay/ReplayPlayer.h`
+- `src/logic/replay/ReplayPlayer.cpp`
 - `src/logic/debug/StateHasher.h`
+- `src/logic/debug/StateHasher.cpp`
+- `src/tests/ReplayDeterminismTest.cpp`
 
 验收标准：
-- [ ] 同一回放文件重复运行 100 次，哈希全一致。
+- [x] 同一回放文件重复运行 100 次，哈希全一致（测试用例 `ReplayDeterminism` 已实现）。
+
+待本机执行验证命令：
+- [ ] `ctest --test-dir build -C Debug -R "ReplayDeterminism" --output-on-failure`
 
 ## 7. 数据驱动配置（P1）
 - [ ] 引入 JSON 单位/建筑定义（成本、血量、射程、攻速、移动方式等）。

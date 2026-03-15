@@ -12,13 +12,17 @@ option(TCP_ENABLE_ENTT "Enable EnTT integration if installed" OFF)
 option(TCP_ENABLE_GTEST "Enable GoogleTest integration if installed" OFF)
 
 add_library(tcp_logic STATIC
+    src/logic/commands/CommandQueue.cpp
     src/logic/core/DeterministicRng.cpp
     src/logic/core/SimulationConfig.cpp
     src/logic/core/TickScheduler.cpp
+    src/logic/debug/StateHasher.cpp
     src/logic/ecs/World.cpp
     src/logic/ecs/systems/BuiltInSystems.cpp
     src/logic/math/FixedPoint.cpp
     src/logic/path/AStarGrid.cpp
+    src/logic/replay/ReplayPlayer.cpp
+    src/logic/replay/ReplayRecorder.cpp
 )
 
 target_include_directories(tcp_logic
@@ -140,6 +144,14 @@ add_executable(placement_pathfinding_test
 target_link_libraries(placement_pathfinding_test PRIVATE tcp_logic)
 
 add_test(NAME PlacementAndPathfinding COMMAND placement_pathfinding_test)
+
+add_executable(replay_determinism_test
+    src/tests/ReplayDeterminismTest.cpp
+)
+
+target_link_libraries(replay_determinism_test PRIVATE tcp_logic)
+
+add_test(NAME ReplayDeterminism COMMAND replay_determinism_test)
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
