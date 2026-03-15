@@ -312,6 +312,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\SimulationConfig.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\TickScheduler.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\World.cpp" />
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\systems\BuiltInSystems.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\math\FixedPoint.cpp" />
   </ItemGroup>
   <ItemGroup />

@@ -51,6 +51,11 @@ public:
     [[nodiscard]] const std::map<EntityId, PowerConsumer>& powerConsumers() const noexcept;
     [[nodiscard]] const std::map<EntityId, CommandBuffer>& commandBuffers() const noexcept;
 
+    [[nodiscard]] std::map<EntityId, Transform>& mutableTransforms() noexcept;
+    [[nodiscard]] std::map<EntityId, Velocity>& mutableVelocities() noexcept;
+    [[nodiscard]] std::map<EntityId, Health>& mutableHealths() noexcept;
+    [[nodiscard]] std::map<EntityId, CommandBuffer>& mutableCommandBuffers() noexcept;
+
 private:
     [[nodiscard]] bool hasEntity(EntityId entityId) const noexcept;
     void removeComponents(EntityId entityId);

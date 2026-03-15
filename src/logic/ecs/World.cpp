@@ -171,6 +171,22 @@ const std::map<EntityId, CommandBuffer>& World::commandBuffers() const noexcept 
     return commandBuffers_;
 }
 
+std::map<EntityId, Transform>& World::mutableTransforms() noexcept {
+    return transforms_;
+}
+
+std::map<EntityId, Velocity>& World::mutableVelocities() noexcept {
+    return velocities_;
+}
+
+std::map<EntityId, Health>& World::mutableHealths() noexcept {
+    return healths_;
+}
+
+std::map<EntityId, CommandBuffer>& World::mutableCommandBuffers() noexcept {
+    return commandBuffers_;
+}
+
 bool World::hasEntity(EntityId entityId) const noexcept {
     return std::find(entities_.begin(), entities_.end(), entityId) != entities_.end();
 }

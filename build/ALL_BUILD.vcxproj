@@ -186,6 +186,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{17797C2B-3FF4-3634-AC8C-02B976104C0A}</Project>
       <Name>deterministic_rng_test</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\ecs_core_systems_test.vcxproj">
+      <Project>{B458A56B-8D2C-3115-A54E-301F29F38295}</Project>
+      <Name>ecs_core_systems_test</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\ecs_world_test.vcxproj">
       <Project>{976372D0-3A80-344C-BB3D-8097F78201E2}</Project>
       <Name>ecs_world_test</Name>

@@ -16,6 +16,7 @@ add_library(tcp_logic STATIC
     src/logic/core/SimulationConfig.cpp
     src/logic/core/TickScheduler.cpp
     src/logic/ecs/World.cpp
+    src/logic/ecs/systems/BuiltInSystems.cpp
     src/logic/math/FixedPoint.cpp
 )
 
@@ -114,6 +115,14 @@ add_executable(ecs_world_test
 target_link_libraries(ecs_world_test PRIVATE tcp_logic)
 
 add_test(NAME EcsWorldPipeline COMMAND ecs_world_test)
+
+add_executable(ecs_core_systems_test
+    src/tests/EcsCoreSystemsTest.cpp
+)
+
+target_link_libraries(ecs_core_systems_test PRIVATE tcp_logic)
+
+add_test(NAME EcsCoreSystems COMMAND ecs_core_systems_test)
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)

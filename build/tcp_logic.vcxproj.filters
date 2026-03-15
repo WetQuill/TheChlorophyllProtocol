@@ -13,6 +13,9 @@
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\systems\BuiltInSystems.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\math\FixedPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

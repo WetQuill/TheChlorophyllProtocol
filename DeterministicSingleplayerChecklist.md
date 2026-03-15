@@ -72,13 +72,16 @@
 - `src/logic/ecs/systems/SystemPipeline.h`
 - `src/logic/ecs/World.h`
 - `src/logic/ecs/World.cpp`
+- `src/logic/ecs/systems/BuiltInSystems.h`
+- `src/logic/ecs/systems/BuiltInSystems.cpp`
 - `src/tests/EcsWorldTest.cpp`
+- `src/tests/EcsCoreSystemsTest.cpp`
 
 验收标准：
 - [x] 空场景下 Tick 可稳定运行，无未定义行为（测试用例 `EcsWorldPipeline` 已实现）。
 
 待本机执行验证命令：
-- [ ] `ctest --test-dir build -C Debug -R "EcsWorldPipeline" --output-on-failure`
+- [ ] `ctest --test-dir build -C Debug -R "EcsWorldPipeline|EcsCoreSystems" --output-on-failure`
 
 ## 5. 最小玩法闭环（P0）
 - [ ] 格点建造：基地附近可建区域 + 放置校验。
