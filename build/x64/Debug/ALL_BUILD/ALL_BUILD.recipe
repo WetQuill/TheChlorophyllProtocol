@@ -5,13 +5,22 @@
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\x64\Debug\ZERO_CHECK</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\build_placement_regression_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\chlorophyll_app.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\command_queue_order_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\determinism_smoke_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\deterministic_rng_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\dual_instance_determinism_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\ecs_core_systems_test.exe</FullPath>
@@ -29,7 +38,13 @@
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\placement_pathfinding_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\replay_determinism_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\tick_scheduler_test.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\Debug\unit_config_factory_test.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
       <FullPath>C:\WetQuill_project\TheChlorophyllProtocol\build\x64\Debug\ALL_BUILD</FullPath>

@@ -174,9 +174,17 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\build_placement_regression_test.vcxproj">
+      <Project>{7A9839A2-08DF-3449-952D-6A72A217F947}</Project>
+      <Name>build_placement_regression_test</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\chlorophyll_app.vcxproj">
       <Project>{1466B091-7CB0-3992-9B04-0A087A6F3CE9}</Project>
       <Name>chlorophyll_app</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\command_queue_order_test.vcxproj">
+      <Project>{11DA2BBA-CBC0-3054-8395-7E531DA6A381}</Project>
+      <Name>command_queue_order_test</Name>
     </ProjectReference>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\determinism_smoke_test.vcxproj">
       <Project>{83FA8FFC-7A3D-3676-B967-B3D1A83D6466}</Project>
@@ -185,6 +193,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\deterministic_rng_test.vcxproj">
       <Project>{17797C2B-3FF4-3634-AC8C-02B976104C0A}</Project>
       <Name>deterministic_rng_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\dual_instance_determinism_test.vcxproj">
+      <Project>{7D4EBF11-E292-3B19-974F-B7659A45E53B}</Project>
+      <Name>dual_instance_determinism_test</Name>
     </ProjectReference>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\ecs_core_systems_test.vcxproj">
       <Project>{B458A56B-8D2C-3115-A54E-301F29F38295}</Project>
@@ -206,6 +218,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{A84FF556-3CCC-35AA-96F1-B8DC082ECCA4}</Project>
       <Name>placement_pathfinding_test</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\replay_determinism_test.vcxproj">
+      <Project>{2C74575F-1FFB-3881-9FB5-75FCDDC50D3F}</Project>
+      <Name>replay_determinism_test</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\tcp_logic.vcxproj">
       <Project>{C25D9D24-2C5D-3588-AB9B-5AABD5592C57}</Project>
       <Name>tcp_logic</Name>
@@ -213,6 +229,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\tick_scheduler_test.vcxproj">
       <Project>{3436ADBF-E196-3809-AB55-DC35E6C82755}</Project>
       <Name>tick_scheduler_test</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\WetQuill_project\TheChlorophyllProtocol\build\unit_config_factory_test.vcxproj">
+      <Project>{70AFDCE0-5132-3409-AEF1-694AE06A797B}</Project>
+      <Name>unit_config_factory_test</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

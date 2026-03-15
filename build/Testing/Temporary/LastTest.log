@@ -1,35 +1,51 @@
-Start testing: Mar 15 20:27 中国标准时间
+Start testing: Mar 15 20:42 中国标准时间
 ----------------------------------------------------------
-7/9 Testing: GameplayLoopCore
-7/9 Test: GameplayLoopCore
-Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/gameplay_loop_test.exe"
+11/14 Testing: CommandQueueOrder
+11/14 Test: CommandQueueOrder
+Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/command_queue_order_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"GameplayLoopCore" start time: Mar 15 20:27 中国标准时间
+"CommandQueueOrder" start time: Mar 15 20:42 中国标准时间
 Output:
 ----------------------------------------------------------
-Gameplay loop tests passed
-<end of output>
-Test time =   0.02 sec
-----------------------------------------------------------
-Test Passed.
-"GameplayLoopCore" end time: Mar 15 20:27 中国标准时间
-"GameplayLoopCore" time elapsed: 00:00:00
-----------------------------------------------------------
-
-8/9 Testing: PlacementAndPathfinding
-8/9 Test: PlacementAndPathfinding
-Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/placement_pathfinding_test.exe"
-Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"PlacementAndPathfinding" start time: Mar 15 20:27 中国标准时间
-Output:
-----------------------------------------------------------
-Placement and pathfinding tests passed
+Command queue order tests passed
 <end of output>
 Test time =   0.05 sec
 ----------------------------------------------------------
 Test Passed.
-"PlacementAndPathfinding" end time: Mar 15 20:27 中国标准时间
-"PlacementAndPathfinding" time elapsed: 00:00:00
+"CommandQueueOrder" end time: Mar 15 20:42 中国标准时间
+"CommandQueueOrder" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 15 20:27 中国标准时间
+12/14 Testing: DualInstanceDeterminism
+12/14 Test: DualInstanceDeterminism
+Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/dual_instance_determinism_test.exe"
+Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
+"DualInstanceDeterminism" start time: Mar 15 20:42 中国标准时间
+Output:
+----------------------------------------------------------
+Dual instance determinism tests passed
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"DualInstanceDeterminism" end time: Mar 15 20:42 中国标准时间
+"DualInstanceDeterminism" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/14 Testing: RegressionBuildPlacement
+13/14 Test: RegressionBuildPlacement
+Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/build_placement_regression_test.exe"
+Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
+"RegressionBuildPlacement" start time: Mar 15 20:42 中国标准时间
+Output:
+----------------------------------------------------------
+Build placement regression passed
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"RegressionBuildPlacement" end time: Mar 15 20:42 中国标准时间
+"RegressionBuildPlacement" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Mar 15 20:42 中国标准时间

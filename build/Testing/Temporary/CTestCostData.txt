@@ -2,6 +2,11 @@ DeterminismSmoke 1 0.0680976
 TickSchedulerDeterminism 1 0.0477928
 EcsWorldPipeline 3 0.0046071
 EcsCoreSystems 2 0.00694025
-GameplayLoopCore 2 0.0079034
-PlacementAndPathfinding 1 0.0530572
+GameplayLoopCore 3 0.00486343
+PlacementAndPathfinding 2 0.00769915
+ReplayDeterminism 1 0.0722012
+UnitConfigFactory 1 0.0532832
+CommandQueueOrder 1 0.0512205
+DualInstanceDeterminism 1 0.051967
+RegressionBuildPlacement 1 0.0477731
 ---

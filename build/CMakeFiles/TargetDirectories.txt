@@ -8,6 +8,11 @@ C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ecs_world_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ecs_core_systems_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/gameplay_loop_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/placement_pathfinding_test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/replay_determinism_test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/unit_config_factory_test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/command_queue_order_test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/dual_instance_determinism_test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/build_placement_regression_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/RUN_TESTS.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ALL_BUILD.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ZERO_CHECK.dir

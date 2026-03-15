@@ -308,13 +308,19 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\data\UnitConfigLoader.cpp" />
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\commands\CommandQueue.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\DeterministicRng.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\SimulationConfig.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\TickScheduler.cpp" />
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\debug\StateHasher.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\World.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\systems\BuiltInSystems.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\math\FixedPoint.cpp" />
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\factory\UnitFactory.cpp" />
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\path\AStarGrid.cpp" />
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\replay\ReplayPlayer.cpp" />
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\replay\ReplayRecorder.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

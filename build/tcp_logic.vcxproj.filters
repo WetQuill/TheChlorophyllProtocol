@@ -1,6 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\data\UnitConfigLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\commands\CommandQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\DeterministicRng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -8,6 +14,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\TickScheduler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\debug\StateHasher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\World.cpp">
@@ -19,7 +28,16 @@
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\math\FixedPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\factory\UnitFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\path\AStarGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\replay\ReplayPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\WetQuill_project\TheChlorophyllProtocol\src\logic\replay\ReplayRecorder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

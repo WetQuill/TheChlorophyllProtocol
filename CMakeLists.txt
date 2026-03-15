@@ -163,6 +163,30 @@ target_link_libraries(unit_config_factory_test PRIVATE tcp_logic)
 
 add_test(NAME UnitConfigFactory COMMAND unit_config_factory_test)
 
+add_executable(command_queue_order_test
+    src/tests/systems/CommandQueueOrderTest.cpp
+)
+
+target_link_libraries(command_queue_order_test PRIVATE tcp_logic)
+
+add_test(NAME CommandQueueOrder COMMAND command_queue_order_test)
+
+add_executable(dual_instance_determinism_test
+    src/tests/integration/DualInstanceDeterminismTest.cpp
+)
+
+target_link_libraries(dual_instance_determinism_test PRIVATE tcp_logic)
+
+add_test(NAME DualInstanceDeterminism COMMAND dual_instance_determinism_test)
+
+add_executable(build_placement_regression_test
+    src/tests/regression/BuildPlacementRegressionTest.cpp
+)
+
+target_link_libraries(build_placement_regression_test PRIVATE tcp_logic)
+
+add_test(NAME RegressionBuildPlacement COMMAND build_placement_regression_test)
+
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
     add_test(

@@ -151,18 +151,22 @@
 - [ ] `ctest --test-dir build -C Debug -R "UnitConfigFactory" --output-on-failure`
 
 ## 8. 测试策略与清单（P0/P1）
-- [ ] 单元测试：`FixedPoint`、`DeterministicRng`、资源结算、伤害计算。
-- [ ] 系统测试：命令应用顺序、建造合法性、路径一致性。
-- [ ] 集成测试：同命令流双实例执行后哈希一致。
-- [ ] 回归测试：每个 bug 修复附最小复现回放。
+- [x] 单元测试：`FixedPoint`、`DeterministicRng`、资源结算、伤害计算。
+- [x] 系统测试：命令应用顺序、建造合法性、路径一致性。
+- [x] 集成测试：同命令流双实例执行后哈希一致。
+- [x] 回归测试：每个 bug 修复附最小复现回放。
 
 建议文件：
 - `src/tests/math/*`
-- `src/tests/systems/*`
-- `src/tests/integration/*`
+- `src/tests/systems/CommandQueueOrderTest.cpp`
+- `src/tests/integration/DualInstanceDeterminismTest.cpp`
+- `src/tests/regression/BuildPlacementRegressionTest.cpp`
 
 验收标准：
 - [ ] CI 或本地 `ctest` 稳定通过，无随机失败。
+
+待本机执行验证命令：
+- [ ] `ctest --test-dir build -C Debug -R "CommandQueueOrder|DualInstanceDeterminism|RegressionBuildPlacement" --output-on-failure`
 
 ## 9. 性能与可观测性（P1）
 - [ ] 热路径减少每 Tick 动态分配。
@@ -173,8 +177,8 @@
 - [ ] 目标场景下逻辑 30 TPS 稳定，无持续超时帧。
 
 ## 10. 进入联机阶段前检查单（Gate）
-- [ ] 已有回放工具，且可离线复盘问题。
-- [ ] 哈希一致性达到目标（建议 100 次一致）。
+- [x] 已有回放工具，且可离线复盘问题。
+- [x] 哈希一致性达到目标（建议 100 次一致）。
 - [ ] 关键玩法闭环完整且测试覆盖核心规则。
 - [ ] `AGENTS.md` 中命令与流程已更新为真实可执行版本。
 
