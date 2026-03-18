@@ -1,1 +1,30 @@
 *.exe
+
+# CMake / CTest build outputs
+build/
+build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+
+# MSVC / Visual Studio user files
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.user
+*.pdb
+*.ilk
+*.obj
+*.idb
+
+# Generic transient files
+*.log
+*.tmp
+
+# Replay or test artifacts generated during local runs
+replay_*.txt
