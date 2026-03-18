@@ -58,7 +58,7 @@ Use the commands below as the default workflow.
 - `DeterminismSmoke`, `FixedPointMath`, `DeterministicRngSequence`, `TickSchedulerDeterminism`
 - `EcsWorldPipeline`, `EcsCoreSystems`, `GameplayLoopCore`, `PlacementAndPathfinding`
 - `ReplayDeterminism`, `UnitConfigFactory`, `CommandQueueOrder`, `DualInstanceDeterminism`
-- `RegressionBuildPlacement`, `RuntimeTelemetry`, `LogicNoFloatCheck`
+- `RegressionBuildPlacement`, `RuntimeTelemetry`, `LogicTickBudget`, `LockstepCommandSync`, `SimulationDriverModes`, `LogicNoFloatCheck`
 
 ### Dependency Integration Status
 

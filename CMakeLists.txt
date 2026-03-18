@@ -13,6 +13,7 @@ option(TCP_ENABLE_GTEST "Enable GoogleTest integration if installed" OFF)
 
 add_library(tcp_logic STATIC
     src/data/UnitConfigLoader.cpp
+    src/net/CommandSyncController.cpp
     src/logic/commands/CommandQueue.cpp
     src/logic/core/DeterministicRng.cpp
     src/logic/core/SimulationConfig.cpp
@@ -25,6 +26,7 @@ add_library(tcp_logic STATIC
     src/logic/path/AStarGrid.cpp
     src/logic/replay/ReplayPlayer.cpp
     src/logic/replay/ReplayRecorder.cpp
+    src/logic/runtime/SimulationDriver.cpp
 )
 
 target_include_directories(tcp_logic
@@ -187,6 +189,22 @@ target_link_libraries(build_placement_regression_test PRIVATE tcp_logic)
 
 add_test(NAME RegressionBuildPlacement COMMAND build_placement_regression_test)
 
+add_executable(lockstep_command_sync_test
+    src/tests/integration/LockstepCommandSyncTest.cpp
+)
+
+target_link_libraries(lockstep_command_sync_test PRIVATE tcp_logic)
+
+add_test(NAME LockstepCommandSync COMMAND lockstep_command_sync_test)
+
+add_executable(simulation_driver_modes_test
+    src/tests/integration/SimulationDriverModesTest.cpp
+)
+
+target_link_libraries(simulation_driver_modes_test PRIVATE tcp_logic)
+
+add_test(NAME SimulationDriverModes COMMAND simulation_driver_modes_test)
+
 add_executable(runtime_telemetry_test
     src/tests/systems/RuntimeTelemetryTest.cpp
 )
@@ -194,6 +212,14 @@ add_executable(runtime_telemetry_test
 target_link_libraries(runtime_telemetry_test PRIVATE tcp_logic)
 
 add_test(NAME RuntimeTelemetry COMMAND runtime_telemetry_test)
+
+add_executable(logic_tick_budget_test
+    src/tests/systems/LogicTickBudgetTest.cpp
+)
+
+target_link_libraries(logic_tick_budget_test PRIVATE tcp_logic)
+
+add_test(NAME LogicTickBudget COMMAND logic_tick_budget_test)
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)

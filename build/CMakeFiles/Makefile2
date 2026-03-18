@@ -77,7 +77,10 @@ all: CMakeFiles/unit_config_factory_test.dir/all
 all: CMakeFiles/command_queue_order_test.dir/all
 all: CMakeFiles/dual_instance_determinism_test.dir/all
 all: CMakeFiles/build_placement_regression_test.dir/all
+all: CMakeFiles/lockstep_command_sync_test.dir/all
+all: CMakeFiles/simulation_driver_modes_test.dir/all
 all: CMakeFiles/runtime_telemetry_test.dir/all
+all: CMakeFiles/logic_tick_budget_test.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
@@ -96,7 +99,10 @@ codegen: CMakeFiles/unit_config_factory_test.dir/codegen
 codegen: CMakeFiles/command_queue_order_test.dir/codegen
 codegen: CMakeFiles/dual_instance_determinism_test.dir/codegen
 codegen: CMakeFiles/build_placement_regression_test.dir/codegen
+codegen: CMakeFiles/lockstep_command_sync_test.dir/codegen
+codegen: CMakeFiles/simulation_driver_modes_test.dir/codegen
 codegen: CMakeFiles/runtime_telemetry_test.dir/codegen
+codegen: CMakeFiles/logic_tick_budget_test.dir/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
@@ -119,7 +125,10 @@ clean: CMakeFiles/unit_config_factory_test.dir/clean
 clean: CMakeFiles/command_queue_order_test.dir/clean
 clean: CMakeFiles/dual_instance_determinism_test.dir/clean
 clean: CMakeFiles/build_placement_regression_test.dir/clean
+clean: CMakeFiles/lockstep_command_sync_test.dir/clean
+clean: CMakeFiles/simulation_driver_modes_test.dir/clean
 clean: CMakeFiles/runtime_telemetry_test.dir/clean
+clean: CMakeFiles/logic_tick_budget_test.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -129,12 +138,12 @@ clean: CMakeFiles/runtime_telemetry_test.dir/clean
 CMakeFiles/tcp_logic.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=27,28,29,30,31,32,33,34,35,36,37,38,39,40 "Built target tcp_logic"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48 "Built target tcp_logic"
 .PHONY : CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/tcp_logic.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 14
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/tcp_logic.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/tcp_logic.dir/rule
@@ -146,7 +155,7 @@ tcp_logic: CMakeFiles/tcp_logic.dir/rule
 # codegen rule for target.
 CMakeFiles/tcp_logic.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=27,28,29,30,31,32,33,34,35,36,37,38,39,40 "Finished codegen for target tcp_logic"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48 "Finished codegen for target tcp_logic"
 .PHONY : CMakeFiles/tcp_logic.dir/codegen
 
 # clean rule for target.
@@ -166,7 +175,7 @@ CMakeFiles/chlorophyll_app.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/chlorophyll_app.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/chlorophyll_app.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/chlorophyll_app.dir/rule
@@ -198,7 +207,7 @@ CMakeFiles/determinism_smoke_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/determinism_smoke_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/determinism_smoke_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/determinism_smoke_test.dir/rule
@@ -230,7 +239,7 @@ CMakeFiles/fixed_point_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/fixed_point_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/fixed_point_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/fixed_point_test.dir/rule
@@ -262,7 +271,7 @@ CMakeFiles/deterministic_rng_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/deterministic_rng_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/deterministic_rng_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/deterministic_rng_test.dir/rule
@@ -289,12 +298,12 @@ CMakeFiles/deterministic_rng_test.dir/clean:
 CMakeFiles/tick_scheduler_test.dir/all: CMakeFiles/tcp_logic.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\tick_scheduler_test.dir\build.make CMakeFiles/tick_scheduler_test.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\tick_scheduler_test.dir\build.make CMakeFiles/tick_scheduler_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=41,42 "Built target tick_scheduler_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=49,50 "Built target tick_scheduler_test"
 .PHONY : CMakeFiles/tick_scheduler_test.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/tick_scheduler_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/tick_scheduler_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/tick_scheduler_test.dir/rule
@@ -306,7 +315,7 @@ tick_scheduler_test: CMakeFiles/tick_scheduler_test.dir/rule
 # codegen rule for target.
 CMakeFiles/tick_scheduler_test.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\tick_scheduler_test.dir\build.make CMakeFiles/tick_scheduler_test.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=41,42 "Finished codegen for target tick_scheduler_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=49,50 "Finished codegen for target tick_scheduler_test"
 .PHONY : CMakeFiles/tick_scheduler_test.dir/codegen
 
 # clean rule for target.
@@ -326,7 +335,7 @@ CMakeFiles/ecs_world_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ecs_world_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/ecs_world_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/ecs_world_test.dir/rule
@@ -358,7 +367,7 @@ CMakeFiles/ecs_core_systems_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ecs_core_systems_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/ecs_core_systems_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/ecs_core_systems_test.dir/rule
@@ -390,7 +399,7 @@ CMakeFiles/gameplay_loop_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/gameplay_loop_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/gameplay_loop_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/gameplay_loop_test.dir/rule
@@ -417,12 +426,12 @@ CMakeFiles/gameplay_loop_test.dir/clean:
 CMakeFiles/placement_pathfinding_test.dir/all: CMakeFiles/tcp_logic.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\placement_pathfinding_test.dir\build.make CMakeFiles/placement_pathfinding_test.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\placement_pathfinding_test.dir\build.make CMakeFiles/placement_pathfinding_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=21,22 "Built target placement_pathfinding_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=25,26 "Built target placement_pathfinding_test"
 .PHONY : CMakeFiles/placement_pathfinding_test.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/placement_pathfinding_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/placement_pathfinding_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/placement_pathfinding_test.dir/rule
@@ -434,7 +443,7 @@ placement_pathfinding_test: CMakeFiles/placement_pathfinding_test.dir/rule
 # codegen rule for target.
 CMakeFiles/placement_pathfinding_test.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\placement_pathfinding_test.dir\build.make CMakeFiles/placement_pathfinding_test.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=21,22 "Finished codegen for target placement_pathfinding_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=25,26 "Finished codegen for target placement_pathfinding_test"
 .PHONY : CMakeFiles/placement_pathfinding_test.dir/codegen
 
 # clean rule for target.
@@ -449,12 +458,12 @@ CMakeFiles/placement_pathfinding_test.dir/clean:
 CMakeFiles/replay_determinism_test.dir/all: CMakeFiles/tcp_logic.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\replay_determinism_test.dir\build.make CMakeFiles/replay_determinism_test.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\replay_determinism_test.dir\build.make CMakeFiles/replay_determinism_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=23,24 "Built target replay_determinism_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=27,28 "Built target replay_determinism_test"
 .PHONY : CMakeFiles/replay_determinism_test.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/replay_determinism_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/replay_determinism_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/replay_determinism_test.dir/rule
@@ -466,7 +475,7 @@ replay_determinism_test: CMakeFiles/replay_determinism_test.dir/rule
 # codegen rule for target.
 CMakeFiles/replay_determinism_test.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\replay_determinism_test.dir\build.make CMakeFiles/replay_determinism_test.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=23,24 "Finished codegen for target replay_determinism_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=27,28 "Finished codegen for target replay_determinism_test"
 .PHONY : CMakeFiles/replay_determinism_test.dir/codegen
 
 # clean rule for target.
@@ -481,12 +490,12 @@ CMakeFiles/replay_determinism_test.dir/clean:
 CMakeFiles/unit_config_factory_test.dir/all: CMakeFiles/tcp_logic.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\unit_config_factory_test.dir\build.make CMakeFiles/unit_config_factory_test.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\unit_config_factory_test.dir\build.make CMakeFiles/unit_config_factory_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=43,44 "Built target unit_config_factory_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=51,52 "Built target unit_config_factory_test"
 .PHONY : CMakeFiles/unit_config_factory_test.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/unit_config_factory_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/unit_config_factory_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/unit_config_factory_test.dir/rule
@@ -498,7 +507,7 @@ unit_config_factory_test: CMakeFiles/unit_config_factory_test.dir/rule
 # codegen rule for target.
 CMakeFiles/unit_config_factory_test.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\unit_config_factory_test.dir\build.make CMakeFiles/unit_config_factory_test.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=43,44 "Finished codegen for target unit_config_factory_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=51,52 "Finished codegen for target unit_config_factory_test"
 .PHONY : CMakeFiles/unit_config_factory_test.dir/codegen
 
 # clean rule for target.
@@ -518,7 +527,7 @@ CMakeFiles/command_queue_order_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/command_queue_order_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/command_queue_order_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/command_queue_order_test.dir/rule
@@ -550,7 +559,7 @@ CMakeFiles/dual_instance_determinism_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/dual_instance_determinism_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/dual_instance_determinism_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/dual_instance_determinism_test.dir/rule
@@ -582,7 +591,7 @@ CMakeFiles/build_placement_regression_test.dir/all: CMakeFiles/tcp_logic.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/build_placement_regression_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/build_placement_regression_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/build_placement_regression_test.dir/rule
@@ -603,18 +612,82 @@ CMakeFiles/build_placement_regression_test.dir/clean:
 .PHONY : CMakeFiles/build_placement_regression_test.dir/clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/lockstep_command_sync_test.dir
+
+# All Build rule for target.
+CMakeFiles/lockstep_command_sync_test.dir/all: CMakeFiles/tcp_logic.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\lockstep_command_sync_test.dir\build.make CMakeFiles/lockstep_command_sync_test.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\lockstep_command_sync_test.dir\build.make CMakeFiles/lockstep_command_sync_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=21,22 "Built target lockstep_command_sync_test"
+.PHONY : CMakeFiles/lockstep_command_sync_test.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/lockstep_command_sync_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/lockstep_command_sync_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
+.PHONY : CMakeFiles/lockstep_command_sync_test.dir/rule
+
+# Convenience name for target.
+lockstep_command_sync_test: CMakeFiles/lockstep_command_sync_test.dir/rule
+.PHONY : lockstep_command_sync_test
+
+# codegen rule for target.
+CMakeFiles/lockstep_command_sync_test.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\lockstep_command_sync_test.dir\build.make CMakeFiles/lockstep_command_sync_test.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=21,22 "Finished codegen for target lockstep_command_sync_test"
+.PHONY : CMakeFiles/lockstep_command_sync_test.dir/codegen
+
+# clean rule for target.
+CMakeFiles/lockstep_command_sync_test.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\lockstep_command_sync_test.dir\build.make CMakeFiles/lockstep_command_sync_test.dir/clean
+.PHONY : CMakeFiles/lockstep_command_sync_test.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/simulation_driver_modes_test.dir
+
+# All Build rule for target.
+CMakeFiles/simulation_driver_modes_test.dir/all: CMakeFiles/tcp_logic.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\simulation_driver_modes_test.dir\build.make CMakeFiles/simulation_driver_modes_test.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\simulation_driver_modes_test.dir\build.make CMakeFiles/simulation_driver_modes_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=31,32 "Built target simulation_driver_modes_test"
+.PHONY : CMakeFiles/simulation_driver_modes_test.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/simulation_driver_modes_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/simulation_driver_modes_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
+.PHONY : CMakeFiles/simulation_driver_modes_test.dir/rule
+
+# Convenience name for target.
+simulation_driver_modes_test: CMakeFiles/simulation_driver_modes_test.dir/rule
+.PHONY : simulation_driver_modes_test
+
+# codegen rule for target.
+CMakeFiles/simulation_driver_modes_test.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\simulation_driver_modes_test.dir\build.make CMakeFiles/simulation_driver_modes_test.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=31,32 "Finished codegen for target simulation_driver_modes_test"
+.PHONY : CMakeFiles/simulation_driver_modes_test.dir/codegen
+
+# clean rule for target.
+CMakeFiles/simulation_driver_modes_test.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\simulation_driver_modes_test.dir\build.make CMakeFiles/simulation_driver_modes_test.dir/clean
+.PHONY : CMakeFiles/simulation_driver_modes_test.dir/clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/runtime_telemetry_test.dir
 
 # All Build rule for target.
 CMakeFiles/runtime_telemetry_test.dir/all: CMakeFiles/tcp_logic.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\runtime_telemetry_test.dir\build.make CMakeFiles/runtime_telemetry_test.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\runtime_telemetry_test.dir\build.make CMakeFiles/runtime_telemetry_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=25,26 "Built target runtime_telemetry_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=29,30 "Built target runtime_telemetry_test"
 .PHONY : CMakeFiles/runtime_telemetry_test.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/runtime_telemetry_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/runtime_telemetry_test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
 .PHONY : CMakeFiles/runtime_telemetry_test.dir/rule
@@ -626,13 +699,45 @@ runtime_telemetry_test: CMakeFiles/runtime_telemetry_test.dir/rule
 # codegen rule for target.
 CMakeFiles/runtime_telemetry_test.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\runtime_telemetry_test.dir\build.make CMakeFiles/runtime_telemetry_test.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=25,26 "Finished codegen for target runtime_telemetry_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=29,30 "Finished codegen for target runtime_telemetry_test"
 .PHONY : CMakeFiles/runtime_telemetry_test.dir/codegen
 
 # clean rule for target.
 CMakeFiles/runtime_telemetry_test.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\runtime_telemetry_test.dir\build.make CMakeFiles/runtime_telemetry_test.dir/clean
 .PHONY : CMakeFiles/runtime_telemetry_test.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/logic_tick_budget_test.dir
+
+# All Build rule for target.
+CMakeFiles/logic_tick_budget_test.dir/all: CMakeFiles/tcp_logic.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=23,24 "Built target logic_tick_budget_test"
+.PHONY : CMakeFiles/logic_tick_budget_test.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/logic_tick_budget_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 18
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/logic_tick_budget_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles 0
+.PHONY : CMakeFiles/logic_tick_budget_test.dir/rule
+
+# Convenience name for target.
+logic_tick_budget_test: CMakeFiles/logic_tick_budget_test.dir/rule
+.PHONY : logic_tick_budget_test
+
+# codegen rule for target.
+CMakeFiles/logic_tick_budget_test.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=23,24 "Finished codegen for target logic_tick_budget_test"
+.PHONY : CMakeFiles/logic_tick_budget_test.dir/codegen
+
+# clean rule for target.
+CMakeFiles/logic_tick_budget_test.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/clean
+.PHONY : CMakeFiles/logic_tick_budget_test.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

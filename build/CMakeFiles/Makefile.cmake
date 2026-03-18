@@ -69,5 +69,8 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/command_queue_order_test.dir/DependInfo.cmake"
   "CMakeFiles/dual_instance_determinism_test.dir/DependInfo.cmake"
   "CMakeFiles/build_placement_regression_test.dir/DependInfo.cmake"
+  "CMakeFiles/lockstep_command_sync_test.dir/DependInfo.cmake"
+  "CMakeFiles/simulation_driver_modes_test.dir/DependInfo.cmake"
   "CMakeFiles/runtime_telemetry_test.dir/DependInfo.cmake"
+  "CMakeFiles/logic_tick_budget_test.dir/DependInfo.cmake"
   )

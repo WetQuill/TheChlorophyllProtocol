@@ -7,6 +7,12 @@
 },
 {
   "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\net\\CommandSyncController.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\net\\CommandSyncController.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/net/CommandSyncController.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
   "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\commands\\CommandQueue.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\commands\\CommandQueue.cpp",
   "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/commands/CommandQueue.cpp",
   "output": "CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj"
@@ -76,6 +82,12 @@
   "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\replay\\ReplayRecorder.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\replay\\ReplayRecorder.cpp",
   "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/replay/ReplayRecorder.cpp",
   "output": "CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\runtime\\SimulationDriver.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\runtime\\SimulationDriver.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/runtime/SimulationDriver.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj"
 },
 {
   "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
@@ -163,8 +175,26 @@
 },
 {
   "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/lockstep_command_sync_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\lockstep_command_sync_test.dir\\src\\tests\\integration\\LockstepCommandSyncTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\integration\\LockstepCommandSyncTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/integration/LockstepCommandSyncTest.cpp",
+  "output": "CMakeFiles/lockstep_command_sync_test.dir/src/tests/integration/LockstepCommandSyncTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/simulation_driver_modes_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\simulation_driver_modes_test.dir\\src\\tests\\integration\\SimulationDriverModesTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\integration\\SimulationDriverModesTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/integration/SimulationDriverModesTest.cpp",
+  "output": "CMakeFiles/simulation_driver_modes_test.dir/src/tests/integration/SimulationDriverModesTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
   "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/runtime_telemetry_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\runtime_telemetry_test.dir\\src\\tests\\systems\\RuntimeTelemetryTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\systems\\RuntimeTelemetryTest.cpp",
   "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/systems/RuntimeTelemetryTest.cpp",
   "output": "CMakeFiles/runtime_telemetry_test.dir/src/tests/systems/RuntimeTelemetryTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/logic_tick_budget_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\logic_tick_budget_test.dir\\src\\tests\\systems\\LogicTickBudgetTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\systems\\LogicTickBudgetTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/systems/LogicTickBudgetTest.cpp",
+  "output": "CMakeFiles/logic_tick_budget_test.dir/src/tests/systems/LogicTickBudgetTest.cpp.obj"
 }
 ]

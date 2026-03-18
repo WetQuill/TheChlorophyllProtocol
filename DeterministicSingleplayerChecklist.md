@@ -213,14 +213,15 @@
 - `src/logic/debug/StateHasher.h`
 - `src/logic/debug/StateHasher.cpp`
 - `src/tests/systems/RuntimeTelemetryTest.cpp`
+- `src/tests/systems/LogicTickBudgetTest.cpp`
 
 验收标准：
 
-- [ ] 目标场景下逻辑 30 TPS 稳定，无持续超时帧。
+- [x] 目标场景下逻辑 30 TPS 稳定，无持续超时帧（测试用例 `LogicTickBudget` 已实现）。
 
 待本机执行验证命令：
 
-- [ ] `ctest --test-dir build -C Debug -R "RuntimeTelemetry" --output-on-failure`
+- [x] `ctest --test-dir build -C Debug -R "RuntimeTelemetry|LogicTickBudget" --output-on-failure`（本机验证通过）
 
 ## 10. 进入联机阶段前检查单（Gate）
 
@@ -228,6 +229,26 @@
 - [x] 哈希一致性达到目标（建议 100 次一致）。
 - [x] 关键玩法闭环完整且测试覆盖核心规则。
 - [x] `AGENTS.md` 中命令与流程已更新为真实可执行版本。
+
+## 11. 联机阶段启动（Bootstrap）
+
+- [x] 最小命令同步控制器（本地/远端帧命令聚合）已实现。
+- [x] 双实例锁步命令同步集成测试已实现（含延迟投递模拟）。
+- [x] 统一命令驱动入口已实现（单机/回放/锁步三模式可切换）。
+
+建议文件：
+
+- `src/net/CommandSyncController.h`
+- `src/net/CommandSyncController.cpp`
+- `src/tests/integration/LockstepCommandSyncTest.cpp`
+- `src/logic/runtime/SimulationDriver.h`
+- `src/logic/runtime/SimulationDriver.cpp`
+- `src/tests/integration/SimulationDriverModesTest.cpp`
+
+待本机执行验证命令：
+
+- [x] `ctest --test-dir build -C Debug -R "LockstepCommandSync" --output-on-failure`（本机验证通过）
+- [ ] `ctest --test-dir build -C Debug -R "SimulationDriverModes" --output-on-failure`
 
 ---
 

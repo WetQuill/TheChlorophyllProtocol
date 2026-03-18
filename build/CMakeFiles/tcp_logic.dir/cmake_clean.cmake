@@ -25,6 +25,10 @@ file(REMOVE_RECURSE
   "CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj.d"
   "CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj"
   "CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj.d"
+  "CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj"
+  "CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj.d"
+  "CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj"
+  "CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj.d"
   "libtcp_logic.a"
   "libtcp_logic.pdb"
 )

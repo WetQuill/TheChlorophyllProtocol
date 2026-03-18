@@ -86,11 +86,26 @@ CMakeFiles/tcp_logic.dir/src/data/UnitConfigLoader.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/tcp_logic.dir/src/data/UnitConfigLoader.cpp.s"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\WetQuill_project\TheChlorophyllProtocol\src\data\UnitConfigLoader.cpp -o CMakeFiles\tcp_logic.dir\src\data\UnitConfigLoader.cpp.s
 
+CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj: CMakeFiles/tcp_logic.dir/flags.make
+CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
+CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/net/CommandSyncController.cpp
+CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj"
+	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\net\CommandSyncController.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\net\CommandSyncController.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\net\CommandSyncController.cpp
+
+CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.i"
+	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\WetQuill_project\TheChlorophyllProtocol\src\net\CommandSyncController.cpp > CMakeFiles\tcp_logic.dir\src\net\CommandSyncController.cpp.i
+
+CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.s"
+	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\WetQuill_project\TheChlorophyllProtocol\src\net\CommandSyncController.cpp -o CMakeFiles\tcp_logic.dir\src\net\CommandSyncController.cpp.s
+
 CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj: CMakeFiles/tcp_logic.dir/flags.make
 CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/commands/CommandQueue.cpp
 CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\commands\CommandQueue.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\commands\CommandQueue.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\commands\CommandQueue.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.i: cmake_force
@@ -105,7 +120,7 @@ CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj: CMakeFiles/tcp
 CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/core/DeterministicRng.cpp
 CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\core\DeterministicRng.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\core\DeterministicRng.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\DeterministicRng.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.i: cmake_force
@@ -120,7 +135,7 @@ CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj: CMakeFiles/tcp
 CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/core/SimulationConfig.cpp
 CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\core\SimulationConfig.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\core\SimulationConfig.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\SimulationConfig.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.i: cmake_force
@@ -135,7 +150,7 @@ CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.obj: CMakeFiles/tcp_lo
 CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/core/TickScheduler.cpp
 CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\core\TickScheduler.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\core\TickScheduler.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\core\TickScheduler.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.i: cmake_force
@@ -150,7 +165,7 @@ CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.obj: CMakeFiles/tcp_log
 CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/debug/StateHasher.cpp
 CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\debug\StateHasher.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\debug\StateHasher.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\debug\StateHasher.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.i: cmake_force
@@ -165,7 +180,7 @@ CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.obj: CMakeFiles/tcp_logic.dir/f
 CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/ecs/World.cpp
 CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\ecs\World.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\ecs\World.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\World.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.i: cmake_force
@@ -180,7 +195,7 @@ CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.obj: CMakeFile
 CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/ecs/systems/BuiltInSystems.cpp
 CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\ecs\systems\BuiltInSystems.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\ecs\systems\BuiltInSystems.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\ecs\systems\BuiltInSystems.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.i: cmake_force
@@ -195,7 +210,7 @@ CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.obj: CMakeFiles/tcp_logic
 CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/math/FixedPoint.cpp
 CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\math\FixedPoint.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\math\FixedPoint.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\math\FixedPoint.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.i: cmake_force
@@ -210,7 +225,7 @@ CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj: CMakeFiles/tcp_l
 CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/factory/UnitFactory.cpp
 CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\factory\UnitFactory.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\factory\UnitFactory.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\factory\UnitFactory.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.i: cmake_force
@@ -225,7 +240,7 @@ CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj: CMakeFiles/tcp_logic.
 CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/path/AStarGrid.cpp
 CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\path\AStarGrid.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\path\AStarGrid.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\path\AStarGrid.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.i: cmake_force
@@ -240,7 +255,7 @@ CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj: CMakeFiles/tcp_l
 CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/replay/ReplayPlayer.cpp
 CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\replay\ReplayPlayer.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\replay\ReplayPlayer.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\replay\ReplayPlayer.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.i: cmake_force
@@ -255,7 +270,7 @@ CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj: CMakeFiles/tcp
 CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
 CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/replay/ReplayRecorder.cpp
 CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\replay\ReplayRecorder.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\replay\ReplayRecorder.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\replay\ReplayRecorder.cpp
 
 CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.i: cmake_force
@@ -266,9 +281,25 @@ CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.s"
 	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\WetQuill_project\TheChlorophyllProtocol\src\logic\replay\ReplayRecorder.cpp -o CMakeFiles\tcp_logic.dir\src\logic\replay\ReplayRecorder.cpp.s
 
+CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj: CMakeFiles/tcp_logic.dir/flags.make
+CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj: CMakeFiles/tcp_logic.dir/includes_CXX.rsp
+CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj: C:/WetQuill_project/TheChlorophyllProtocol/src/logic/runtime/SimulationDriver.cpp
+CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj: CMakeFiles/tcp_logic.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj"
+	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj -MF CMakeFiles\tcp_logic.dir\src\logic\runtime\SimulationDriver.cpp.obj.d -o CMakeFiles\tcp_logic.dir\src\logic\runtime\SimulationDriver.cpp.obj -c C:\WetQuill_project\TheChlorophyllProtocol\src\logic\runtime\SimulationDriver.cpp
+
+CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.i"
+	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\WetQuill_project\TheChlorophyllProtocol\src\logic\runtime\SimulationDriver.cpp > CMakeFiles\tcp_logic.dir\src\logic\runtime\SimulationDriver.cpp.i
+
+CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.s"
+	C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\WetQuill_project\TheChlorophyllProtocol\src\logic\runtime\SimulationDriver.cpp -o CMakeFiles\tcp_logic.dir\src\logic\runtime\SimulationDriver.cpp.s
+
 # Object files for target tcp_logic
 tcp_logic_OBJECTS = \
 "CMakeFiles/tcp_logic.dir/src/data/UnitConfigLoader.cpp.obj" \
+"CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj" \
 "CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj" \
 "CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj" \
 "CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj" \
@@ -280,12 +311,14 @@ tcp_logic_OBJECTS = \
 "CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj" \
 "CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj" \
 "CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj" \
-"CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj"
+"CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj" \
+"CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj"
 
 # External object files for target tcp_logic
 tcp_logic_EXTERNAL_OBJECTS =
 
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/data/UnitConfigLoader.cpp.obj
+libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj
@@ -298,9 +331,10 @@ libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj
+libtcp_logic.a: CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/build.make
 libtcp_logic.a: CMakeFiles/tcp_logic.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Linking CXX static library libtcp_logic.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\WetQuill_project\TheChlorophyllProtocol\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Linking CXX static library libtcp_logic.a"
 	$(CMAKE_COMMAND) -P CMakeFiles\tcp_logic.dir\cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\tcp_logic.dir\link.txt --verbose=$(VERBOSE)
 

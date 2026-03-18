@@ -321,6 +321,32 @@ build_placement_regression_test/fast:
 .PHONY : build_placement_regression_test/fast
 
 #=============================================================================
+# Target rules for targets named lockstep_command_sync_test
+
+# Build rule for target.
+lockstep_command_sync_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 lockstep_command_sync_test
+.PHONY : lockstep_command_sync_test
+
+# fast build rule for target.
+lockstep_command_sync_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\lockstep_command_sync_test.dir\build.make CMakeFiles/lockstep_command_sync_test.dir/build
+.PHONY : lockstep_command_sync_test/fast
+
+#=============================================================================
+# Target rules for targets named simulation_driver_modes_test
+
+# Build rule for target.
+simulation_driver_modes_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 simulation_driver_modes_test
+.PHONY : simulation_driver_modes_test
+
+# fast build rule for target.
+simulation_driver_modes_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\simulation_driver_modes_test.dir\build.make CMakeFiles/simulation_driver_modes_test.dir/build
+.PHONY : simulation_driver_modes_test/fast
+
+#=============================================================================
 # Target rules for targets named runtime_telemetry_test
 
 # Build rule for target.
@@ -332,6 +358,19 @@ runtime_telemetry_test: cmake_check_build_system
 runtime_telemetry_test/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\runtime_telemetry_test.dir\build.make CMakeFiles/runtime_telemetry_test.dir/build
 .PHONY : runtime_telemetry_test/fast
+
+#=============================================================================
+# Target rules for targets named logic_tick_budget_test
+
+# Build rule for target.
+logic_tick_budget_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 logic_tick_budget_test
+.PHONY : logic_tick_budget_test
+
+# fast build rule for target.
+logic_tick_budget_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/build
+.PHONY : logic_tick_budget_test/fast
 
 src/app/Main.obj: src/app/Main.cpp.obj
 .PHONY : src/app/Main.obj
@@ -669,6 +708,54 @@ src/logic/replay/ReplayRecorder.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.s
 .PHONY : src/logic/replay/ReplayRecorder.cpp.s
 
+src/logic/runtime/SimulationDriver.obj: src/logic/runtime/SimulationDriver.cpp.obj
+.PHONY : src/logic/runtime/SimulationDriver.obj
+
+# target to build an object file
+src/logic/runtime/SimulationDriver.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.obj
+.PHONY : src/logic/runtime/SimulationDriver.cpp.obj
+
+src/logic/runtime/SimulationDriver.i: src/logic/runtime/SimulationDriver.cpp.i
+.PHONY : src/logic/runtime/SimulationDriver.i
+
+# target to preprocess a source file
+src/logic/runtime/SimulationDriver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.i
+.PHONY : src/logic/runtime/SimulationDriver.cpp.i
+
+src/logic/runtime/SimulationDriver.s: src/logic/runtime/SimulationDriver.cpp.s
+.PHONY : src/logic/runtime/SimulationDriver.s
+
+# target to generate assembly for a file
+src/logic/runtime/SimulationDriver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/src/logic/runtime/SimulationDriver.cpp.s
+.PHONY : src/logic/runtime/SimulationDriver.cpp.s
+
+src/net/CommandSyncController.obj: src/net/CommandSyncController.cpp.obj
+.PHONY : src/net/CommandSyncController.obj
+
+# target to build an object file
+src/net/CommandSyncController.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.obj
+.PHONY : src/net/CommandSyncController.cpp.obj
+
+src/net/CommandSyncController.i: src/net/CommandSyncController.cpp.i
+.PHONY : src/net/CommandSyncController.i
+
+# target to preprocess a source file
+src/net/CommandSyncController.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.i
+.PHONY : src/net/CommandSyncController.cpp.i
+
+src/net/CommandSyncController.s: src/net/CommandSyncController.cpp.s
+.PHONY : src/net/CommandSyncController.s
+
+# target to generate assembly for a file
+src/net/CommandSyncController.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tcp_logic.dir\build.make CMakeFiles/tcp_logic.dir/src/net/CommandSyncController.cpp.s
+.PHONY : src/net/CommandSyncController.cpp.s
+
 src/tests/DeterminismSmokeTest.obj: src/tests/DeterminismSmokeTest.cpp.obj
 .PHONY : src/tests/DeterminismSmokeTest.obj
 
@@ -933,6 +1020,54 @@ src/tests/integration/DualInstanceDeterminismTest.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\dual_instance_determinism_test.dir\build.make CMakeFiles/dual_instance_determinism_test.dir/src/tests/integration/DualInstanceDeterminismTest.cpp.s
 .PHONY : src/tests/integration/DualInstanceDeterminismTest.cpp.s
 
+src/tests/integration/LockstepCommandSyncTest.obj: src/tests/integration/LockstepCommandSyncTest.cpp.obj
+.PHONY : src/tests/integration/LockstepCommandSyncTest.obj
+
+# target to build an object file
+src/tests/integration/LockstepCommandSyncTest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\lockstep_command_sync_test.dir\build.make CMakeFiles/lockstep_command_sync_test.dir/src/tests/integration/LockstepCommandSyncTest.cpp.obj
+.PHONY : src/tests/integration/LockstepCommandSyncTest.cpp.obj
+
+src/tests/integration/LockstepCommandSyncTest.i: src/tests/integration/LockstepCommandSyncTest.cpp.i
+.PHONY : src/tests/integration/LockstepCommandSyncTest.i
+
+# target to preprocess a source file
+src/tests/integration/LockstepCommandSyncTest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\lockstep_command_sync_test.dir\build.make CMakeFiles/lockstep_command_sync_test.dir/src/tests/integration/LockstepCommandSyncTest.cpp.i
+.PHONY : src/tests/integration/LockstepCommandSyncTest.cpp.i
+
+src/tests/integration/LockstepCommandSyncTest.s: src/tests/integration/LockstepCommandSyncTest.cpp.s
+.PHONY : src/tests/integration/LockstepCommandSyncTest.s
+
+# target to generate assembly for a file
+src/tests/integration/LockstepCommandSyncTest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\lockstep_command_sync_test.dir\build.make CMakeFiles/lockstep_command_sync_test.dir/src/tests/integration/LockstepCommandSyncTest.cpp.s
+.PHONY : src/tests/integration/LockstepCommandSyncTest.cpp.s
+
+src/tests/integration/SimulationDriverModesTest.obj: src/tests/integration/SimulationDriverModesTest.cpp.obj
+.PHONY : src/tests/integration/SimulationDriverModesTest.obj
+
+# target to build an object file
+src/tests/integration/SimulationDriverModesTest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\simulation_driver_modes_test.dir\build.make CMakeFiles/simulation_driver_modes_test.dir/src/tests/integration/SimulationDriverModesTest.cpp.obj
+.PHONY : src/tests/integration/SimulationDriverModesTest.cpp.obj
+
+src/tests/integration/SimulationDriverModesTest.i: src/tests/integration/SimulationDriverModesTest.cpp.i
+.PHONY : src/tests/integration/SimulationDriverModesTest.i
+
+# target to preprocess a source file
+src/tests/integration/SimulationDriverModesTest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\simulation_driver_modes_test.dir\build.make CMakeFiles/simulation_driver_modes_test.dir/src/tests/integration/SimulationDriverModesTest.cpp.i
+.PHONY : src/tests/integration/SimulationDriverModesTest.cpp.i
+
+src/tests/integration/SimulationDriverModesTest.s: src/tests/integration/SimulationDriverModesTest.cpp.s
+.PHONY : src/tests/integration/SimulationDriverModesTest.s
+
+# target to generate assembly for a file
+src/tests/integration/SimulationDriverModesTest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\simulation_driver_modes_test.dir\build.make CMakeFiles/simulation_driver_modes_test.dir/src/tests/integration/SimulationDriverModesTest.cpp.s
+.PHONY : src/tests/integration/SimulationDriverModesTest.cpp.s
+
 src/tests/regression/BuildPlacementRegressionTest.obj: src/tests/regression/BuildPlacementRegressionTest.cpp.obj
 .PHONY : src/tests/regression/BuildPlacementRegressionTest.obj
 
@@ -981,6 +1116,30 @@ src/tests/systems/CommandQueueOrderTest.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\command_queue_order_test.dir\build.make CMakeFiles/command_queue_order_test.dir/src/tests/systems/CommandQueueOrderTest.cpp.s
 .PHONY : src/tests/systems/CommandQueueOrderTest.cpp.s
 
+src/tests/systems/LogicTickBudgetTest.obj: src/tests/systems/LogicTickBudgetTest.cpp.obj
+.PHONY : src/tests/systems/LogicTickBudgetTest.obj
+
+# target to build an object file
+src/tests/systems/LogicTickBudgetTest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/src/tests/systems/LogicTickBudgetTest.cpp.obj
+.PHONY : src/tests/systems/LogicTickBudgetTest.cpp.obj
+
+src/tests/systems/LogicTickBudgetTest.i: src/tests/systems/LogicTickBudgetTest.cpp.i
+.PHONY : src/tests/systems/LogicTickBudgetTest.i
+
+# target to preprocess a source file
+src/tests/systems/LogicTickBudgetTest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/src/tests/systems/LogicTickBudgetTest.cpp.i
+.PHONY : src/tests/systems/LogicTickBudgetTest.cpp.i
+
+src/tests/systems/LogicTickBudgetTest.s: src/tests/systems/LogicTickBudgetTest.cpp.s
+.PHONY : src/tests/systems/LogicTickBudgetTest.s
+
+# target to generate assembly for a file
+src/tests/systems/LogicTickBudgetTest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/src/tests/systems/LogicTickBudgetTest.cpp.s
+.PHONY : src/tests/systems/LogicTickBudgetTest.cpp.s
+
 src/tests/systems/RuntimeTelemetryTest.obj: src/tests/systems/RuntimeTelemetryTest.cpp.obj
 .PHONY : src/tests/systems/RuntimeTelemetryTest.obj
 
@@ -1024,9 +1183,12 @@ help:
 	@echo ... ecs_world_test
 	@echo ... fixed_point_test
 	@echo ... gameplay_loop_test
+	@echo ... lockstep_command_sync_test
+	@echo ... logic_tick_budget_test
 	@echo ... placement_pathfinding_test
 	@echo ... replay_determinism_test
 	@echo ... runtime_telemetry_test
+	@echo ... simulation_driver_modes_test
 	@echo ... tcp_logic
 	@echo ... tick_scheduler_test
 	@echo ... unit_config_factory_test
@@ -1072,6 +1234,12 @@ help:
 	@echo ... src/logic/replay/ReplayRecorder.obj
 	@echo ... src/logic/replay/ReplayRecorder.i
 	@echo ... src/logic/replay/ReplayRecorder.s
+	@echo ... src/logic/runtime/SimulationDriver.obj
+	@echo ... src/logic/runtime/SimulationDriver.i
+	@echo ... src/logic/runtime/SimulationDriver.s
+	@echo ... src/net/CommandSyncController.obj
+	@echo ... src/net/CommandSyncController.i
+	@echo ... src/net/CommandSyncController.s
 	@echo ... src/tests/DeterminismSmokeTest.obj
 	@echo ... src/tests/DeterminismSmokeTest.i
 	@echo ... src/tests/DeterminismSmokeTest.s
@@ -1105,12 +1273,21 @@ help:
 	@echo ... src/tests/integration/DualInstanceDeterminismTest.obj
 	@echo ... src/tests/integration/DualInstanceDeterminismTest.i
 	@echo ... src/tests/integration/DualInstanceDeterminismTest.s
+	@echo ... src/tests/integration/LockstepCommandSyncTest.obj
+	@echo ... src/tests/integration/LockstepCommandSyncTest.i
+	@echo ... src/tests/integration/LockstepCommandSyncTest.s
+	@echo ... src/tests/integration/SimulationDriverModesTest.obj
+	@echo ... src/tests/integration/SimulationDriverModesTest.i
+	@echo ... src/tests/integration/SimulationDriverModesTest.s
 	@echo ... src/tests/regression/BuildPlacementRegressionTest.obj
 	@echo ... src/tests/regression/BuildPlacementRegressionTest.i
 	@echo ... src/tests/regression/BuildPlacementRegressionTest.s
 	@echo ... src/tests/systems/CommandQueueOrderTest.obj
 	@echo ... src/tests/systems/CommandQueueOrderTest.i
 	@echo ... src/tests/systems/CommandQueueOrderTest.s
+	@echo ... src/tests/systems/LogicTickBudgetTest.obj
+	@echo ... src/tests/systems/LogicTickBudgetTest.i
+	@echo ... src/tests/systems/LogicTickBudgetTest.s
 	@echo ... src/tests/systems/RuntimeTelemetryTest.obj
 	@echo ... src/tests/systems/RuntimeTelemetryTest.i
 	@echo ... src/tests/systems/RuntimeTelemetryTest.s
