@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\determinism_smoke_test.dir/objects.a
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\ar.exe qc CMakeFiles\determinism_smoke_test.dir/objects.a @CMakeFiles\determinism_smoke_test.dir\objects1.rsp
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\determinism_smoke_test.dir/objects.a -Wl,--no-whole-archive -o determinism_smoke_test.exe -Wl,--out-implib,libdeterminism_smoke_test.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\determinism_smoke_test.dir\linkLibs.rsp

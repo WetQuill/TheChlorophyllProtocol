@@ -1,7 +1,7 @@
 #include "AStarGrid.h"
 
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <limits>
 #include <map>
@@ -12,6 +12,7 @@ namespace tcp::logic::path {
 
 namespace {
 
+// 曼哈顿距离
 [[nodiscard]] std::int32_t manhattan(GridCoord a, GridCoord b) noexcept {
     const auto dx = (a.x > b.x) ? (a.x - b.x) : (b.x - a.x);
     const auto dy = (a.y > b.y) ? (a.y - b.y) : (b.y - a.y);
@@ -22,6 +23,7 @@ namespace {
     return p.x >= b.minX && p.x <= b.maxX && p.y >= b.minY && p.y <= b.maxY;
 }
 
+// 获取网格四周邻居
 [[nodiscard]] std::array<GridCoord, 4> neighbors(GridCoord p) {
     return std::array<GridCoord, 4>{
         GridCoord{p.x + 1, p.y},
@@ -33,11 +35,9 @@ namespace {
 
 }  // namespace
 
-std::vector<GridCoord> findPathAStar(
-    GridCoord start,
-    GridCoord goal,
-    const std::set<GridCoord>& blocked,
-    const GridBounds& bounds) {
+std::vector<GridCoord> findPathAStar(GridCoord start, GridCoord goal,
+                                     const std::set<GridCoord>& blocked,
+                                     const GridBounds& bounds) {
     if (!inBounds(start, bounds) || !inBounds(goal, bounds)) {
         return {};
     }
@@ -67,8 +67,11 @@ std::vector<GridCoord> findPathAStar(
         std::int32_t bestF = std::numeric_limits<std::int32_t>::max();
         for (const auto& node : openSet) {
             const auto it = fScore.find(node);
-            const auto nodeF = (it == fScore.end()) ? std::numeric_limits<std::int32_t>::max() : it->second;
-            if (!hasCurrent || nodeF < bestF || (nodeF == bestF && node < current)) {
+            const auto nodeF = (it == fScore.end())
+                                   ? std::numeric_limits<std::int32_t>::max()
+                                   : it->second;
+            if (!hasCurrent || nodeF < bestF ||
+                (nodeF == bestF && node < current)) {
                 current = node;
                 bestF = nodeF;
                 hasCurrent = true;
@@ -105,7 +108,9 @@ std::vector<GridCoord> findPathAStar(
 
             const auto tentativeG = currentG + 1;
             const auto gIt = gScore.find(nb);
-            const auto bestKnown = (gIt == gScore.end()) ? std::numeric_limits<std::int32_t>::max() : gIt->second;
+            const auto bestKnown =
+                (gIt == gScore.end()) ? std::numeric_limits<std::int32_t>::max()
+                                      : gIt->second;
             if (tentativeG < bestKnown) {
                 cameFrom[nb] = current;
                 gScore[nb] = tentativeG;

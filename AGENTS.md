@@ -1,10 +1,12 @@
 # AGENTS.md
 
 ## Purpose
+
 This file provides operating rules for autonomous coding agents working in this repository.
 Follow these instructions before making changes.
 
 ## Repository Snapshot (Current)
+
 - Language target: C++20 (from project docs)
 - Architecture target: ECS via EnTT
 - Rendering/input target: SFML 2.6
@@ -12,11 +14,13 @@ Follow these instructions before making changes.
 - Simulation requirement: deterministic fixed-point logic in simulation code
 
 ## Source Files Reviewed
+
 - `AGENT.md`
 - `Plan.md`
 - `InitialPlan.md`
 
 ## External Agent Rules
+
 - Cursor rules: not found (`.cursor/rules/` missing, `.cursorrules` missing)
 - Copilot rules: not found (`.github/copilot-instructions.md` missing)
 
@@ -25,14 +29,17 @@ If these files are added later, update this document and treat those rules as hi
 ## Build / Lint / Test Commands
 
 ### Current Status
+
 Build/test is now configured with CMake + CTest in repository root.
 Use the commands below as the default workflow.
 
 ### Command Discovery Order
+
 1. Use CMake workflow (`CMakeLists.txt` is present).
 2. If CMake is unavailable in an environment, report toolchain missing; do not invent alternatives.
 
 ### Preferred CMake Workflow (when CMake exists)
+
 - Configure:
   - `cmake -S . -B build -G "Visual Studio 17 2022" -A x64`
 - Build:
@@ -47,19 +54,23 @@ Use the commands below as the default workflow.
   - `ctest --test-dir build -C Debug --rerun-failed --output-on-failure`
 
 ### Current CTest Targets
+
 - `DeterminismSmoke`, `FixedPointMath`, `DeterministicRngSequence`, `TickSchedulerDeterminism`
 - `EcsWorldPipeline`, `EcsCoreSystems`, `GameplayLoopCore`, `PlacementAndPathfinding`
 - `ReplayDeterminism`, `UnitConfigFactory`, `CommandQueueOrder`, `DualInstanceDeterminism`
 - `RegressionBuildPlacement`, `RuntimeTelemetry`, `LogicNoFloatCheck`
 
 ### Dependency Integration Status
+
 - SFML integration: optional via CMake option `-DTCP_ENABLE_SFML=ON` and installed SFML 2.6.
 - EnTT integration: optional via CMake option `-DTCP_ENABLE_ENTT=ON` and available `entt/entt.hpp` include path.
 - GoogleTest integration: optional via CMake option `-DTCP_ENABLE_GTEST=ON` and installed GTest.
 - Current baseline tests use plain CTest executables and do not require GTest.
 
 ### Lint / Formatting (expected for C++)
+
 Use these only when corresponding config files exist:
+
 - Format check:
   - `clang-format --dry-run --Werror <files>`
 - Apply formatting:
@@ -70,6 +81,7 @@ Use these only when corresponding config files exist:
   - `cppcheck --enable=warning,performance,portability src`
 
 ### Definition of Done for Changes
+
 - Project config succeeds (e.g., CMake configure)
 - Build succeeds
 - Relevant tests pass (at minimum targeted tests)
@@ -78,12 +90,14 @@ Use these only when corresponding config files exist:
 ## Code Style and Engineering Guidelines
 
 ### Determinism and Simulation
+
 - Never use floating-point types in deterministic simulation code (`src/logic` target area).
 - Use fixed-point arithmetic for positions, movement, cooldowns, and combat math.
 - Keep simulation tick-driven and deterministic across machines.
 - Avoid nondeterministic APIs in simulation (wall-clock time, unordered iteration instability, random without seeded deterministic PRNG).
 
 ### ECS Conventions (EnTT-oriented)
+
 - Keep components as plain data (minimal behavior).
 - Put game behavior in systems, not inside component structs.
 - Systems should process stable, explicit component sets.
@@ -91,11 +105,13 @@ Use these only when corresponding config files exist:
 - Separate simulation state from rendering state.
 
 ### Rendering and Logic Separation
+
 - Rendering/audio are view concerns only; no win/loss or authoritative gameplay rules there.
 - Logic outputs state/events; rendering consumes them.
 - Do not let frame rate affect simulation outcomes.
 
 ### Includes and Imports
+
 - Prefer this include order in C++ files:
   1) matching header
   2) C++ standard library headers
@@ -105,12 +121,14 @@ Use these only when corresponding config files exist:
 - Keep headers minimal; include only what is required.
 
 ### Formatting
+
 - Follow any existing `.clang-format` if added; it is authoritative.
 - If no formatter config exists, preserve surrounding style in touched files.
 - Keep functions focused and short where reasonable.
 - Avoid alignment churn and unrelated reformatting in the same change.
 
 ### Types and Memory
+
 - Prefer fixed-width integer types for serialized/networked/simulation-critical data (`int32_t`, `uint16_t`, etc.).
 - Use smart pointers for ownership; avoid raw owning pointers.
 - Use object pooling for high-frequency transient entities (e.g., projectiles), per project notes.
@@ -118,6 +136,7 @@ Use these only when corresponding config files exist:
 - Mark non-throwing functions `noexcept` when appropriate and safe.
 
 ### Naming Conventions
+
 - Types/classes/components/systems: `PascalCase`
 - Functions/methods: `camelCase`
 - Local variables/parameters: `camelCase`
@@ -125,6 +144,7 @@ Use these only when corresponding config files exist:
 - File names: follow existing module convention; do not rename files without cause
 
 ### Error Handling
+
 - Validate external inputs at boundaries (network packets, file/JSON data, config values).
 - Fail fast on unrecoverable initialization errors with clear diagnostics.
 - For recoverable runtime failures, return explicit error states/results instead of silent fallback.
@@ -132,12 +152,14 @@ Use these only when corresponding config files exist:
 - Keep error messages actionable (what failed, where, and why).
 
 ### Networking / Lockstep Safety
+
 - Exchange commands/inputs, not authoritative world states (except debug tooling).
 - Serialize deterministically and version payload formats.
 - Hash/checksum critical state at checkpoints for desync detection.
 - Keep command application order explicit and deterministic.
 
 ### Testing Expectations
+
 - Add or update tests for all non-trivial logic changes.
 - Prioritize tests in deterministic domains:
   - fixed-point math operations
@@ -148,12 +170,14 @@ Use these only when corresponding config files exist:
 - When fixing a bug, add a regression test first if feasible.
 
 ### Performance and Safety
+
 - Avoid per-tick heap churn in hot paths.
 - Profile before large optimizations; document measured bottlenecks.
 - Use data-oriented layouts where beneficial for ECS iteration.
 - Be explicit about thread ownership and synchronization; avoid data races.
 
 ## Agent Workflow Rules
+
 - Read relevant files before editing.
 - Make minimal, scoped changes aligned with current architecture plans.
 - Do not introduce new frameworks/build tools without clear project direction.
@@ -167,6 +191,7 @@ Use these only when corresponding config files exist:
 - After receiving user assets, place them in the agreed path and update references deterministically (no arbitrary renaming).
 
 ## Practical Notes for This Repository (Now)
+
 - Repository now has CMake scaffold + deterministic simulation baseline + CTest suite.
 - Prefer adding new tests under category folders when possible:
   - `src/tests/systems`

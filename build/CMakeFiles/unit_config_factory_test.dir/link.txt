@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\unit_config_factory_test.dir/objects.a
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\ar.exe qc CMakeFiles\unit_config_factory_test.dir/objects.a @CMakeFiles\unit_config_factory_test.dir\objects1.rsp
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\unit_config_factory_test.dir/objects.a -Wl,--no-whole-archive -o unit_config_factory_test.exe -Wl,--out-implib,libunit_config_factory_test.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\unit_config_factory_test.dir\linkLibs.rsp

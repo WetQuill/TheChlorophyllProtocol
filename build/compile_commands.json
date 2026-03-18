@@ -1,0 +1,170 @@
+[
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\data\\UnitConfigLoader.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\data\\UnitConfigLoader.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/data/UnitConfigLoader.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/data/UnitConfigLoader.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\commands\\CommandQueue.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\commands\\CommandQueue.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/commands/CommandQueue.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/commands/CommandQueue.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\core\\DeterministicRng.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\core\\DeterministicRng.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/core/DeterministicRng.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/core/DeterministicRng.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\core\\SimulationConfig.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\core\\SimulationConfig.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/core/SimulationConfig.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/core/SimulationConfig.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\core\\TickScheduler.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\core\\TickScheduler.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/core/TickScheduler.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/core/TickScheduler.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\debug\\StateHasher.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\debug\\StateHasher.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/debug/StateHasher.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/debug/StateHasher.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\ecs\\World.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\ecs\\World.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/ecs/World.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/ecs/World.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\ecs\\systems\\BuiltInSystems.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\ecs\\systems\\BuiltInSystems.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/ecs/systems/BuiltInSystems.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/ecs/systems/BuiltInSystems.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\math\\FixedPoint.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\math\\FixedPoint.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/math/FixedPoint.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/math/FixedPoint.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\factory\\UnitFactory.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\factory\\UnitFactory.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/factory/UnitFactory.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/factory/UnitFactory.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\path\\AStarGrid.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\path\\AStarGrid.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/path/AStarGrid.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/path/AStarGrid.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\replay\\ReplayPlayer.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\replay\\ReplayPlayer.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/replay/ReplayPlayer.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayPlayer.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tcp_logic.dir/includes_CXX.rsp -g -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles\\tcp_logic.dir\\src\\logic\\replay\\ReplayRecorder.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\logic\\replay\\ReplayRecorder.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/logic/replay/ReplayRecorder.cpp",
+  "output": "CMakeFiles/tcp_logic.dir/src/logic/replay/ReplayRecorder.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/chlorophyll_app.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\chlorophyll_app.dir\\src\\app\\Main.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\app\\Main.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/app/Main.cpp",
+  "output": "CMakeFiles/chlorophyll_app.dir/src/app/Main.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/determinism_smoke_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\determinism_smoke_test.dir\\src\\tests\\DeterminismSmokeTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\DeterminismSmokeTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/DeterminismSmokeTest.cpp",
+  "output": "CMakeFiles/determinism_smoke_test.dir/src/tests/DeterminismSmokeTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/fixed_point_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\fixed_point_test.dir\\src\\tests\\FixedPointTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\FixedPointTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/FixedPointTest.cpp",
+  "output": "CMakeFiles/fixed_point_test.dir/src/tests/FixedPointTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/deterministic_rng_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\deterministic_rng_test.dir\\src\\tests\\DeterministicRngTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\DeterministicRngTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/DeterministicRngTest.cpp",
+  "output": "CMakeFiles/deterministic_rng_test.dir/src/tests/DeterministicRngTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/tick_scheduler_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\tick_scheduler_test.dir\\src\\tests\\TickSchedulerTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\TickSchedulerTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/TickSchedulerTest.cpp",
+  "output": "CMakeFiles/tick_scheduler_test.dir/src/tests/TickSchedulerTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/ecs_world_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\ecs_world_test.dir\\src\\tests\\EcsWorldTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\EcsWorldTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/EcsWorldTest.cpp",
+  "output": "CMakeFiles/ecs_world_test.dir/src/tests/EcsWorldTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/ecs_core_systems_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\ecs_core_systems_test.dir\\src\\tests\\EcsCoreSystemsTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\EcsCoreSystemsTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/EcsCoreSystemsTest.cpp",
+  "output": "CMakeFiles/ecs_core_systems_test.dir/src/tests/EcsCoreSystemsTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/gameplay_loop_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\gameplay_loop_test.dir\\src\\tests\\GameplayLoopTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\GameplayLoopTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/GameplayLoopTest.cpp",
+  "output": "CMakeFiles/gameplay_loop_test.dir/src/tests/GameplayLoopTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/placement_pathfinding_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\placement_pathfinding_test.dir\\src\\tests\\PlacementAndPathfindingTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\PlacementAndPathfindingTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/PlacementAndPathfindingTest.cpp",
+  "output": "CMakeFiles/placement_pathfinding_test.dir/src/tests/PlacementAndPathfindingTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/replay_determinism_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\replay_determinism_test.dir\\src\\tests\\ReplayDeterminismTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\ReplayDeterminismTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/ReplayDeterminismTest.cpp",
+  "output": "CMakeFiles/replay_determinism_test.dir/src/tests/ReplayDeterminismTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/unit_config_factory_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\unit_config_factory_test.dir\\src\\tests\\UnitConfigFactoryTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\UnitConfigFactoryTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/UnitConfigFactoryTest.cpp",
+  "output": "CMakeFiles/unit_config_factory_test.dir/src/tests/UnitConfigFactoryTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/command_queue_order_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\command_queue_order_test.dir\\src\\tests\\systems\\CommandQueueOrderTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\systems\\CommandQueueOrderTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/systems/CommandQueueOrderTest.cpp",
+  "output": "CMakeFiles/command_queue_order_test.dir/src/tests/systems/CommandQueueOrderTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/dual_instance_determinism_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\dual_instance_determinism_test.dir\\src\\tests\\integration\\DualInstanceDeterminismTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\integration\\DualInstanceDeterminismTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/integration/DualInstanceDeterminismTest.cpp",
+  "output": "CMakeFiles/dual_instance_determinism_test.dir/src/tests/integration/DualInstanceDeterminismTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/build_placement_regression_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\build_placement_regression_test.dir\\src\\tests\\regression\\BuildPlacementRegressionTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\regression\\BuildPlacementRegressionTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/regression/BuildPlacementRegressionTest.cpp",
+  "output": "CMakeFiles/build_placement_regression_test.dir/src/tests/regression/BuildPlacementRegressionTest.cpp.obj"
+},
+{
+  "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/runtime_telemetry_test.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\runtime_telemetry_test.dir\\src\\tests\\systems\\RuntimeTelemetryTest.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\tests\\systems\\RuntimeTelemetryTest.cpp",
+  "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/tests/systems/RuntimeTelemetryTest.cpp",
+  "output": "CMakeFiles/runtime_telemetry_test.dir/src/tests/systems/RuntimeTelemetryTest.cpp.obj"
+}
+]

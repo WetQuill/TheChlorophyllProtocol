@@ -14,6 +14,6 @@ C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/command_queue_order_
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/dual_instance_determinism_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/build_placement_regression_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/runtime_telemetry_test.dir
-C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/RUN_TESTS.dir
-C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ALL_BUILD.dir
-C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/ZERO_CHECK.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/edit_cache.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/rebuild_cache.dir

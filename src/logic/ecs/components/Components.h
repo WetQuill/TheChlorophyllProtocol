@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../math/FixedPoint.h"
-
 #include <cstdint>
 #include <vector>
+
+#include "../../math/FixedPoint.h"
 
 namespace tcp::logic::ecs {
 

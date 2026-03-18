@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\dual_instance_determinism_test.dir/objects.a
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\ar.exe qc CMakeFiles\dual_instance_determinism_test.dir/objects.a @CMakeFiles\dual_instance_determinism_test.dir\objects1.rsp
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\dual_instance_determinism_test.dir/objects.a -Wl,--no-whole-archive -o dual_instance_determinism_test.exe -Wl,--out-implib,libdual_instance_determinism_test.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\dual_instance_determinism_test.dir\linkLibs.rsp

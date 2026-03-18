@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../logic/core/SimulationConfig.h"
-#include "../logic/core/TickScheduler.h"
-
 #include <cstdint>
 #include <functional>
+
+#include "../logic/core/SimulationConfig.h"
+#include "../logic/core/TickScheduler.h"
 
 namespace tcp::app {
 
@@ -15,7 +15,7 @@ struct FrameReport {
 };
 
 class GameLoop final {
-public:
+   public:
     explicit GameLoop(const tcp::logic::SimulationConfig& config) noexcept
         : scheduler_(config) {}
 
@@ -28,7 +28,8 @@ public:
         report.catchUpLimited = summary.catchUpLimited;
 
         if (summary.tickDurationMicros > 0) {
-            auto alpha = (summary.remainingMicros * 1000) / summary.tickDurationMicros;
+            auto alpha =
+                (summary.remainingMicros * 1000) / summary.tickDurationMicros;
             if (alpha < 0) {
                 alpha = 0;
             }
@@ -45,11 +46,9 @@ public:
         return scheduler_.currentTick();
     }
 
-    void reset() noexcept {
-        scheduler_.reset();
-    }
+    void reset() noexcept { scheduler_.reset(); }
 
-private:
+   private:
     tcp::logic::TickScheduler scheduler_;
 };
 

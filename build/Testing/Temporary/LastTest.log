@@ -1,18 +1,18 @@
-Start testing: Mar 15 20:55 中国标准时间
+Start testing: Mar 19 00:32 中国标准时间
 ----------------------------------------------------------
 1/15 Testing: DeterminismSmoke
 1/15 Test: DeterminismSmoke
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/determinism_smoke_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"DeterminismSmoke" start time: Mar 15 20:55 中国标准时间
+"DeterminismSmoke" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Determinism smoke test passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.14 sec
 ----------------------------------------------------------
 Test Passed.
-"DeterminismSmoke" end time: Mar 15 20:55 中国标准时间
+"DeterminismSmoke" end time: Mar 19 00:32 中国标准时间
 "DeterminismSmoke" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -20,15 +20,15 @@ Test Passed.
 2/15 Test: FixedPointMath
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/fixed_point_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"FixedPointMath" start time: Mar 15 20:55 中国标准时间
+"FixedPointMath" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 FixedPoint tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.12 sec
 ----------------------------------------------------------
 Test Passed.
-"FixedPointMath" end time: Mar 15 20:55 中国标准时间
+"FixedPointMath" end time: Mar 19 00:32 中国标准时间
 "FixedPointMath" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -36,15 +36,15 @@ Test Passed.
 3/15 Test: DeterministicRngSequence
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/deterministic_rng_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"DeterministicRngSequence" start time: Mar 15 20:55 中国标准时间
+"DeterministicRngSequence" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 DeterministicRng tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.12 sec
 ----------------------------------------------------------
 Test Passed.
-"DeterministicRngSequence" end time: Mar 15 20:55 中国标准时间
+"DeterministicRngSequence" end time: Mar 19 00:32 中国标准时间
 "DeterministicRngSequence" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -52,15 +52,15 @@ Test Passed.
 4/15 Test: TickSchedulerDeterminism
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/tick_scheduler_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"TickSchedulerDeterminism" start time: Mar 15 20:55 中国标准时间
+"TickSchedulerDeterminism" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 TickScheduler tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.13 sec
 ----------------------------------------------------------
 Test Passed.
-"TickSchedulerDeterminism" end time: Mar 15 20:55 中国标准时间
+"TickSchedulerDeterminism" end time: Mar 19 00:32 中国标准时间
 "TickSchedulerDeterminism" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -68,15 +68,15 @@ Test Passed.
 5/15 Test: EcsWorldPipeline
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/ecs_world_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"EcsWorldPipeline" start time: Mar 15 20:55 中国标准时间
+"EcsWorldPipeline" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 ECS world tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.17 sec
 ----------------------------------------------------------
 Test Passed.
-"EcsWorldPipeline" end time: Mar 15 20:55 中国标准时间
+"EcsWorldPipeline" end time: Mar 19 00:32 中国标准时间
 "EcsWorldPipeline" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -84,15 +84,15 @@ Test Passed.
 6/15 Test: EcsCoreSystems
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/ecs_core_systems_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"EcsCoreSystems" start time: Mar 15 20:55 中国标准时间
+"EcsCoreSystems" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 ECS core systems tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.18 sec
 ----------------------------------------------------------
 Test Passed.
-"EcsCoreSystems" end time: Mar 15 20:55 中国标准时间
+"EcsCoreSystems" end time: Mar 19 00:32 中国标准时间
 "EcsCoreSystems" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -100,15 +100,15 @@ Test Passed.
 7/15 Test: GameplayLoopCore
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/gameplay_loop_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"GameplayLoopCore" start time: Mar 15 20:55 中国标准时间
+"GameplayLoopCore" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Gameplay loop tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.18 sec
 ----------------------------------------------------------
 Test Passed.
-"GameplayLoopCore" end time: Mar 15 20:55 中国标准时间
+"GameplayLoopCore" end time: Mar 19 00:32 中国标准时间
 "GameplayLoopCore" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -116,15 +116,15 @@ Test Passed.
 8/15 Test: PlacementAndPathfinding
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/placement_pathfinding_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"PlacementAndPathfinding" start time: Mar 15 20:55 中国标准时间
+"PlacementAndPathfinding" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Placement and pathfinding tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.18 sec
 ----------------------------------------------------------
 Test Passed.
-"PlacementAndPathfinding" end time: Mar 15 20:55 中国标准时间
+"PlacementAndPathfinding" end time: Mar 19 00:32 中国标准时间
 "PlacementAndPathfinding" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -132,15 +132,15 @@ Test Passed.
 9/15 Test: ReplayDeterminism
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/replay_determinism_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"ReplayDeterminism" start time: Mar 15 20:55 中国标准时间
+"ReplayDeterminism" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Replay determinism tests passed
 <end of output>
-Test time =   0.03 sec
+Test time =   0.21 sec
 ----------------------------------------------------------
 Test Passed.
-"ReplayDeterminism" end time: Mar 15 20:55 中国标准时间
+"ReplayDeterminism" end time: Mar 19 00:32 中国标准时间
 "ReplayDeterminism" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -148,15 +148,15 @@ Test Passed.
 10/15 Test: UnitConfigFactory
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/unit_config_factory_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"UnitConfigFactory" start time: Mar 15 20:55 中国标准时间
+"UnitConfigFactory" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Unit config + factory tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.20 sec
 ----------------------------------------------------------
 Test Passed.
-"UnitConfigFactory" end time: Mar 15 20:55 中国标准时间
+"UnitConfigFactory" end time: Mar 19 00:32 中国标准时间
 "UnitConfigFactory" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -164,15 +164,15 @@ Test Passed.
 11/15 Test: CommandQueueOrder
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/command_queue_order_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"CommandQueueOrder" start time: Mar 15 20:55 中国标准时间
+"CommandQueueOrder" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Command queue order tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.17 sec
 ----------------------------------------------------------
 Test Passed.
-"CommandQueueOrder" end time: Mar 15 20:55 中国标准时间
+"CommandQueueOrder" end time: Mar 19 00:32 中国标准时间
 "CommandQueueOrder" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -180,15 +180,15 @@ Test Passed.
 12/15 Test: DualInstanceDeterminism
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/dual_instance_determinism_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"DualInstanceDeterminism" start time: Mar 15 20:55 中国标准时间
+"DualInstanceDeterminism" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Dual instance determinism tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.19 sec
 ----------------------------------------------------------
 Test Passed.
-"DualInstanceDeterminism" end time: Mar 15 20:55 中国标准时间
+"DualInstanceDeterminism" end time: Mar 19 00:32 中国标准时间
 "DualInstanceDeterminism" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -196,15 +196,15 @@ Test Passed.
 13/15 Test: RegressionBuildPlacement
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/build_placement_regression_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"RegressionBuildPlacement" start time: Mar 15 20:55 中国标准时间
+"RegressionBuildPlacement" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Build placement regression passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.18 sec
 ----------------------------------------------------------
 Test Passed.
-"RegressionBuildPlacement" end time: Mar 15 20:55 中国标准时间
+"RegressionBuildPlacement" end time: Mar 19 00:32 中国标准时间
 "RegressionBuildPlacement" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -212,15 +212,15 @@ Test Passed.
 14/15 Test: RuntimeTelemetry
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/Debug/runtime_telemetry_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"RuntimeTelemetry" start time: Mar 15 20:55 中国标准时间
+"RuntimeTelemetry" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 Runtime telemetry tests passed
 <end of output>
-Test time =   0.01 sec
+Test time =   0.18 sec
 ----------------------------------------------------------
 Test Passed.
-"RuntimeTelemetry" end time: Mar 15 20:55 中国标准时间
+"RuntimeTelemetry" end time: Mar 19 00:32 中国标准时间
 "RuntimeTelemetry" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -228,16 +228,16 @@ Test Passed.
 15/15 Test: LogicNoFloatCheck
 Command: "C:/Users/KaiYuanZhang/AppData/Local/Programs/Python/Python313/python.exe" "C:/WetQuill_project/TheChlorophyllProtocol/tools/check_logic_no_float.py" "C:/WetQuill_project/TheChlorophyllProtocol/src/logic"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"LogicNoFloatCheck" start time: Mar 15 20:55 中国标准时间
+"LogicNoFloatCheck" start time: Mar 19 00:32 中国标准时间
 Output:
 ----------------------------------------------------------
 No float/double usage found in src/logic
 <end of output>
-Test time =   0.03 sec
+Test time =   0.27 sec
 ----------------------------------------------------------
 Test Passed.
-"LogicNoFloatCheck" end time: Mar 15 20:55 中国标准时间
+"LogicNoFloatCheck" end time: Mar 19 00:32 中国标准时间
 "LogicNoFloatCheck" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 15 20:55 中国标准时间
+End testing: Mar 19 00:32 中国标准时间

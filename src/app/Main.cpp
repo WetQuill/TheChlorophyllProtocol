@@ -1,7 +1,7 @@
-#include "GameLoop.h"
-
 #include <iostream>
 #include <vector>
+
+#include "GameLoop.h"
 
 int main() {
     const tcp::logic::SimulationConfig config{};
@@ -13,9 +13,8 @@ int main() {
     };
 
     for (const auto frameElapsed : frameTimesMicros) {
-        const auto report = loop.frame(frameElapsed, [&](std::int64_t tick) {
-            logicCounter += tick + 1;
-        });
+        const auto report = loop.frame(
+            frameElapsed, [&](std::int64_t tick) { logicCounter += tick + 1; });
         std::cout << "frame=" << frameElapsed
                   << " ticks=" << report.ticksExecuted
                   << " alpha_permille=" << report.interpolationPermille

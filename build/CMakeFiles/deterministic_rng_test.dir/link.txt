@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\deterministic_rng_test.dir/objects.a
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\ar.exe qc CMakeFiles\deterministic_rng_test.dir/objects.a @CMakeFiles\deterministic_rng_test.dir\objects1.rsp
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\deterministic_rng_test.dir/objects.a -Wl,--no-whole-archive -o deterministic_rng_test.exe -Wl,--out-implib,libdeterministic_rng_test.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\deterministic_rng_test.dir\linkLibs.rsp

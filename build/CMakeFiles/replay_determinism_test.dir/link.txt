@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\replay_determinism_test.dir/objects.a
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\ar.exe qc CMakeFiles\replay_determinism_test.dir/objects.a @CMakeFiles\replay_determinism_test.dir\objects1.rsp
+C:\Users\KaiYuanZhang\AppData\Local\Programs\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\replay_determinism_test.dir/objects.a -Wl,--no-whole-archive -o replay_determinism_test.exe -Wl,--out-implib,libreplay_determinism_test.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\replay_determinism_test.dir\linkLibs.rsp
