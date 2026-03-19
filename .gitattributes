@@ -1,0 +1,2 @@
+# 将所有文本文件的行尾符设置为 LF
+* text=auto eol=lf

@@ -179,6 +179,7 @@ Use these only when corresponding config files exist:
 ## Agent Workflow Rules
 
 - Read relevant files before editing.
+- Before executing any Bash/terminal command, ask the user for explicit confirmation in the current session.
 - Make minimal, scoped changes aligned with current architecture plans.
 - Do not introduce new frameworks/build tools without clear project direction.
 - Do not commit generated artifacts or local environment files.

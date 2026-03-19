@@ -413,14 +413,16 @@ bool runVisualSingle(const AppOptions& options) {
 
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
-                    const auto target = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+                    const sf::Vector2f clickPos{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)};
                     const auto& world = driver.world();
                     const auto& transforms = world.transforms();
                     const auto& teams = world.teams();
                     const auto& commandBuffers = world.commandBuffers();
 
                     std::optional<tcp::logic::ecs::EntityId> best;
-                    std::int32_t bestDistSq = 999999;
+                    float bestDistSq = 999999.0F;
+                    constexpr float kSelectRadiusPixels = 26.0F;
+                    constexpr float kSelectRadiusSq = kSelectRadiusPixels * kSelectRadiusPixels;
                     for (const auto& [entityId, tr] : transforms) {
                         if (commandBuffers.find(entityId) == commandBuffers.end()) {
                             continue;
@@ -430,10 +432,11 @@ bool runVisualSingle(const AppOptions& options) {
                             continue;
                         }
 
-                        const auto dx = tr.x.toIntTrunc() - target.first;
-                        const auto dy = tr.y.toIntTrunc() - target.second;
-                        const auto distSq = (dx * dx) + (dy * dy);
-                        if (distSq < bestDistSq && distSq <= 1) {
+                        const auto screen = worldToScreen(tr);
+                        const float dx = screen.x - clickPos.x;
+                        const float dy = screen.y - clickPos.y;
+                        const float distSq = (dx * dx) + (dy * dy);
+                        if (distSq < bestDistSq && distSq <= kSelectRadiusSq) {
                             bestDistSq = distSq;
                             best = entityId;
                         }

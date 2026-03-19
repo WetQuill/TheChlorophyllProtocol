@@ -1,4 +1,5 @@
 *.exe
+*.dll
 
 # CMake / CTest build outputs
 build/
@@ -25,6 +26,8 @@ Testing/
 # Generic transient files
 *.log
 *.tmp
+.cache/
 
 # Replay or test artifacts generated during local runs
 replay_*.txt
+simulation_driver_demo_replay.txt
