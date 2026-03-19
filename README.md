@@ -65,6 +65,14 @@ Visual placeholder assets:
 - The visual path attempts to load placeholder textures from `assets/visual/` (see `assets/visual/PLACEHOLDER_ASSET_LIST.md`).
 - If a texture is missing, rendering falls back to procedural shapes so the app remains runnable.
 
+Visual controls (single mode):
+
+- Left-click on a friendly controllable unit to select it.
+- Left-click empty ground to clear current selection.
+- Right-click with a selected unit to issue a move command.
+- Right-click with no selected unit to open the build list.
+- Left-click the build list item to place a pea military camp build command at that grid cell.
+
 Examples:
 
 ```bash

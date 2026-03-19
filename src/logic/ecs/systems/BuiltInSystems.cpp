@@ -14,6 +14,7 @@ namespace {
 constexpr std::int32_t kBuildRadiusCells = 4;
 constexpr std::int32_t kDefaultBuildCostSun = 20;
 constexpr std::int32_t kBuildingHealth = 20;
+constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
 
 [[nodiscard]] path::GridCoord toGridCoord(const Transform& transform) noexcept {
     return {
@@ -98,7 +99,7 @@ void tryHandleBuildCommand(World& world, EntityId issuerId, const QueuedCommand&
     world.setTransform(buildingEntity, toTransform(buildCell));
     world.setHealth(buildingEntity, Health{kBuildingHealth, kBuildingHealth});
     world.setBuilding(buildingEntity, Building{true});
-    world.setIdentity(buildingEntity, Identity{900, 1});
+    world.setIdentity(buildingEntity, Identity{kPeaMilitaryCampArchetypeId, 1});
 }
 
 [[nodiscard]] math::FixedPoint distanceSquared(const Transform& a, const Transform& b) noexcept {

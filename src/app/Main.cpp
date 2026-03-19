@@ -331,6 +331,9 @@ bool runLockstep(const std::int64_t ticks) {
 
 bool runVisualSingle(const AppOptions& options) {
 #if TCP_VISUAL_SFML_ENABLED
+    constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
+    constexpr std::int32_t kPeaMilitaryCampCostSun = 20;
+
     tcp::logic::runtime::SimulationDriver driver(makeDemoWorld());
     driver.useSingleLocalMode();
 
@@ -349,8 +352,15 @@ bool runVisualSingle(const AppOptions& options) {
         std::int64_t expireTick{-1};
     };
 
+    struct BuildMenuState {
+        sf::Vector2f anchor{};
+        std::int32_t gridX{0};
+        std::int32_t gridY{0};
+    };
+
     std::optional<tcp::logic::ecs::EntityId> selectedEntity;
     std::optional<MoveMarker> moveMarker;
+    std::optional<BuildMenuState> buildMenu;
     auto previousFrameTime = std::chrono::steady_clock::now();
 
 #if TCP_VISUAL_SFML_TEXTURES
@@ -358,6 +368,7 @@ bool runVisualSingle(const AppOptions& options) {
     sf::Texture texHq1;
     sf::Texture texPeaMilitia;
     sf::Texture texSunflower;
+    sf::Texture texPeaMilitaryCamp;
     sf::Texture texSelectionRing;
     sf::Texture texMoveMarker;
 
@@ -381,6 +392,7 @@ bool runVisualSingle(const AppOptions& options) {
     const bool hasHq1Texture = loadTexture(texHq1, "assets/visual/buildings/hq_team1.png");
     const bool hasPeaTexture = loadTexture(texPeaMilitia, "assets/visual/units/pea_militia.png");
     const bool hasSunflowerTexture = loadTexture(texSunflower, "assets/visual/units/sunflower_generator.png");
+    const bool hasPeaMilitaryCampTexture = loadTexture(texPeaMilitaryCamp, "assets/visual/buildings/pea_military_camp.png");
     const bool hasSelectionRingTexture = loadTexture(texSelectionRing, "assets/visual/fx/selection_ring.png");
     const bool hasMoveMarkerTexture = loadTexture(texMoveMarker, "assets/visual/fx/move_target_marker.png");
 #endif
@@ -401,6 +413,33 @@ bool runVisualSingle(const AppOptions& options) {
         };
     };
 
+    const auto buildMenuItemRect = [&](const BuildMenuState& state) {
+        return sf::FloatRect{state.anchor.x, state.anchor.y, 188.0F, 52.0F};
+    };
+
+    const auto pointInRect = [](const sf::FloatRect& rect, const sf::Vector2f point) {
+        return point.x >= rect.left && point.x <= (rect.left + rect.width) &&
+               point.y >= rect.top && point.y <= (rect.top + rect.height);
+    };
+
+    const auto findBuildIssuer = [&]() -> std::optional<tcp::logic::ecs::EntityId> {
+        const auto& world = driver.world();
+        const auto& teams = world.teams();
+        const auto& commandBuffers = world.commandBuffers();
+        std::optional<tcp::logic::ecs::EntityId> best;
+        for (const auto& [entityId, buffer] : commandBuffers) {
+            (void)buffer;
+            const auto teamIt = teams.find(entityId);
+            if (teamIt == teams.end() || teamIt->second.value != 0U) {
+                continue;
+            }
+            if (!best.has_value() || entityId < best.value()) {
+                best = entityId;
+            }
+        }
+        return best;
+    };
+
     bool running = true;
     while (running && window.isOpen()) {
         sf::Event event;
@@ -414,6 +453,30 @@ bool runVisualSingle(const AppOptions& options) {
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     const sf::Vector2f clickPos{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)};
+
+                    bool consumedByBuildMenu = false;
+                    if (buildMenu.has_value()) {
+                        const auto itemRect = buildMenuItemRect(buildMenu.value());
+                        if (pointInRect(itemRect, clickPos)) {
+                            const auto issuer = findBuildIssuer();
+                            if (issuer.has_value()) {
+                                driver.queueLocalCommand(
+                                    0,
+                                    issuer.value(),
+                                    tcp::logic::ecs::CommandType::kBuild,
+                                    buildMenu->gridX,
+                                    buildMenu->gridY,
+                                    kPeaMilitaryCampCostSun);
+                            }
+                            consumedByBuildMenu = true;
+                        }
+                        buildMenu.reset();
+                    }
+
+                    if (consumedByBuildMenu) {
+                        continue;
+                    }
+
                     const auto& world = driver.world();
                     const auto& transforms = world.transforms();
                     const auto& teams = world.teams();
@@ -458,7 +521,15 @@ bool runVisualSingle(const AppOptions& options) {
                             gy,
                             0);
                         moveMarker = MoveMarker{gx, gy, driver.world().currentTick() + 20};
+                        buildMenu.reset();
                     }
+                } else if (event.mouseButton.button == sf::Mouse::Right) {
+                    const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+                    buildMenu = BuildMenuState{
+                        sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)},
+                        gx,
+                        gy,
+                    };
                 }
             }
         }
@@ -496,6 +567,8 @@ bool runVisualSingle(const AppOptions& options) {
         const auto& teams = world.teams();
         const auto& healths = world.healths();
         const auto& hqs = world.headquarters();
+        const auto& buildings = world.buildings();
+        const auto& identities = world.identities();
         const auto& sunProducers = world.sunProducers();
 
         for (const auto entityId : world.entities()) {
@@ -508,16 +581,21 @@ bool runVisualSingle(const AppOptions& options) {
             const auto teamIt = teams.find(entityId);
             const bool teamOne = (teamIt != teams.end() && teamIt->second.value == 1U);
             const bool isHq = hqs.find(entityId) != hqs.end();
+            const bool isBuilding = buildings.find(entityId) != buildings.end();
             const bool isSunProducer = sunProducers.find(entityId) != sunProducers.end();
+            const auto idIt = identities.find(entityId);
+            const bool isPeaMilitaryCamp =
+                (idIt != identities.end() && idIt->second.archetypeId == kPeaMilitaryCampArchetypeId);
 
             bool drewSprite = false;
 #if TCP_VISUAL_SFML_TEXTURES
-            if (isHq) {
+            if (isHq || isBuilding) {
                 const sf::Texture* texture = nullptr;
-                if (teamOne && hasHq1Texture) {
+                if (isPeaMilitaryCamp && hasPeaMilitaryCampTexture) {
+                    texture = &texPeaMilitaryCamp;
+                } else if (teamOne && hasHq1Texture) {
                     texture = &texHq1;
-                }
-                if (!teamOne && hasHq0Texture) {
+                } else if (!teamOne && hasHq0Texture) {
                     texture = &texHq0;
                 }
 
@@ -526,7 +604,8 @@ bool runVisualSingle(const AppOptions& options) {
                     const auto size = texture->getSize();
                     if (size.x > 0U && size.y > 0U) {
                         sprite.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
-                        sprite.setScale(sf::Vector2f{54.0F / static_cast<float>(size.x), 54.0F / static_cast<float>(size.y)});
+                        const float targetSize = isPeaMilitaryCamp ? 62.0F : 54.0F;
+                        sprite.setScale(sf::Vector2f{targetSize / static_cast<float>(size.x), targetSize / static_cast<float>(size.y)});
                     }
                     sprite.setPosition(screen);
                     window.draw(sprite);
@@ -554,15 +633,19 @@ bool runVisualSingle(const AppOptions& options) {
             }
 #endif
 
-            if (isHq && !drewSprite) {
+            if ((isHq || isBuilding) && !drewSprite) {
                 sf::RectangleShape hq(sf::Vector2f{54.0F, 54.0F});
                 hq.setOrigin(sf::Vector2f{27.0F, 27.0F});
                 hq.setPosition(screen);
-                hq.setFillColor(teamOne ? sf::Color(176U, 110U, 32U) : sf::Color(58U, 162U, 74U));
+                if (isPeaMilitaryCamp) {
+                    hq.setFillColor(teamOne ? sf::Color(170U, 137U, 63U) : sf::Color(65U, 133U, 81U));
+                } else {
+                    hq.setFillColor(teamOne ? sf::Color(176U, 110U, 32U) : sf::Color(58U, 162U, 74U));
+                }
                 hq.setOutlineColor(sf::Color(22U, 22U, 22U));
                 hq.setOutlineThickness(2.0F);
                 window.draw(hq);
-            } else if (!isHq && !drewSprite) {
+            } else if (!isHq && !isBuilding && !drewSprite) {
                 sf::CircleShape unit(kEntityRadius);
                 unit.setOrigin(sf::Vector2f{kEntityRadius, kEntityRadius});
                 unit.setPosition(screen);
@@ -646,6 +729,56 @@ bool runVisualSingle(const AppOptions& options) {
             }
         }
 
+        if (buildMenu.has_value()) {
+            auto itemRect = buildMenuItemRect(buildMenu.value());
+            if ((itemRect.left + itemRect.width) > 1250.0F) {
+                itemRect.left = 1250.0F - itemRect.width;
+            }
+            if ((itemRect.top + itemRect.height) > 700.0F) {
+                itemRect.top = 700.0F - itemRect.height;
+            }
+
+            sf::RectangleShape itemBg(sf::Vector2f{itemRect.width, itemRect.height});
+            itemBg.setPosition(sf::Vector2f{itemRect.left, itemRect.top});
+            itemBg.setFillColor(sf::Color(23U, 30U, 23U, 230U));
+            itemBg.setOutlineColor(sf::Color(88U, 128U, 84U));
+            itemBg.setOutlineThickness(2.0F);
+            window.draw(itemBg);
+
+#if TCP_VISUAL_SFML_TEXTURES
+            if (hasPeaMilitaryCampTexture) {
+                sf::Sprite campPreview(texPeaMilitaryCamp);
+                const auto size = texPeaMilitaryCamp.getSize();
+                if (size.x > 0U && size.y > 0U) {
+                    campPreview.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
+                    campPreview.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
+                }
+                campPreview.setPosition(sf::Vector2f{itemRect.left + 28.0F, itemRect.top + 26.0F});
+                window.draw(campPreview);
+            } else {
+#endif
+                sf::RectangleShape campPreview(sf::Vector2f{30.0F, 30.0F});
+                campPreview.setOrigin(sf::Vector2f{15.0F, 15.0F});
+                campPreview.setPosition(sf::Vector2f{itemRect.left + 28.0F, itemRect.top + 26.0F});
+                campPreview.setFillColor(sf::Color(91U, 142U, 95U));
+                campPreview.setOutlineColor(sf::Color(26U, 26U, 26U));
+                campPreview.setOutlineThickness(2.0F);
+                window.draw(campPreview);
+#if TCP_VISUAL_SFML_TEXTURES
+            }
+#endif
+
+            sf::RectangleShape labelBar(sf::Vector2f{126.0F, 12.0F});
+            labelBar.setPosition(sf::Vector2f{itemRect.left + 50.0F, itemRect.top + 20.0F});
+            labelBar.setFillColor(sf::Color(166U, 214U, 164U));
+            window.draw(labelBar);
+
+            sf::RectangleShape costBar(sf::Vector2f{58.0F, 8.0F});
+            costBar.setPosition(sf::Vector2f{itemRect.left + 50.0F, itemRect.top + 36.0F});
+            costBar.setFillColor(sf::Color(236U, 212U, 103U));
+            window.draw(costBar);
+        }
+
         sf::RectangleShape hudBg(sf::Vector2f{1230.0F, 42.0F});
         hudBg.setPosition(sf::Vector2f{20.0F, 18.0F});
         hudBg.setFillColor(sf::Color(12U, 17U, 12U, 210U));
@@ -664,6 +797,9 @@ bool runVisualSingle(const AppOptions& options) {
             title << selectedEntity.value();
         } else {
             title << "none";
+        }
+        if (buildMenu.has_value()) {
+            title << " | build-menu camp @(" << buildMenu->gridX << ',' << buildMenu->gridY << ')';
         }
         title << " alpha=" << frameReport.interpolationPermille;
         window.setTitle(title.str());
