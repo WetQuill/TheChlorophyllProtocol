@@ -14,6 +14,6 @@ FixedPointMath 5 0.00155744
 DeterministicRngSequence 5 0.00159274
 LogicNoFloatCheck 5 0.0072298
 LogicTickBudget 1 0.877359
-LockstepCommandSync 4 0.00612155
-SimulationDriverModes 4 0.0069378
+LockstepCommandSync 7 0.00385659
+SimulationDriverModes 7 0.00437131
 ---

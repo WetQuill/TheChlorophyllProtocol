@@ -12,7 +12,6 @@ namespace tcp::logic::path {
 
 namespace {
 
-// 曼哈顿距离
 [[nodiscard]] std::int32_t manhattan(GridCoord a, GridCoord b) noexcept {
     const auto dx = (a.x > b.x) ? (a.x - b.x) : (b.x - a.x);
     const auto dy = (a.y > b.y) ? (a.y - b.y) : (b.y - a.y);
@@ -23,7 +22,6 @@ namespace {
     return p.x >= b.minX && p.x <= b.maxX && p.y >= b.minY && p.y <= b.maxY;
 }
 
-// 获取网格四周邻居
 [[nodiscard]] std::array<GridCoord, 4> neighbors(GridCoord p) {
     return std::array<GridCoord, 4>{
         GridCoord{p.x + 1, p.y},

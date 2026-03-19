@@ -96,6 +96,9 @@ chlorophyll_app_EXTERNAL_OBJECTS =
 chlorophyll_app.exe: CMakeFiles/chlorophyll_app.dir/src/app/Main.cpp.obj
 chlorophyll_app.exe: CMakeFiles/chlorophyll_app.dir/build.make
 chlorophyll_app.exe: libtcp_logic.a
+chlorophyll_app.exe: C:/libs/SFML-2.6.2/lib/sfml-graphics-d.lib
+chlorophyll_app.exe: C:/libs/SFML-2.6.2/lib/sfml-window-d.lib
+chlorophyll_app.exe: C:/libs/SFML-2.6.2/lib/sfml-system-d.lib
 chlorophyll_app.exe: CMakeFiles/chlorophyll_app.dir/linkLibs.rsp
 chlorophyll_app.exe: CMakeFiles/chlorophyll_app.dir/objects1.rsp
 chlorophyll_app.exe: CMakeFiles/chlorophyll_app.dir/link.txt

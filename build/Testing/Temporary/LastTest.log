@@ -1,18 +1,18 @@
-Start testing: Mar 19 01:14 中国标准时间
+Start testing: Mar 19 13:50 中国标准时间
 ----------------------------------------------------------
 14/18 Testing: LockstepCommandSync
 14/18 Test: LockstepCommandSync
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/lockstep_command_sync_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"LockstepCommandSync" start time: Mar 19 01:14 中国标准时间
+"LockstepCommandSync" start time: Mar 19 13:50 中国标准时间
 Output:
 ----------------------------------------------------------
 Lockstep command sync tests passed
 <end of output>
-Test time =   0.02 sec
+Test time =   0.03 sec
 ----------------------------------------------------------
 Test Passed.
-"LockstepCommandSync" end time: Mar 19 01:14 中国标准时间
+"LockstepCommandSync" end time: Mar 19 13:50 中国标准时间
 "LockstepCommandSync" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -20,7 +20,7 @@ Test Passed.
 15/18 Test: SimulationDriverModes
 Command: "C:/WetQuill_project/TheChlorophyllProtocol/build/simulation_driver_modes_test.exe"
 Directory: C:/WetQuill_project/TheChlorophyllProtocol/build
-"SimulationDriverModes" start time: Mar 19 01:14 中国标准时间
+"SimulationDriverModes" start time: Mar 19 13:50 中国标准时间
 Output:
 ----------------------------------------------------------
 Simulation driver modes tests passed
@@ -28,8 +28,8 @@ Simulation driver modes tests passed
 Test time =   0.03 sec
 ----------------------------------------------------------
 Test Passed.
-"SimulationDriverModes" end time: Mar 19 01:14 中国标准时间
+"SimulationDriverModes" end time: Mar 19 13:50 中国标准时间
 "SimulationDriverModes" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 19 01:14 中国标准时间
+End testing: Mar 19 13:50 中国标准时间

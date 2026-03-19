@@ -91,7 +91,7 @@
 },
 {
   "directory": "C:/WetQuill_project/TheChlorophyllProtocol/build",
-  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe  @CMakeFiles/chlorophyll_app.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\chlorophyll_app.dir\\src\\app\\Main.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\app\\Main.cpp",
+  "command": "C:\\Users\\KaiYuanZhang\\AppData\\Local\\Programs\\mingw64\\bin\\g++.exe -DTCP_HAS_SFML=1 @CMakeFiles/chlorophyll_app.dir/includes_CXX.rsp -g -std=c++20 -o CMakeFiles\\chlorophyll_app.dir\\src\\app\\Main.cpp.obj -c C:\\WetQuill_project\\TheChlorophyllProtocol\\src\\app\\Main.cpp",
   "file": "C:/WetQuill_project/TheChlorophyllProtocol/src/app/Main.cpp",
   "output": "CMakeFiles/chlorophyll_app.dir/src/app/Main.cpp.obj"
 },

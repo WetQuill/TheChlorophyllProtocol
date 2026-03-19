@@ -1,1 +1,1 @@
--IC:/WetQuill_project/TheChlorophyllProtocol/src
+-IC:/WetQuill_project/TheChlorophyllProtocol/src -isystem "C:/libs/SFML-2.6.2/include"

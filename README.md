@@ -2,10 +2,36 @@
 
 Deterministic C++20 RTS prototype scaffold with fixed-tick simulation, replay support, and lockstep command sync bootstrap.
 
+## Visualization v1 Plan
+
+Single-mode visualization is implemented first, while replay/lockstep stay in CLI mode for now.
+
+Execution steps:
+
+1. Build SFML-backed app path behind `TCP_ENABLE_SFML=ON`.
+2. Keep simulation authority in `src/logic`; renderer is read-only world presentation.
+3. Drive logic with fixed ticks via `GameLoop`, render each frame independently.
+4. Add single-mode interaction: left-click select controllable unit, right-click issue move command.
+5. Add HUD/debug readout (tick/hash/entity count/sun/selection) without changing simulation rules.
+6. Load placeholder textures by stable path when available, and fall back to procedural shapes if missing.
+
+Out of scope for this v1:
+
+- Replay window playback UI
+- Lockstep multi-window visualization
+- Final art integration (placeholders only)
+
 ## Build
 
 ```bash
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+cmake --build build --config Debug -j
+```
+
+To enable the visualization window path:
+
+```bash
+cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DTCP_ENABLE_SFML=ON
 cmake --build build --config Debug -j
 ```
 
@@ -30,10 +56,20 @@ Supported arguments:
 - `--replay-path PATH` (used by `single` to save and `replay` to load)
 - `--help`
 
+Visualization argument:
+
+- `--visual` (single-mode window view, requires SFML build path)
+
+Visual placeholder assets:
+
+- The visual path attempts to load placeholder textures from `assets/visual/` (see `assets/visual/PLACEHOLDER_ASSET_LIST.md`).
+- If a texture is missing, rendering falls back to procedural shapes so the app remains runnable.
+
 Examples:
 
 ```bash
 build/chlorophyll_app.exe --mode single --ticks 8
 build/chlorophyll_app.exe --mode replay --ticks 8 --replay-path simulation_driver_demo_replay.txt
 build/chlorophyll_app.exe --mode lockstep --ticks 8
+build/chlorophyll_app.exe --mode single --visual
 ```

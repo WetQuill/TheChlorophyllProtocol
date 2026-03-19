@@ -12,7 +12,6 @@ void DeterministicRng::reseed(std::uint32_t seed) noexcept {
     state_ = normalizeSeed(seed);
 }
 
-// 确定性伪随机数生成, Xorshift 算法的一个变种
 std::uint32_t DeterministicRng::nextU32() noexcept {
     std::uint32_t x = state_;
     x ^= x << 13U;

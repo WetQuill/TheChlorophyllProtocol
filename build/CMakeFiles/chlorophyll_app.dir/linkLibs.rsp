@@ -1,1 +1,1 @@
- libtcp_logic.a -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
+ libtcp_logic.a "C:/libs/SFML-2.6.2/lib/sfml-graphics-d.lib" "C:/libs/SFML-2.6.2/lib/sfml-window-d.lib" "C:/libs/SFML-2.6.2/lib/sfml-system-d.lib" -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
