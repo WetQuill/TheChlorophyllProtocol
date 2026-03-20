@@ -23,6 +23,14 @@ Final art should replace these files in-place (same path and same file name).
 - Usage: team 1 headquarters
 - Spec: PNG with alpha, 96x96, center anchor
 
+- File: `assets/visual/buildings/pea_military_camp.png`
+- Usage: buildable pea military camp
+- Spec: PNG with alpha, 96x96, center anchor
+
+- File: `assets/visual/buildings/sunflower_power_plant.png`
+- Usage: buildable sunflower power plant (sun generation)
+- Spec: PNG with alpha, 96x96, center anchor
+
 ## Map / FX
 
 - File: `assets/visual/map/grid_tile.png`

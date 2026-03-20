@@ -17,6 +17,7 @@ struct Velocity {
     math::FixedPoint yPerTick{};
 };
 
+// Health(current, max)
 struct Health {
     std::int32_t current{0};
     std::int32_t max{0};
@@ -77,6 +78,7 @@ enum class CommandType : std::uint8_t {
     kMove = 1,
     kAttack = 2,
     kStop = 3,
+    kBuildSunPowerPlant = 4,
 };
 
 struct QueuedCommand {

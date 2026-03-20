@@ -78,6 +78,11 @@ public:
     void addSunForTeam(std::uint8_t teamId, std::int32_t delta) noexcept;
     [[nodiscard]] bool spendSunForTeam(std::uint8_t teamId, std::int32_t amount) noexcept;
 
+    [[nodiscard]] std::int32_t powerForTeam(std::uint8_t teamId) const noexcept;
+    void setPowerForTeam(std::uint8_t teamId, std::int32_t value) noexcept;
+    void addPowerForTeam(std::uint8_t teamId, std::int32_t delta) noexcept;
+    [[nodiscard]] bool spendPowerForTeam(std::uint8_t teamId, std::int32_t amount) noexcept;
+
     [[nodiscard]] std::int32_t winnerTeam() const noexcept;
     void setWinnerTeam(std::int32_t teamId) noexcept;
     void clearWinnerTeam() noexcept;
@@ -122,6 +127,7 @@ private:
     std::map<EntityId, GridTarget> moveTargets_{};
 
     std::map<std::uint8_t, std::int32_t> teamSun_{};
+    std::map<std::uint8_t, std::int32_t> teamPower_{};
     std::int32_t winnerTeam_{-1};
 
     TickTelemetry telemetry_{};

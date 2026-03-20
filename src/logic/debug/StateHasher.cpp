@@ -30,6 +30,7 @@ std::uint64_t hashWorldState(const ecs::World& world) noexcept {
         mix(hash, entityId);
         mix(hash, team.value);
         mix(hash, static_cast<std::uint64_t>(world.sunForTeam(team.value)));
+        mix(hash, static_cast<std::uint64_t>(world.powerForTeam(team.value)));
     }
 
     for (const auto& [entityId, transform] : world.transforms()) {

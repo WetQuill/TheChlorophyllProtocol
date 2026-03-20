@@ -47,18 +47,22 @@ int main() {
     });
 
     world.setSunForTeam(0, 30);
+    world.setPowerForTeam(0, 30);
 
     world.tick();
     ok &= verify(world.buildings().size() == 1U, "valid nearby build should create one building");
     ok &= verify(world.sunForTeam(0) == 20, "valid build should spend sun");
+    ok &= verify(world.powerForTeam(0) == 20, "valid build should spend power");
 
     world.tick();
     ok &= verify(world.buildings().size() == 1U, "far build should be rejected");
     ok &= verify(world.sunForTeam(0) == 20, "rejected build should not spend sun");
+    ok &= verify(world.powerForTeam(0) == 20, "rejected build should not spend power");
 
     world.tick();
     ok &= verify(world.buildings().size() == 1U, "occupied build should be rejected");
     ok &= verify(world.sunForTeam(0) == 20, "occupied build should not spend sun");
+    ok &= verify(world.powerForTeam(0) == 20, "occupied build should not spend power");
 
     const auto mover = world.createEntity();
     world.setTeam(mover, tcp::logic::ecs::Team{0});

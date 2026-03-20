@@ -267,6 +267,36 @@ bool World::spendSunForTeam(std::uint8_t teamId, std::int32_t amount) noexcept {
     return true;
 }
 
+std::int32_t World::powerForTeam(std::uint8_t teamId) const noexcept {
+    const auto it = teamPower_.find(teamId);
+    if (it == teamPower_.end()) {
+        return 0;
+    }
+    return it->second;
+}
+
+void World::setPowerForTeam(std::uint8_t teamId, std::int32_t value) noexcept {
+    teamPower_[teamId] = value;
+}
+
+void World::addPowerForTeam(std::uint8_t teamId, std::int32_t delta) noexcept {
+    teamPower_[teamId] = powerForTeam(teamId) + delta;
+}
+
+bool World::spendPowerForTeam(std::uint8_t teamId, std::int32_t amount) noexcept {
+    if (amount <= 0) {
+        return true;
+    }
+
+    const auto available = powerForTeam(teamId);
+    if (available < amount) {
+        return false;
+    }
+
+    teamPower_[teamId] = available - amount;
+    return true;
+}
+
 std::int32_t World::winnerTeam() const noexcept {
     return winnerTeam_;
 }

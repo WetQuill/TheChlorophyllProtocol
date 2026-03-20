@@ -13,8 +13,19 @@ namespace {
 
 constexpr std::int32_t kBuildRadiusCells = 4;
 constexpr std::int32_t kDefaultBuildCostSun = 20;
+constexpr std::int32_t kDefaultSunPowerPlantCostSun = 25;
 constexpr std::int32_t kBuildingHealth = 20;
 constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
+constexpr std::uint32_t kSunPowerPlantArchetypeId = 902U;
+constexpr std::int32_t kSunPowerPlantPerTick = 3;
+
+struct BuildBlueprint {
+    std::uint32_t archetypeId{0};
+    std::int32_t defaultCostSun{0};
+    std::int32_t defaultCostPower{0};
+    bool grantsSunProduction{false};
+    std::int32_t sunPerTick{0};
+};
 
 [[nodiscard]] path::GridCoord toGridCoord(const Transform& transform) noexcept {
     return {
@@ -74,7 +85,10 @@ constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
     return false;
 }
 
-void tryHandleBuildCommand(World& world, EntityId issuerId, const QueuedCommand& cmd) {
+void tryHandleBuildCommand(World& world,
+                           EntityId issuerId,
+                           const QueuedCommand& cmd,
+                           const BuildBlueprint& blueprint) {
     const auto teamIt = world.teams().find(issuerId);
     if (teamIt == world.teams().end()) {
         return;
@@ -89,8 +103,20 @@ void tryHandleBuildCommand(World& world, EntityId issuerId, const QueuedCommand&
         return;
     }
 
-    const auto cost = (cmd.arg2 > 0) ? cmd.arg2 : kDefaultBuildCostSun;
-    if (!world.spendSunForTeam(teamIt->second.value, cost)) {
+    const auto costSun = (cmd.arg2 > 0) ? cmd.arg2 : blueprint.defaultCostSun;
+    const auto costPower = blueprint.defaultCostPower;
+
+    if (world.sunForTeam(teamIt->second.value) < costSun) {
+        return;
+    }
+    if (world.powerForTeam(teamIt->second.value) < costPower) {
+        return;
+    }
+
+    if (!world.spendSunForTeam(teamIt->second.value, costSun)) {
+        return;
+    }
+    if (!world.spendPowerForTeam(teamIt->second.value, costPower)) {
         return;
     }
 
@@ -99,7 +125,10 @@ void tryHandleBuildCommand(World& world, EntityId issuerId, const QueuedCommand&
     world.setTransform(buildingEntity, toTransform(buildCell));
     world.setHealth(buildingEntity, Health{kBuildingHealth, kBuildingHealth});
     world.setBuilding(buildingEntity, Building{true});
-    world.setIdentity(buildingEntity, Identity{kPeaMilitaryCampArchetypeId, 1});
+    world.setIdentity(buildingEntity, Identity{blueprint.archetypeId, 1});
+    if (blueprint.grantsSunProduction && blueprint.sunPerTick > 0) {
+        world.setSunProducer(buildingEntity, SunProducer{blueprint.sunPerTick});
+    }
 }
 
 [[nodiscard]] math::FixedPoint distanceSquared(const Transform& a, const Transform& b) noexcept {
@@ -124,7 +153,23 @@ void runInputPhase(World& world, std::int64_t tick) {
             if (cmd.type == CommandType::kMove) {
                 world.setMoveTarget(entityId, GridTarget{cmd.arg0, cmd.arg1});
             } else if (cmd.type == CommandType::kBuild) {
-                tryHandleBuildCommand(world, entityId, cmd);
+                const BuildBlueprint campBlueprint{
+                    kPeaMilitaryCampArchetypeId,
+                    kDefaultBuildCostSun,
+                    10,
+                    false,
+                    0,
+                };
+                tryHandleBuildCommand(world, entityId, cmd, campBlueprint);
+            } else if (cmd.type == CommandType::kBuildSunPowerPlant) {
+                const BuildBlueprint sunPlantBlueprint{
+                    kSunPowerPlantArchetypeId,
+                    kDefaultSunPowerPlantCostSun,
+                    12,
+                    true,
+                    kSunPowerPlantPerTick,
+                };
+                tryHandleBuildCommand(world, entityId, cmd, sunPlantBlueprint);
             }
         }
 

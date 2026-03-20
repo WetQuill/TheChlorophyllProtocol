@@ -44,14 +44,17 @@ int main() {
     buffer.queued.push_back({1, 0, tcp::logic::ecs::CommandType::kBuild, 2, 0, 10});
     world.setCommandBuffer(builder, buffer);
     world.setSunForTeam(0, 30);
+    world.setPowerForTeam(0, 30);
 
     world.tick();
     ok &= verify(world.buildings().size() == 1U, "first build should succeed");
     ok &= verify(world.sunForTeam(0) == 20, "first build should spend exactly one cost");
+    ok &= verify(world.powerForTeam(0) == 20, "first build should spend exactly one power cost");
 
     world.tick();
     ok &= verify(world.buildings().size() == 1U, "duplicate build on occupied cell must be rejected");
     ok &= verify(world.sunForTeam(0) == 20, "duplicate build must not spend additional sun");
+    ok &= verify(world.powerForTeam(0) == 20, "duplicate build must not spend additional power");
 
     if (!ok) {
         return 1;

@@ -71,7 +71,23 @@ Visual controls (single mode):
 - Left-click empty ground to clear current selection.
 - Right-click with a selected unit to issue a move command.
 - Right-click with no selected unit to open the build list.
-- Left-click the build list item to place a pea military camp build command at that grid cell.
+- Left-click build list item #1 to place a pea military camp building.
+- Left-click build list item #2 to place a sunflower power plant building that generates sun each tick.
+- The top-left HUD area displays current Team 0 sun and power values.
+- Building placement consumes both sun and power based on building type.
+
+Build placement behavior:
+
+- Build placement snaps to the nearest grid cell from the click point.
+- While the build menu is open, a highlighted preview cell shows the snapped build location.
+
+Visual window defaults:
+
+- The visual mode window now starts at `1600x900`.
+
+Startup economy (demo world):
+
+- Team 0 and Team 1 each start with 120 sun and 80 power.
 
 Examples:
 
