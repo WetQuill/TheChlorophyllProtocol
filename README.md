@@ -76,6 +76,8 @@ Visual controls (single mode):
 - The top-left HUD area displays current Team 0 sun and power values.
 - Building placement consumes both sun and power based on building type.
 - Right-click a selected pea military camp to open a production menu and queue pea unit production (20 sun).
+- Right-click with a selected combat unit on an enemy entity cell to issue an explicit attack order.
+- Combat units no longer auto-acquire targets; they attack only after explicit attack commands.
 
 Build placement behavior:
 

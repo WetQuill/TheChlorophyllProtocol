@@ -73,6 +73,11 @@ std::uint64_t hashWorldState(const ecs::World& world) noexcept {
         mix(hash, static_cast<std::uint64_t>(queue.queued.size()));
     }
 
+    for (const auto& [entityId, targetId] : world.attackTargets()) {
+        mix(hash, entityId);
+        mix(hash, targetId);
+    }
+
     return hash;
 }
 

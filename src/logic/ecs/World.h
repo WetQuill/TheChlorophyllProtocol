@@ -91,6 +91,10 @@ public:
     void clearMoveTarget(EntityId entityId) noexcept;
     [[nodiscard]] const std::map<EntityId, GridTarget>& moveTargets() const noexcept;
 
+    void setAttackTarget(EntityId entityId, EntityId targetEntityId) noexcept;
+    void clearAttackTarget(EntityId entityId) noexcept;
+    [[nodiscard]] const std::map<EntityId, EntityId>& attackTargets() const noexcept;
+
     void setTickDurationMicros(std::int64_t micros) noexcept;
     void addPathRequest() noexcept;
     void addCommandProcessed() noexcept;
@@ -125,6 +129,7 @@ private:
     std::map<EntityId, Building> buildings_{};
 
     std::map<EntityId, GridTarget> moveTargets_{};
+    std::map<EntityId, EntityId> attackTargets_{};
 
     std::map<std::uint8_t, std::int32_t> teamSun_{};
     std::map<std::uint8_t, std::int32_t> teamPower_{};

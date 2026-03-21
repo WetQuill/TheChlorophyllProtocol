@@ -321,6 +321,18 @@ const std::map<EntityId, GridTarget>& World::moveTargets() const noexcept {
     return moveTargets_;
 }
 
+void World::setAttackTarget(EntityId entityId, EntityId targetEntityId) noexcept {
+    attackTargets_[entityId] = targetEntityId;
+}
+
+void World::clearAttackTarget(EntityId entityId) noexcept {
+    attackTargets_.erase(entityId);
+}
+
+const std::map<EntityId, EntityId>& World::attackTargets() const noexcept {
+    return attackTargets_;
+}
+
 void World::setTickDurationMicros(std::int64_t micros) noexcept {
     telemetry_.tickDurationMicros = (micros < 0) ? 0 : micros;
 }
@@ -372,6 +384,15 @@ void World::removeComponents(EntityId entityId) {
     headquarters_.erase(entityId);
     buildings_.erase(entityId);
     moveTargets_.erase(entityId);
+    attackTargets_.erase(entityId);
+
+    for (auto it = attackTargets_.begin(); it != attackTargets_.end();) {
+        if (it->second == entityId) {
+            it = attackTargets_.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 }  // namespace tcp::logic::ecs

@@ -80,6 +80,9 @@ int main() {
         1,
         0,
     });
+    world.setCommandBuffer(attacker, tcp::logic::ecs::CommandBuffer{{
+        {world.currentTick(), 0, tcp::logic::ecs::CommandType::kAttack, static_cast<std::int32_t>(hqTeam1), 0, 0},
+    }});
 
     world.tick();
 

@@ -363,6 +363,10 @@ bool runVisualSingle(const AppOptions& options) {
         std::int64_t expireTick{-1};
     };
 
+    struct AttackMarker {
+        tcp::logic::ecs::EntityId targetEntity{0};
+    };
+
     struct BuildMenuState {
         sf::Vector2f anchor{};
         std::int32_t gridX{0};
@@ -376,6 +380,7 @@ bool runVisualSingle(const AppOptions& options) {
 
     std::optional<tcp::logic::ecs::EntityId> selectedEntity;
     std::optional<MoveMarker> moveMarker;
+    std::optional<AttackMarker> attackMarker;
     std::optional<BuildMenuState> buildMenu;
     std::optional<ProductionMenuState> productionMenu;
     auto previousFrameTime = std::chrono::steady_clock::now();
@@ -607,16 +612,49 @@ bool runVisualSingle(const AppOptions& options) {
                             selected,
                         };
                         buildMenu.reset();
+                        attackMarker.reset();
                     } else if (teamIt != world.teams().end()) {
                         const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
-                        driver.queueLocalCommand(
-                            teamIt->second.value,
-                            selected,
-                            tcp::logic::ecs::CommandType::kMove,
-                            gx,
-                            gy,
-                            0);
-                        moveMarker = MoveMarker{gx, gy, driver.world().currentTick() + 20};
+
+                        std::optional<tcp::logic::ecs::EntityId> enemyTarget;
+                        for (const auto& [entityId, tr] : world.transforms()) {
+                            if (tr.x.toIntTrunc() != gx || tr.y.toIntTrunc() != gy) {
+                                continue;
+                            }
+                            const auto targetTeamIt = world.teams().find(entityId);
+                            const auto targetHpIt = world.healths().find(entityId);
+                            if (targetTeamIt == world.teams().end() || targetHpIt == world.healths().end()) {
+                                continue;
+                            }
+                            if (targetTeamIt->second.value == 0U || targetHpIt->second.current <= 0) {
+                                continue;
+                            }
+                            enemyTarget = entityId;
+                            break;
+                        }
+
+                        if (enemyTarget.has_value()) {
+                            driver.queueLocalCommand(
+                                teamIt->second.value,
+                                selected,
+                                tcp::logic::ecs::CommandType::kAttack,
+                                static_cast<std::int32_t>(enemyTarget.value()),
+                                0,
+                                0);
+                            attackMarker = AttackMarker{enemyTarget.value()};
+                            moveMarker.reset();
+                        } else {
+                            driver.queueLocalCommand(
+                                teamIt->second.value,
+                                selected,
+                                tcp::logic::ecs::CommandType::kMove,
+                                gx,
+                                gy,
+                                0);
+                            moveMarker = MoveMarker{gx, gy, driver.world().currentTick() + 20};
+                            attackMarker.reset();
+                        }
+
                         buildMenu.reset();
                         productionMenu.reset();
                     }
@@ -628,6 +666,7 @@ bool runVisualSingle(const AppOptions& options) {
                         gy,
                     };
                     productionMenu.reset();
+                    attackMarker.reset();
                 }
             }
         }
@@ -696,6 +735,14 @@ bool runVisualSingle(const AppOptions& options) {
         const auto& buildings = world.buildings();
         const auto& identities = world.identities();
         const auto& sunProducers = world.sunProducers();
+
+        if (attackMarker.has_value()) {
+            const auto hpIt = healths.find(attackMarker->targetEntity);
+            const auto trIt = transforms.find(attackMarker->targetEntity);
+            if (hpIt == healths.end() || trIt == transforms.end() || hpIt->second.current <= 0) {
+                attackMarker.reset();
+            }
+        }
 
         for (const auto entityId : world.entities()) {
             const auto trIt = transforms.find(entityId);
@@ -855,6 +902,33 @@ bool runVisualSingle(const AppOptions& options) {
 #if TCP_VISUAL_SFML_TEXTURES
             }
 #endif
+        }
+
+        if (attackMarker.has_value()) {
+            const auto trIt = transforms.find(attackMarker->targetEntity);
+            if (trIt != transforms.end()) {
+                const auto screen = worldToScreen(trIt->second);
+
+                sf::CircleShape ring(20.0F);
+                ring.setOrigin(sf::Vector2f{20.0F, 20.0F});
+                ring.setPosition(screen);
+                ring.setFillColor(sf::Color(0U, 0U, 0U, 0U));
+                ring.setOutlineColor(sf::Color(228U, 74U, 74U, 220U));
+                ring.setOutlineThickness(2.0F);
+                window.draw(ring);
+
+                sf::RectangleShape crossH(sf::Vector2f{16.0F, 2.0F});
+                crossH.setOrigin(sf::Vector2f{8.0F, 1.0F});
+                crossH.setPosition(screen);
+                crossH.setFillColor(sf::Color(228U, 74U, 74U, 220U));
+                window.draw(crossH);
+
+                sf::RectangleShape crossV(sf::Vector2f{2.0F, 16.0F});
+                crossV.setOrigin(sf::Vector2f{1.0F, 8.0F});
+                crossV.setPosition(screen);
+                crossV.setFillColor(sf::Color(228U, 74U, 74U, 220U));
+                window.draw(crossV);
+            }
         }
 
         if (buildMenu.has_value()) {

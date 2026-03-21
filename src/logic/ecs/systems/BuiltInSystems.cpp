@@ -195,6 +195,11 @@ void runInputPhase(World& world, std::int64_t tick) {
 
             if (cmd.type == CommandType::kMove) {
                 world.setMoveTarget(entityId, GridTarget{cmd.arg0, cmd.arg1});
+                world.clearAttackTarget(entityId);
+            } else if (cmd.type == CommandType::kAttack) {
+                const auto targetId = static_cast<EntityId>(cmd.arg0);
+                world.setAttackTarget(entityId, targetId);
+                world.clearMoveTarget(entityId);
             } else if (cmd.type == CommandType::kBuild) {
                 const BuildBlueprint campBlueprint{
                     kPeaMilitaryCampArchetypeId,
@@ -369,11 +374,11 @@ void runCombatPhase(World& world, std::int64_t tick) {
     auto& healths = world.mutableHealths();
     const auto& teams = world.teams();
     const auto& transforms = world.transforms();
+    const auto& attackTargets = world.attackTargets();
 
     for (auto& [attackerId, weapon] : weapons) {
         if (weapon.remainingCooldownTicks > 0) {
             --weapon.remainingCooldownTicks;
-            continue;
         }
 
         const auto atkTeamIt = teams.find(attackerId);
@@ -382,37 +387,36 @@ void runCombatPhase(World& world, std::int64_t tick) {
             continue;
         }
 
-        const auto rangeSq = weapon.range * weapon.range;
-        EntityId targetId = 0;
-
-        for (const auto& [candidateId, candidateHealth] : healths) {
-            (void)candidateHealth;
-            if (candidateId == attackerId) {
-                continue;
-            }
-
-            const auto targetTeamIt = teams.find(candidateId);
-            const auto targetPosIt = transforms.find(candidateId);
-            if (targetTeamIt == teams.end() || targetPosIt == transforms.end()) {
-                continue;
-            }
-
-            if (targetTeamIt->second.value == atkTeamIt->second.value) {
-                continue;
-            }
-
-            if (distanceSquared(atkPosIt->second, targetPosIt->second) <= rangeSq) {
-                targetId = candidateId;
-                break;
-            }
-        }
-
-        if (targetId == 0) {
+        const auto targetIt = attackTargets.find(attackerId);
+        if (targetIt == attackTargets.end()) {
             continue;
         }
 
+        const EntityId targetId = targetIt->second;
+        const auto targetTeamIt = teams.find(targetId);
+        const auto targetPosIt = transforms.find(targetId);
         auto targetHealthIt = healths.find(targetId);
-        if (targetHealthIt == healths.end()) {
+        if (targetTeamIt == teams.end() || targetPosIt == transforms.end() || targetHealthIt == healths.end()) {
+            world.clearAttackTarget(attackerId);
+            continue;
+        }
+
+        if (targetTeamIt->second.value == atkTeamIt->second.value) {
+            world.clearAttackTarget(attackerId);
+            continue;
+        }
+
+        if (targetHealthIt->second.current <= 0) {
+            world.clearAttackTarget(attackerId);
+            continue;
+        }
+
+        const auto rangeSq = weapon.range * weapon.range;
+        if (distanceSquared(atkPosIt->second, targetPosIt->second) > rangeSq) {
+            continue;
+        }
+
+        if (weapon.remainingCooldownTicks > 0) {
             continue;
         }
 
