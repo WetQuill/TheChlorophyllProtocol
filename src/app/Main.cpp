@@ -369,9 +369,15 @@ bool runVisualSingle(const AppOptions& options) {
         std::int32_t gridY{0};
     };
 
+    struct ProductionMenuState {
+        sf::Vector2f anchor{};
+        tcp::logic::ecs::EntityId parentEntity{0};
+    };
+
     std::optional<tcp::logic::ecs::EntityId> selectedEntity;
     std::optional<MoveMarker> moveMarker;
     std::optional<BuildMenuState> buildMenu;
+    std::optional<ProductionMenuState> productionMenu;
     auto previousFrameTime = std::chrono::steady_clock::now();
 
 #if TCP_VISUAL_SFML_TEXTURES
@@ -381,6 +387,7 @@ bool runVisualSingle(const AppOptions& options) {
     sf::Texture texSunflower;
     sf::Texture texSunPowerPlant;
     sf::Texture texPeaMilitaryCamp;
+    sf::Texture texGrass;
     sf::Texture texSelectionRing;
     sf::Texture texMoveMarker;
 
@@ -408,6 +415,10 @@ bool runVisualSingle(const AppOptions& options) {
         loadTexture(texSunPowerPlant, "assets/visual/buildings/sunflower_power_plant.png") ||
         loadTexture(texSunPowerPlant, "assets/visual/units/sunflower_generator.png");
     const bool hasPeaMilitaryCampTexture = loadTexture(texPeaMilitaryCamp, "assets/visual/buildings/pea_military_camp.png");
+    const bool hasGrassTexture = loadTexture(texGrass, "assets/visual/environment/grass_camouflage_64x64.png");
+    if (hasGrassTexture) {
+        texGrass.setRepeated(true);
+    }
     const bool hasSelectionRingTexture = loadTexture(texSelectionRing, "assets/visual/fx/selection_ring.png");
     const bool hasMoveMarkerTexture = loadTexture(texMoveMarker, "assets/visual/fx/move_target_marker.png");
 #endif
@@ -438,6 +449,10 @@ bool runVisualSingle(const AppOptions& options) {
 
     const auto buildMenuSunPlantRect = [&](const BuildMenuState& state) {
         return sf::FloatRect{state.anchor.x, state.anchor.y + 56.0F, 196.0F, 52.0F};
+    };
+
+    const auto productionMenuPeaRect = [&](const ProductionMenuState& state) {
+        return sf::FloatRect{state.anchor.x, state.anchor.y, 120.0F, 40.0F};
     };
 
     const auto pointInRect = [](const sf::FloatRect& rect, const sf::Vector2f point) {
@@ -477,6 +492,30 @@ bool runVisualSingle(const AppOptions& options) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     const sf::Vector2f clickPos{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)};
 
+                    bool consumedByProductionMenu = false;
+                    if (productionMenu.has_value()) {
+                        const auto produceRect = productionMenuPeaRect(productionMenu.value());
+                        if (pointInRect(produceRect, clickPos)) {
+                            const auto parent = productionMenu->parentEntity;
+                            const auto teamIt = driver.world().teams().find(parent);
+                            if (teamIt != driver.world().teams().end()) {
+                                driver.queueLocalCommand(
+                                    teamIt->second.value,
+                                    parent,
+                                    tcp::logic::ecs::CommandType::kProducePea,
+                                    0,
+                                    0,
+                                    20);
+                            }
+                            consumedByProductionMenu = true;
+                        }
+                        productionMenu.reset();
+                    }
+
+                    if (consumedByProductionMenu) {
+                        continue;
+                    }
+
                     bool consumedByBuildMenu = false;
                     if (buildMenu.has_value()) {
                         const auto campRect = buildMenuCampRect(buildMenu.value());
@@ -515,17 +554,28 @@ bool runVisualSingle(const AppOptions& options) {
                     const auto& transforms = world.transforms();
                     const auto& teams = world.teams();
                     const auto& commandBuffers = world.commandBuffers();
+                    const auto& buildings = world.buildings();
+                    const auto& identities = world.identities();
 
                     std::optional<tcp::logic::ecs::EntityId> best;
                     float bestDistSq = 999999.0F;
                     constexpr float kSelectRadiusPixels = 26.0F;
                     constexpr float kSelectRadiusSq = kSelectRadiusPixels * kSelectRadiusPixels;
                     for (const auto& [entityId, tr] : transforms) {
-                        if (commandBuffers.find(entityId) == commandBuffers.end()) {
-                            continue;
-                        }
                         const auto teamIt = teams.find(entityId);
                         if (teamIt == teams.end() || teamIt->second.value != 0U) {
+                            continue;
+                        }
+
+                        bool selectable = commandBuffers.find(entityId) != commandBuffers.end();
+                        if (!selectable) {
+                            const auto bIt = buildings.find(entityId);
+                            const auto idIt = identities.find(entityId);
+                            selectable =
+                                (bIt != buildings.end() && idIt != identities.end() &&
+                                 idIt->second.archetypeId == kPeaMilitaryCampArchetypeId);
+                        }
+                        if (!selectable) {
                             continue;
                         }
 
@@ -543,10 +593,22 @@ bool runVisualSingle(const AppOptions& options) {
                 }
 
                 if (event.mouseButton.button == sf::Mouse::Right && selectedEntity.has_value()) {
-                    const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
                     const auto selected = selectedEntity.value();
-                    const auto teamIt = driver.world().teams().find(selected);
-                    if (teamIt != driver.world().teams().end()) {
+                    const auto& world = driver.world();
+                    const auto teamIt = world.teams().find(selected);
+                    const auto idIt = world.identities().find(selected);
+                    const bool isCamp =
+                        (idIt != world.identities().end() &&
+                         idIt->second.archetypeId == kPeaMilitaryCampArchetypeId);
+
+                    if (isCamp) {
+                        productionMenu = ProductionMenuState{
+                            sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)},
+                            selected,
+                        };
+                        buildMenu.reset();
+                    } else if (teamIt != world.teams().end()) {
+                        const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
                         driver.queueLocalCommand(
                             teamIt->second.value,
                             selected,
@@ -556,6 +618,7 @@ bool runVisualSingle(const AppOptions& options) {
                             0);
                         moveMarker = MoveMarker{gx, gy, driver.world().currentTick() + 20};
                         buildMenu.reset();
+                        productionMenu.reset();
                     }
                 } else if (event.mouseButton.button == sf::Mouse::Right) {
                     const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
@@ -564,6 +627,7 @@ bool runVisualSingle(const AppOptions& options) {
                         gx,
                         gy,
                     };
+                    productionMenu.reset();
                 }
             }
         }
@@ -582,6 +646,14 @@ bool runVisualSingle(const AppOptions& options) {
         });
 
         window.clear(sf::Color(18U, 22U, 18U));
+
+#if TCP_VISUAL_SFML_TEXTURES
+        if (hasGrassTexture) {
+            sf::Sprite ground(texGrass);
+            ground.setTextureRect(sf::IntRect(0, 0, 1600, 900));
+            window.draw(ground);
+        }
+#endif
 
         const float worldLeft = 20.0F;
         const float hudTop = 18.0F;
@@ -604,13 +676,13 @@ bool runVisualSingle(const AppOptions& options) {
 
         for (int gx = gridMinX; gx <= gridMaxX; ++gx) {
             sf::RectangleShape vline(sf::Vector2f{1.0F, gridActualHeight});
-            vline.setFillColor(sf::Color(36U, 45U, 36U));
+            vline.setFillColor(sf::Color(255U, 255U, 255U, 30U));
             vline.setPosition(sf::Vector2f{kWorldOriginX + static_cast<float>(gx) * kCellPixels, gridActualTop});
             window.draw(vline);
         }
         for (int gy = gridMinY; gy <= gridMaxY; ++gy) {
             sf::RectangleShape hline(sf::Vector2f{gridActualWidth, 1.0F});
-            hline.setFillColor(sf::Color(36U, 45U, 36U));
+            hline.setFillColor(sf::Color(255U, 255U, 255U, 30U));
             hline.setPosition(sf::Vector2f{gridActualLeft, kWorldOriginY + static_cast<float>(gy) * kCellPixels});
             window.draw(hline);
         }
@@ -619,6 +691,7 @@ bool runVisualSingle(const AppOptions& options) {
         const auto& transforms = world.transforms();
         const auto& teams = world.teams();
         const auto& healths = world.healths();
+        const auto& commandBuffers = world.commandBuffers();
         const auto& hqs = world.headquarters();
         const auto& buildings = world.buildings();
         const auto& identities = world.identities();
@@ -728,6 +801,31 @@ bool runVisualSingle(const AppOptions& options) {
                 barFill.setPosition(sf::Vector2f{screen.x - 20.0F, screen.y - 32.0F});
                 barFill.setFillColor(sf::Color(118U, 220U, 93U));
                 window.draw(barFill);
+            }
+
+            if (isPeaMilitaryCamp) {
+                const auto cmdIt = commandBuffers.find(entityId);
+                if (cmdIt != commandBuffers.end()) {
+                    bool hasProduceQueued = false;
+                    for (const auto& queued : cmdIt->second.queued) {
+                        if (queued.type == tcp::logic::ecs::CommandType::kProducePea) {
+                            hasProduceQueued = true;
+                            break;
+                        }
+                    }
+
+                    if (hasProduceQueued) {
+                        sf::RectangleShape pBack(sf::Vector2f{34.0F, 5.0F});
+                        pBack.setPosition(sf::Vector2f{screen.x - 17.0F, screen.y - 40.0F});
+                        pBack.setFillColor(sf::Color(28U, 33U, 28U, 220U));
+                        window.draw(pBack);
+
+                        sf::RectangleShape pFill(sf::Vector2f{22.0F, 5.0F});
+                        pFill.setPosition(sf::Vector2f{screen.x - 17.0F, screen.y - 40.0F});
+                        pFill.setFillColor(sf::Color(238U, 202U, 94U, 230U));
+                        window.draw(pFill);
+                    }
+                }
             }
         }
 
@@ -901,6 +999,56 @@ bool runVisualSingle(const AppOptions& options) {
             window.draw(sunCostBar);
         }
 
+        if (productionMenu.has_value()) {
+            auto produceRect = productionMenuPeaRect(productionMenu.value());
+            const float maxMenuRight = static_cast<float>(window.getSize().x) - 20.0F;
+            const float maxMenuBottom = static_cast<float>(window.getSize().y) - 20.0F;
+            if ((produceRect.left + produceRect.width) > maxMenuRight) {
+                produceRect.left = maxMenuRight - produceRect.width;
+            }
+            if ((produceRect.top + produceRect.height) > maxMenuBottom) {
+                produceRect.top = maxMenuBottom - produceRect.height;
+            }
+
+            sf::RectangleShape prodBg(sf::Vector2f{produceRect.width, produceRect.height});
+            prodBg.setPosition(sf::Vector2f{produceRect.left, produceRect.top});
+            prodBg.setFillColor(sf::Color(20U, 28U, 20U, 224U));
+            prodBg.setOutlineColor(sf::Color(116U, 156U, 93U));
+            prodBg.setOutlineThickness(2.0F);
+            window.draw(prodBg);
+
+#if TCP_VISUAL_SFML_TEXTURES
+            if (hasPeaTexture) {
+                sf::Sprite peaPreview(texPeaMilitia);
+                const auto size = texPeaMilitia.getSize();
+                if (size.x > 0U && size.y > 0U) {
+                    peaPreview.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
+                    peaPreview.setScale(sf::Vector2f{22.0F / static_cast<float>(size.x), 22.0F / static_cast<float>(size.y)});
+                }
+                peaPreview.setPosition(sf::Vector2f{produceRect.left + 16.0F, produceRect.top + 20.0F});
+                window.draw(peaPreview);
+            } else {
+#endif
+                sf::CircleShape peaPreview(10.0F);
+                peaPreview.setOrigin(sf::Vector2f{10.0F, 10.0F});
+                peaPreview.setPosition(sf::Vector2f{produceRect.left + 16.0F, produceRect.top + 20.0F});
+                peaPreview.setFillColor(sf::Color(114U, 203U, 118U));
+                window.draw(peaPreview);
+#if TCP_VISUAL_SFML_TEXTURES
+            }
+#endif
+
+            sf::RectangleShape textBar(sf::Vector2f{78.0F, 10.0F});
+            textBar.setPosition(sf::Vector2f{produceRect.left + 30.0F, produceRect.top + 10.0F});
+            textBar.setFillColor(sf::Color(178U, 220U, 170U));
+            window.draw(textBar);
+
+            sf::RectangleShape costBar(sf::Vector2f{56.0F, 8.0F});
+            costBar.setPosition(sf::Vector2f{produceRect.left + 30.0F, produceRect.top + 24.0F});
+            costBar.setFillColor(sf::Color(243U, 210U, 103U));
+            window.draw(costBar);
+        }
+
         const float hudWidth = std::max(360.0F, static_cast<float>(window.getSize().x) - 40.0F);
         sf::RectangleShape hudBg(sf::Vector2f{hudWidth, 58.0F});
         hudBg.setPosition(sf::Vector2f{20.0F, 18.0F});
@@ -991,6 +1139,9 @@ bool runVisualSingle(const AppOptions& options) {
         if (buildMenu.has_value()) {
             const auto [snapX, snapY] = snapBuildTargetFromMenu(buildMenu.value());
             title << " | build-menu camp/solar @(" << snapX << ',' << snapY << ')';
+        }
+        if (productionMenu.has_value()) {
+            title << " | production-menu pea(20)";
         }
         title << " alpha=" << frameReport.interpolationPermille;
         window.setTitle(title.str());

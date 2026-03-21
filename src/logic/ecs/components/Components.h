@@ -79,6 +79,7 @@ enum class CommandType : std::uint8_t {
     kAttack = 2,
     kStop = 3,
     kBuildSunPowerPlant = 4,
+    kProducePea = 5,
 };
 
 struct QueuedCommand {

@@ -18,6 +18,11 @@ constexpr std::int32_t kBuildingHealth = 20;
 constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
 constexpr std::uint32_t kSunPowerPlantArchetypeId = 902U;
 constexpr std::int32_t kSunPowerPlantPerTick = 3;
+constexpr std::uint32_t kPeaMilitiaArchetypeId = 101U;
+constexpr std::int32_t kPeaMilitiaHealth = 30;
+constexpr std::int32_t kPeaMilitiaDamage = 5;
+constexpr std::int32_t kPeaMilitiaAttackCooldown = 1;
+constexpr std::int32_t kProducePeaCostSun = 20;
 
 struct BuildBlueprint {
     std::uint32_t archetypeId{0};
@@ -131,6 +136,44 @@ void tryHandleBuildCommand(World& world,
     }
 }
 
+void tryHandleProducePeaCommand(World& world, EntityId issuerId, const QueuedCommand& cmd) {
+    (void)cmd;
+
+    const auto issuerTeamIt = world.teams().find(issuerId);
+    const auto issuerTrIt = world.transforms().find(issuerId);
+    const auto issuerIdentityIt = world.identities().find(issuerId);
+    const auto issuerBuildingIt = world.buildings().find(issuerId);
+    if (issuerTeamIt == world.teams().end() ||
+        issuerTrIt == world.transforms().end() ||
+        issuerIdentityIt == world.identities().end() ||
+        issuerBuildingIt == world.buildings().end()) {
+        return;
+    }
+
+    if (issuerIdentityIt->second.archetypeId != kPeaMilitaryCampArchetypeId) {
+        return;
+    }
+
+    if (!world.spendSunForTeam(issuerTeamIt->second.value, kProducePeaCostSun)) {
+        return;
+    }
+
+    const auto spawnBase = toGridCoord(issuerTrIt->second);
+    const path::GridCoord spawnCell{spawnBase.x + 1, spawnBase.y};
+
+    const auto unitEntity = world.createEntity();
+    world.setTeam(unitEntity, Team{issuerTeamIt->second.value});
+    world.setTransform(unitEntity, toTransform(spawnCell));
+    world.setHealth(unitEntity, Health{kPeaMilitiaHealth, kPeaMilitiaHealth});
+    world.setIdentity(unitEntity, Identity{kPeaMilitiaArchetypeId, 1});
+    world.setCommandBuffer(unitEntity, CommandBuffer{});
+    world.setWeapon(unitEntity,
+                    Weapon{math::FixedPoint::fromInt(2),
+                           kPeaMilitiaDamage,
+                           kPeaMilitiaAttackCooldown,
+                           0});
+}
+
 [[nodiscard]] math::FixedPoint distanceSquared(const Transform& a, const Transform& b) noexcept {
     const auto dx = a.x - b.x;
     const auto dy = a.y - b.y;
@@ -170,6 +213,8 @@ void runInputPhase(World& world, std::int64_t tick) {
                     kSunPowerPlantPerTick,
                 };
                 tryHandleBuildCommand(world, entityId, cmd, sunPlantBlueprint);
+            } else if (cmd.type == CommandType::kProducePea) {
+                tryHandleProducePeaCommand(world, entityId, cmd);
             }
         }
 
