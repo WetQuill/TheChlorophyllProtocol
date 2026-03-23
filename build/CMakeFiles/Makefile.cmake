@@ -79,4 +79,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/simulation_driver_modes_test.dir/DependInfo.cmake"
   "CMakeFiles/runtime_telemetry_test.dir/DependInfo.cmake"
   "CMakeFiles/logic_tick_budget_test.dir/DependInfo.cmake"
+  "CMakeFiles/corn_cannon_bastion_test.dir/DependInfo.cmake"
   )

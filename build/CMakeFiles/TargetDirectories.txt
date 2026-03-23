@@ -17,6 +17,7 @@ C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/lockstep_command_syn
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/simulation_driver_modes_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/runtime_telemetry_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/logic_tick_budget_test.dir
+C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/corn_cannon_bastion_test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/test.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/edit_cache.dir
 C:/WetQuill_project/TheChlorophyllProtocol/build/CMakeFiles/rebuild_cache.dir

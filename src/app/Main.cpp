@@ -4,7 +4,9 @@
 #include <array>
 #include <chrono>
 #include <iostream>
+#include <map>
 #include <optional>
+#include <random>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -342,6 +344,9 @@ bool runVisualSingle(const AppOptions& options) {
     constexpr std::int32_t kPeaMilitaryCampCostSun = 20;
     constexpr std::int32_t kSunPowerPlantCostSun = 25;
     constexpr std::int32_t kCornCannonBastionCostSun = 1200000;
+    constexpr std::int64_t kCampConstructionTicks = 300;
+    constexpr std::int64_t kSolarConstructionTicks = 600;
+    constexpr std::int64_t kBastionConstructionTicks = 1800;
 
     tcp::logic::runtime::SimulationDriver driver(makeDemoWorld());
     driver.useSingleLocalMode();
@@ -353,11 +358,41 @@ bool runVisualSingle(const AppOptions& options) {
     constexpr unsigned int kWindowHeight = 900U;
     constexpr float kCellPixels = 48.0F;
     constexpr float kEntityRadius = 16.0F;
-    constexpr float kWorldOriginX = 320.0F;
-    constexpr float kWorldOriginY = 210.0F;
+    constexpr float kMapMinCell = -50.0F;
+    constexpr float kMapMaxCell = 50.0F;
+    constexpr float kEdgeBufferPixels = 40.0F;
+    constexpr float kScrollSpeedPixelsPerSecond = 600.0F;
 
     sf::RenderWindow window(sf::VideoMode(kWindowWidth, kWindowHeight), "The Chlorophyll Protocol - Visual Single");
     window.setFramerateLimit(60U);
+
+    sf::View gameView(sf::FloatRect{0.0F, 0.0F, 1600.0F, 900.0F});
+    gameView.zoom(0.6F);
+
+    sf::Vector2f initialCenter{0.0F, 0.0F};
+    {
+        const auto& world = driver.world();
+        const auto& hqs = world.headquarters();
+        const auto& teams = world.teams();
+        const auto& transforms = world.transforms();
+        for (const auto& [entityId, marker] : hqs) {
+            if (!marker.value) {
+                continue;
+            }
+            const auto teamIt = teams.find(entityId);
+            const auto trIt = transforms.find(entityId);
+            if (teamIt == teams.end() || trIt == transforms.end()) {
+                continue;
+            }
+            if (teamIt->second.value != 0U) {
+                continue;
+            }
+            initialCenter.x = static_cast<float>(trIt->second.x.toIntTrunc()) * kCellPixels;
+            initialCenter.y = static_cast<float>(trIt->second.y.toIntTrunc()) * kCellPixels;
+            break;
+        }
+    }
+    gameView.setCenter(initialCenter);
 
     struct MoveMarker {
         std::int32_t x{0};
@@ -385,12 +420,24 @@ bool runVisualSingle(const AppOptions& options) {
         std::vector<tcp::logic::ecs::EntityId> members{};
     };
 
+    struct PendingConstructionArm {
+        std::uint32_t archetypeId{0};
+        std::int32_t gridX{0};
+        std::int32_t gridY{0};
+        std::int64_t expireTick{0};
+    };
+
     std::vector<tcp::logic::ecs::EntityId> selectedGroup;
     std::optional<MoveMarker> moveMarker;
     std::optional<AttackMarker> attackMarker;
     std::optional<BuildMenuState> buildMenu;
     std::optional<ProductionMenuState> productionMenu;
     std::optional<GroupMenuState> groupMenu;
+    std::map<tcp::logic::ecs::EntityId, std::int64_t> constructionTimers;
+    std::map<tcp::logic::ecs::EntityId, std::int64_t> constructionTotalTicks;
+    std::map<tcp::logic::ecs::EntityId, std::int32_t> pausedSunProducerAmounts;
+    std::vector<PendingConstructionArm> pendingConstructionArms;
+    std::mt19937 smokeRng{0xC0FFEEu};
     auto previousFrameTime = std::chrono::steady_clock::now();
 
 #if TCP_VISUAL_SFML_TEXTURES
@@ -444,14 +491,15 @@ bool runVisualSingle(const AppOptions& options) {
 
     const auto worldToScreen = [&](const tcp::logic::ecs::Transform& tr) {
         return sf::Vector2f{
-            kWorldOriginX + (static_cast<float>(tr.x.raw()) / 1000.0F) * kCellPixels,
-            kWorldOriginY + (static_cast<float>(tr.y.raw()) / 1000.0F) * kCellPixels,
+            static_cast<float>(tr.x.toIntTrunc()) * kCellPixels,
+            static_cast<float>(tr.y.toIntTrunc()) * kCellPixels,
         };
     };
 
     const auto mouseToGrid = [&](const sf::Vector2i pixelPos) {
-        const float gx = (static_cast<float>(pixelPos.x) - kWorldOriginX) / kCellPixels;
-        const float gy = (static_cast<float>(pixelPos.y) - kWorldOriginY) / kCellPixels;
+        const sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos, gameView);
+        const float gx = worldPos.x / kCellPixels;
+        const float gy = worldPos.y / kCellPixels;
         return std::pair<std::int32_t, std::int32_t>{
             static_cast<std::int32_t>(std::lround(gx)),
             static_cast<std::int32_t>(std::lround(gy)),
@@ -485,6 +533,24 @@ bool runVisualSingle(const AppOptions& options) {
     const auto pointInRect = [](const sf::FloatRect& rect, const sf::Vector2f point) {
         return point.x >= rect.left && point.x <= (rect.left + rect.width) &&
                point.y >= rect.top && point.y <= (rect.top + rect.height);
+    };
+
+    const auto constructionTicksForArchetype = [&](const std::uint32_t archetypeId) -> std::int64_t {
+        if (archetypeId == kPeaMilitaryCampArchetypeId) {
+            return kCampConstructionTicks;
+        }
+        if (archetypeId == kSunPowerPlantArchetypeId) {
+            return kSolarConstructionTicks;
+        }
+        if (archetypeId == kCornCannonBastionArchetypeId) {
+            return kBastionConstructionTicks;
+        }
+        return 0;
+    };
+
+    const auto isUnderConstruction = [&](const tcp::logic::ecs::EntityId entityId) {
+        const auto it = constructionTimers.find(entityId);
+        return it != constructionTimers.end() && it->second > 0;
     };
 
     const auto findBuildIssuer = [&]() -> std::optional<tcp::logic::ecs::EntityId> {
@@ -593,6 +659,12 @@ bool runVisualSingle(const AppOptions& options) {
                                     snappedX,
                                     snappedY,
                                     kPeaMilitaryCampCostSun);
+                                pendingConstructionArms.push_back(PendingConstructionArm{
+                                    kPeaMilitaryCampArchetypeId,
+                                    snappedX,
+                                    snappedY,
+                                    driver.world().currentTick() + 8,
+                                });
                                 consumedByBuildMenu = true;
                             } else if (pointInRect(sunPlantRect, clickPos)) {
                                 driver.queueLocalCommand(
@@ -602,6 +674,12 @@ bool runVisualSingle(const AppOptions& options) {
                                     snappedX,
                                     snappedY,
                                     kSunPowerPlantCostSun);
+                                pendingConstructionArms.push_back(PendingConstructionArm{
+                                    kSunPowerPlantArchetypeId,
+                                    snappedX,
+                                    snappedY,
+                                    driver.world().currentTick() + 8,
+                                });
                                 consumedByBuildMenu = true;
                             } else if (pointInRect(bastionRect, clickPos)) {
                                 driver.queueLocalCommand(
@@ -611,6 +689,12 @@ bool runVisualSingle(const AppOptions& options) {
                                     snappedX,
                                     snappedY,
                                     kCornCannonBastionCostSun);
+                                pendingConstructionArms.push_back(PendingConstructionArm{
+                                    kCornCannonBastionArchetypeId,
+                                    snappedX,
+                                    snappedY,
+                                    driver.world().currentTick() + 8,
+                                });
                                 consumedByBuildMenu = true;
                             }
                         }
@@ -712,6 +796,9 @@ bool runVisualSingle(const AppOptions& options) {
                         }
 
                         for (const auto member : selectedGroup) {
+                            if (isUnderConstruction(member)) {
+                                continue;
+                            }
                             const auto memberTeamIt = world.teams().find(member);
                             if (memberTeamIt == world.teams().end()) {
                                 continue;
@@ -750,7 +837,7 @@ bool runVisualSingle(const AppOptions& options) {
                         continue;
                     }
 
-                    if (isCamp) {
+                    if (isCamp && !isUnderConstruction(selected)) {
                         productionMenu = ProductionMenuState{
                             sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)},
                             selected,
@@ -779,7 +866,7 @@ bool runVisualSingle(const AppOptions& options) {
                             break;
                         }
 
-                        if (enemyTarget.has_value()) {
+                        if (enemyTarget.has_value() && !isUnderConstruction(selected)) {
                             driver.queueLocalCommand(
                                 teamIt->second.value,
                                 selected,
@@ -829,50 +916,190 @@ bool runVisualSingle(const AppOptions& options) {
                 running = false;
                 return;
             }
+
+            {
+                std::vector<tcp::logic::ecs::EntityId> done;
+                done.reserve(constructionTimers.size());
+                for (auto& [entityId, remaining] : constructionTimers) {
+                    if (remaining > 0) {
+                        --remaining;
+                    }
+                    if (remaining <= 0) {
+                        done.push_back(entityId);
+                    }
+                }
+                for (const auto entityId : done) {
+                    const auto pausedIt = pausedSunProducerAmounts.find(entityId);
+                    if (pausedIt != pausedSunProducerAmounts.end()) {
+                        driver.world().setSunProducer(entityId, tcp::logic::ecs::SunProducer{pausedIt->second});
+                        pausedSunProducerAmounts.erase(pausedIt);
+                    }
+                    constructionTimers.erase(entityId);
+                    constructionTotalTicks.erase(entityId);
+                }
+            }
+
+            {
+                const auto& world = driver.world();
+                const auto& buildings = world.buildings();
+                const auto& identities = world.identities();
+                const auto& transforms = world.transforms();
+                std::vector<std::size_t> resolved;
+                resolved.reserve(pendingConstructionArms.size());
+
+                for (std::size_t i = 0; i < pendingConstructionArms.size(); ++i) {
+                    const auto& pending = pendingConstructionArms[i];
+                    bool found = false;
+                    for (const auto& [entityId, marker] : buildings) {
+                        (void)marker;
+                        if (constructionTimers.find(entityId) != constructionTimers.end()) {
+                            continue;
+                        }
+
+                        const auto idIt = identities.find(entityId);
+                        const auto trIt = transforms.find(entityId);
+                        if (idIt == identities.end() || trIt == transforms.end()) {
+                            continue;
+                        }
+                        if (idIt->second.archetypeId != pending.archetypeId) {
+                            continue;
+                        }
+                        if (trIt->second.x.toIntTrunc() != pending.gridX || trIt->second.y.toIntTrunc() != pending.gridY) {
+                            continue;
+                        }
+
+                        const auto totalTicks = constructionTicksForArchetype(pending.archetypeId);
+                        if (totalTicks > 0) {
+                            constructionTimers[entityId] = totalTicks;
+                            constructionTotalTicks[entityId] = totalTicks;
+
+                            const auto sunIt = world.sunProducers().find(entityId);
+                            if (sunIt != world.sunProducers().end()) {
+                                pausedSunProducerAmounts[entityId] = sunIt->second.amountPerTick;
+                                driver.world().setSunProducer(entityId, tcp::logic::ecs::SunProducer{0});
+                            }
+                        }
+                        found = true;
+                        break;
+                    }
+
+                    if (found || world.currentTick() >= pending.expireTick) {
+                        resolved.push_back(i);
+                    }
+                }
+
+                for (auto it = resolved.rbegin(); it != resolved.rend(); ++it) {
+                    pendingConstructionArms.erase(pendingConstructionArms.begin() + static_cast<long long>(*it));
+                }
+            }
+
+            {
+                std::vector<tcp::logic::ecs::EntityId> stale;
+                const auto& transforms = driver.world().transforms();
+                for (const auto& [entityId, remaining] : constructionTimers) {
+                    (void)remaining;
+                    if (transforms.find(entityId) == transforms.end()) {
+                        stale.push_back(entityId);
+                    }
+                }
+                for (const auto entityId : stale) {
+                    constructionTimers.erase(entityId);
+                    constructionTotalTicks.erase(entityId);
+                    pausedSunProducerAmounts.erase(entityId);
+                }
+            }
+
             if (options.ticksProvided && driver.world().currentTick() >= options.ticks) {
                 running = false;
             }
         });
 
+        {
+            sf::Vector2f cameraDelta{0.0F, 0.0F};
+            const sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+            const auto windowSize = window.getSize();
+            if (mousePos.x >= 0 && mousePos.y >= 0 &&
+                mousePos.x <= static_cast<int>(windowSize.x) &&
+                mousePos.y <= static_cast<int>(windowSize.y)) {
+                if (static_cast<float>(mousePos.x) < kEdgeBufferPixels) {
+                    cameraDelta.x -= kScrollSpeedPixelsPerSecond;
+                } else if (static_cast<float>(mousePos.x) > static_cast<float>(windowSize.x) - kEdgeBufferPixels) {
+                    cameraDelta.x += kScrollSpeedPixelsPerSecond;
+                }
+
+                if (static_cast<float>(mousePos.y) < kEdgeBufferPixels) {
+                    cameraDelta.y -= kScrollSpeedPixelsPerSecond;
+                } else if (static_cast<float>(mousePos.y) > static_cast<float>(windowSize.y) - kEdgeBufferPixels) {
+                    cameraDelta.y += kScrollSpeedPixelsPerSecond;
+                }
+            }
+
+            const float deltaSeconds = static_cast<float>(elapsed) / 1000000.0F;
+            sf::Vector2f center = gameView.getCenter();
+            center.x += cameraDelta.x * deltaSeconds;
+            center.y += cameraDelta.y * deltaSeconds;
+
+            const float mapMinPx = kMapMinCell * kCellPixels;
+            const float mapMaxPx = kMapMaxCell * kCellPixels;
+            const sf::Vector2f viewSize = gameView.getSize();
+            const float halfW = viewSize.x * 0.5F;
+            const float halfH = viewSize.y * 0.5F;
+
+            const auto clampAxis = [](const float value, const float minValue, const float maxValue) {
+                if (minValue > maxValue) {
+                    return (minValue + maxValue) * 0.5F;
+                }
+                return std::max(minValue, std::min(maxValue, value));
+            };
+
+            center.x = clampAxis(center.x, mapMinPx + halfW, mapMaxPx - halfW);
+            center.y = clampAxis(center.y, mapMinPx + halfH, mapMaxPx - halfH);
+            gameView.setCenter(center);
+        }
+
         window.clear(sf::Color(18U, 22U, 18U));
+        window.setView(gameView);
 
 #if TCP_VISUAL_SFML_TEXTURES
         if (hasGrassTexture) {
             sf::Sprite ground(texGrass);
-            ground.setTextureRect(sf::IntRect(0, 0, 1600, 900));
+            const int mapMinPx = static_cast<int>(kMapMinCell * kCellPixels);
+            const int mapSizePx = static_cast<int>((kMapMaxCell - kMapMinCell) * kCellPixels);
+            ground.setPosition(sf::Vector2f{static_cast<float>(mapMinPx), static_cast<float>(mapMinPx)});
+            ground.setTextureRect(sf::IntRect(mapMinPx, mapMinPx, mapSizePx, mapSizePx));
             window.draw(ground);
         }
 #endif
 
-        const float worldLeft = 20.0F;
-        const float hudTop = 18.0F;
-        const float hudHeight = 58.0F;
-        const float worldTop = hudTop + hudHeight + 10.0F;
-        const float worldRight = static_cast<float>(window.getSize().x) - 20.0F;
-        const float worldBottom = static_cast<float>(window.getSize().y) - 20.0F;
+        const sf::Vector2f cameraCenter = gameView.getCenter();
+        const sf::Vector2f cameraSize = gameView.getSize();
+        const float worldLeft = cameraCenter.x - (cameraSize.x * 0.5F);
+        const float worldRight = cameraCenter.x + (cameraSize.x * 0.5F);
+        const float worldTop = cameraCenter.y - (cameraSize.y * 0.5F);
+        const float worldBottom = cameraCenter.y + (cameraSize.y * 0.5F);
 
-        const int gridMinX = static_cast<int>(std::floor((worldLeft - kWorldOriginX) / kCellPixels)) - 1;
-        const int gridMaxX = static_cast<int>(std::ceil((worldRight - kWorldOriginX) / kCellPixels)) + 1;
-        const int gridMinY = static_cast<int>(std::floor((worldTop - kWorldOriginY) / kCellPixels)) - 1;
-        const int gridMaxY = static_cast<int>(std::ceil((worldBottom - kWorldOriginY) / kCellPixels)) + 1;
+        const int gridMinX = std::max(static_cast<int>(kMapMinCell), static_cast<int>(std::floor(worldLeft / kCellPixels)) - 1);
+        const int gridMaxX = std::min(static_cast<int>(kMapMaxCell), static_cast<int>(std::ceil(worldRight / kCellPixels)) + 1);
+        const int gridMinY = std::max(static_cast<int>(kMapMinCell), static_cast<int>(std::floor(worldTop / kCellPixels)) - 1);
+        const int gridMaxY = std::min(static_cast<int>(kMapMaxCell), static_cast<int>(std::ceil(worldBottom / kCellPixels)) + 1);
 
-        const float gridActualLeft = kWorldOriginX + static_cast<float>(gridMinX) * kCellPixels;
-        const float gridActualRight = kWorldOriginX + static_cast<float>(gridMaxX) * kCellPixels;
-        const float gridActualTop = kWorldOriginY + static_cast<float>(gridMinY) * kCellPixels;
-        const float gridActualBottom = kWorldOriginY + static_cast<float>(gridMaxY) * kCellPixels;
+        const float gridActualLeft = static_cast<float>(gridMinX) * kCellPixels;
+        const float gridActualRight = static_cast<float>(gridMaxX) * kCellPixels;
+        const float gridActualTop = static_cast<float>(gridMinY) * kCellPixels;
+        const float gridActualBottom = static_cast<float>(gridMaxY) * kCellPixels;
         const float gridActualWidth = gridActualRight - gridActualLeft;
         const float gridActualHeight = gridActualBottom - gridActualTop;
 
         for (int gx = gridMinX; gx <= gridMaxX; ++gx) {
             sf::RectangleShape vline(sf::Vector2f{1.0F, gridActualHeight});
             vline.setFillColor(sf::Color(255U, 255U, 255U, 30U));
-            vline.setPosition(sf::Vector2f{kWorldOriginX + static_cast<float>(gx) * kCellPixels, gridActualTop});
+            vline.setPosition(sf::Vector2f{static_cast<float>(gx) * kCellPixels, gridActualTop});
             window.draw(vline);
         }
         for (int gy = gridMinY; gy <= gridMaxY; ++gy) {
             sf::RectangleShape hline(sf::Vector2f{gridActualWidth, 1.0F});
             hline.setFillColor(sf::Color(255U, 255U, 255U, 30U));
-            hline.setPosition(sf::Vector2f{gridActualLeft, kWorldOriginY + static_cast<float>(gy) * kCellPixels});
+            hline.setPosition(sf::Vector2f{gridActualLeft, static_cast<float>(gy) * kCellPixels});
             window.draw(hline);
         }
 
@@ -956,6 +1183,9 @@ bool runVisualSingle(const AppOptions& options) {
                         const float targetSize = (isPeaMilitaryCamp || isSunPowerPlant || isCornCannonBastion) ? 62.0F : 54.0F;
                         sprite.setScale(sf::Vector2f{targetSize / static_cast<float>(size.x), targetSize / static_cast<float>(size.y)});
                     }
+                    if (isUnderConstruction(entityId)) {
+                        sprite.setColor(sf::Color(255U, 255U, 255U, 80U));
+                    }
                     sprite.setPosition(screen);
                     window.draw(sprite);
                     drewSprite = true;
@@ -987,13 +1217,17 @@ bool runVisualSingle(const AppOptions& options) {
                 hq.setOrigin(sf::Vector2f{27.0F, 27.0F});
                 hq.setPosition(screen);
                 if (isPeaMilitaryCamp) {
-                    hq.setFillColor(teamOne ? sf::Color(170U, 137U, 63U) : sf::Color(65U, 133U, 81U));
+                    hq.setFillColor(teamOne ? sf::Color(170U, 137U, 63U, isUnderConstruction(entityId) ? 80U : 255U)
+                                            : sf::Color(65U, 133U, 81U, isUnderConstruction(entityId) ? 80U : 255U));
                 } else if (isSunPowerPlant) {
-                    hq.setFillColor(teamOne ? sf::Color(221U, 183U, 84U) : sf::Color(171U, 194U, 88U));
+                    hq.setFillColor(teamOne ? sf::Color(221U, 183U, 84U, isUnderConstruction(entityId) ? 80U : 255U)
+                                            : sf::Color(171U, 194U, 88U, isUnderConstruction(entityId) ? 80U : 255U));
                 } else if (isCornCannonBastion) {
-                    hq.setFillColor(teamOne ? sf::Color(118U, 138U, 86U) : sf::Color(92U, 128U, 86U));
+                    hq.setFillColor(teamOne ? sf::Color(118U, 138U, 86U, isUnderConstruction(entityId) ? 80U : 255U)
+                                            : sf::Color(92U, 128U, 86U, isUnderConstruction(entityId) ? 80U : 255U));
                 } else {
-                    hq.setFillColor(teamOne ? sf::Color(176U, 110U, 32U) : sf::Color(58U, 162U, 74U));
+                    hq.setFillColor(teamOne ? sf::Color(176U, 110U, 32U, isUnderConstruction(entityId) ? 80U : 255U)
+                                            : sf::Color(58U, 162U, 74U, isUnderConstruction(entityId) ? 80U : 255U));
                 }
                 hq.setOutlineColor(sf::Color(22U, 22U, 22U));
                 hq.setOutlineThickness(2.0F);
@@ -1018,7 +1252,7 @@ bool runVisualSingle(const AppOptions& options) {
                 window.draw(barFill);
             }
 
-            if (isPeaMilitaryCamp) {
+            if (isPeaMilitaryCamp && !isUnderConstruction(entityId)) {
                 const auto cmdIt = commandBuffers.find(entityId);
                 if (cmdIt != commandBuffers.end()) {
                     bool hasProduceQueued = false;
@@ -1041,6 +1275,57 @@ bool runVisualSingle(const AppOptions& options) {
                         window.draw(pFill);
                     }
                 }
+            }
+        }
+
+        {
+            std::uniform_int_distribution<int> dotCountDist(15, 20);
+            std::uniform_real_distribution<float> xOffsetDist(-22.0F, 22.0F);
+            std::uniform_real_distribution<float> yOffsetDist(-22.0F, 10.0F);
+            std::uniform_real_distribution<float> radiusDist(1.0F, 2.0F);
+            std::uniform_int_distribution<int> grayDist(180, 220);
+            std::uniform_int_distribution<int> alphaDist(65, 170);
+
+            for (const auto& [entityId, remainingTicks] : constructionTimers) {
+                if (remainingTicks <= 0) {
+                    continue;
+                }
+
+                const auto trIt = transforms.find(entityId);
+                if (trIt == transforms.end()) {
+                    continue;
+                }
+
+                const auto center = worldToScreen(trIt->second);
+                const int dotCount = dotCountDist(smokeRng);
+                for (int i = 0; i < dotCount; ++i) {
+                    const float radius = radiusDist(smokeRng);
+                    sf::CircleShape dot(radius);
+                    dot.setOrigin(sf::Vector2f{radius, radius});
+                    const float offsetX = xOffsetDist(smokeRng);
+                    const float offsetY = yOffsetDist(smokeRng) - static_cast<float>(i % 3);
+                    const sf::Vector2f dotPos{center.x + offsetX, center.y + offsetY};
+                    dot.setPosition(dotPos);
+                    const sf::Uint8 g = static_cast<sf::Uint8>(grayDist(smokeRng));
+                    const sf::Uint8 a = static_cast<sf::Uint8>(alphaDist(smokeRng));
+                    dot.setFillColor(sf::Color(g, g, g, a));
+                    window.draw(dot);
+                }
+
+                const auto totalIt = constructionTotalTicks.find(entityId);
+                const std::int64_t totalTicks =
+                    (totalIt != constructionTotalTicks.end() && totalIt->second > 0) ? totalIt->second : 1;
+                const float ratio = std::max(0.0F, std::min(1.0F, static_cast<float>(remainingTicks) / static_cast<float>(totalTicks)));
+
+                sf::RectangleShape progressBack(sf::Vector2f{40.0F, 4.0F});
+                progressBack.setPosition(sf::Vector2f{center.x - 20.0F, center.y - 34.0F});
+                progressBack.setFillColor(sf::Color(38U, 38U, 38U, 220U));
+                window.draw(progressBack);
+
+                sf::RectangleShape progressFill(sf::Vector2f{40.0F * ratio, 4.0F});
+                progressFill.setPosition(sf::Vector2f{center.x - 20.0F, center.y - 34.0F});
+                progressFill.setFillColor(sf::Color(238U, 202U, 94U, 230U));
+                window.draw(progressFill);
             }
         }
 
@@ -1304,6 +1589,8 @@ bool runVisualSingle(const AppOptions& options) {
 #endif
         }
 
+        window.setView(window.getDefaultView());
+
         if (buildMenu.has_value()) {
             auto campRect = buildMenuCampRect(buildMenu.value());
             auto sunPlantRect = buildMenuSunPlantRect(buildMenu.value());
@@ -1442,6 +1729,10 @@ bool runVisualSingle(const AppOptions& options) {
             bastionCostBar.setPosition(sf::Vector2f{bastionRect.left + 50.0F, bastionRect.top + 36.0F});
             bastionCostBar.setFillColor(sf::Color(237U, 208U, 110U));
             window.draw(bastionCostBar);
+        }
+
+        if (productionMenu.has_value() && isUnderConstruction(productionMenu->parentEntity)) {
+            productionMenu.reset();
         }
 
         if (productionMenu.has_value()) {

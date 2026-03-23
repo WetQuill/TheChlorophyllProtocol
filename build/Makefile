@@ -372,6 +372,19 @@ logic_tick_budget_test/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\logic_tick_budget_test.dir\build.make CMakeFiles/logic_tick_budget_test.dir/build
 .PHONY : logic_tick_budget_test/fast
 
+#=============================================================================
+# Target rules for targets named corn_cannon_bastion_test
+
+# Build rule for target.
+corn_cannon_bastion_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 corn_cannon_bastion_test
+.PHONY : corn_cannon_bastion_test
+
+# fast build rule for target.
+corn_cannon_bastion_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\corn_cannon_bastion_test.dir\build.make CMakeFiles/corn_cannon_bastion_test.dir/build
+.PHONY : corn_cannon_bastion_test/fast
+
 src/app/Main.obj: src/app/Main.cpp.obj
 .PHONY : src/app/Main.obj
 
@@ -1116,6 +1129,30 @@ src/tests/systems/CommandQueueOrderTest.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\command_queue_order_test.dir\build.make CMakeFiles/command_queue_order_test.dir/src/tests/systems/CommandQueueOrderTest.cpp.s
 .PHONY : src/tests/systems/CommandQueueOrderTest.cpp.s
 
+src/tests/systems/CornCannonBastionTest.obj: src/tests/systems/CornCannonBastionTest.cpp.obj
+.PHONY : src/tests/systems/CornCannonBastionTest.obj
+
+# target to build an object file
+src/tests/systems/CornCannonBastionTest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\corn_cannon_bastion_test.dir\build.make CMakeFiles/corn_cannon_bastion_test.dir/src/tests/systems/CornCannonBastionTest.cpp.obj
+.PHONY : src/tests/systems/CornCannonBastionTest.cpp.obj
+
+src/tests/systems/CornCannonBastionTest.i: src/tests/systems/CornCannonBastionTest.cpp.i
+.PHONY : src/tests/systems/CornCannonBastionTest.i
+
+# target to preprocess a source file
+src/tests/systems/CornCannonBastionTest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\corn_cannon_bastion_test.dir\build.make CMakeFiles/corn_cannon_bastion_test.dir/src/tests/systems/CornCannonBastionTest.cpp.i
+.PHONY : src/tests/systems/CornCannonBastionTest.cpp.i
+
+src/tests/systems/CornCannonBastionTest.s: src/tests/systems/CornCannonBastionTest.cpp.s
+.PHONY : src/tests/systems/CornCannonBastionTest.s
+
+# target to generate assembly for a file
+src/tests/systems/CornCannonBastionTest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\corn_cannon_bastion_test.dir\build.make CMakeFiles/corn_cannon_bastion_test.dir/src/tests/systems/CornCannonBastionTest.cpp.s
+.PHONY : src/tests/systems/CornCannonBastionTest.cpp.s
+
 src/tests/systems/LogicTickBudgetTest.obj: src/tests/systems/LogicTickBudgetTest.cpp.obj
 .PHONY : src/tests/systems/LogicTickBudgetTest.obj
 
@@ -1176,6 +1213,7 @@ help:
 	@echo ... build_placement_regression_test
 	@echo ... chlorophyll_app
 	@echo ... command_queue_order_test
+	@echo ... corn_cannon_bastion_test
 	@echo ... determinism_smoke_test
 	@echo ... deterministic_rng_test
 	@echo ... dual_instance_determinism_test
@@ -1285,6 +1323,9 @@ help:
 	@echo ... src/tests/systems/CommandQueueOrderTest.obj
 	@echo ... src/tests/systems/CommandQueueOrderTest.i
 	@echo ... src/tests/systems/CommandQueueOrderTest.s
+	@echo ... src/tests/systems/CornCannonBastionTest.obj
+	@echo ... src/tests/systems/CornCannonBastionTest.i
+	@echo ... src/tests/systems/CornCannonBastionTest.s
 	@echo ... src/tests/systems/LogicTickBudgetTest.obj
 	@echo ... src/tests/systems/LogicTickBudgetTest.i
 	@echo ... src/tests/systems/LogicTickBudgetTest.s

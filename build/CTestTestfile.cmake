@@ -38,5 +38,7 @@ add_test([=[RuntimeTelemetry]=] "C:/WetQuill_project/TheChlorophyllProtocol/buil
 set_tests_properties([=[RuntimeTelemetry]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;214;add_test;C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;0;")
 add_test([=[LogicTickBudget]=] "C:/WetQuill_project/TheChlorophyllProtocol/build/logic_tick_budget_test.exe")
 set_tests_properties([=[LogicTickBudget]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;222;add_test;C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;0;")
+add_test([=[CornCannonBastion]=] "C:/WetQuill_project/TheChlorophyllProtocol/build/corn_cannon_bastion_test.exe")
+set_tests_properties([=[CornCannonBastion]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;230;add_test;C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;0;")
 add_test([=[LogicNoFloatCheck]=] "C:/Users/KaiYuanZhang/AppData/Local/Programs/Python/Python313/python.exe" "C:/WetQuill_project/TheChlorophyllProtocol/tools/check_logic_no_float.py" "C:/WetQuill_project/TheChlorophyllProtocol/src/logic")
-set_tests_properties([=[LogicNoFloatCheck]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;226;add_test;C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;0;")
+set_tests_properties([=[LogicNoFloatCheck]=] PROPERTIES  _BACKTRACE_TRIPLES "C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;234;add_test;C:/WetQuill_project/TheChlorophyllProtocol/CMakeLists.txt;0;")
