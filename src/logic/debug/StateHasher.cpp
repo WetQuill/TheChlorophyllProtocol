@@ -68,6 +68,46 @@ std::uint64_t hashWorldState(const ecs::World& world) noexcept {
         mix(hash, static_cast<std::uint64_t>(weapon.remainingCooldownTicks));
     }
 
+    for (const auto& [entityId, weapon] : world.artilleryWeapons()) {
+        mix(hash, entityId);
+        mix(hash, static_cast<std::uint64_t>(weapon.minRange.raw()));
+        mix(hash, static_cast<std::uint64_t>(weapon.maxRange.raw()));
+        mix(hash, static_cast<std::uint64_t>(weapon.aoeRadius.raw()));
+        mix(hash, static_cast<std::uint64_t>(weapon.damage));
+        mix(hash, static_cast<std::uint64_t>(weapon.reloadTicks));
+        mix(hash, static_cast<std::uint64_t>(weapon.remainingCooldownTicks));
+        mix(hash, static_cast<std::uint64_t>(weapon.projectileTravelTicks));
+        mix(hash, static_cast<std::uint64_t>(weapon.frozenTicks));
+    }
+
+    for (const auto& [entityId, projectile] : world.ballisticProjectiles()) {
+        mix(hash, entityId);
+        mix(hash, projectile.sourceTeam);
+        mix(hash, static_cast<std::uint64_t>(projectile.damage));
+        mix(hash, static_cast<std::uint64_t>(projectile.aoeRadius.raw()));
+        mix(hash, static_cast<std::uint64_t>(projectile.frozenTicks));
+        mix(hash, static_cast<std::uint64_t>(projectile.remainingTicks));
+        mix(hash, static_cast<std::uint64_t>(projectile.targetX.raw()));
+        mix(hash, static_cast<std::uint64_t>(projectile.targetY.raw()));
+    }
+
+    for (const auto& [entityId, armor] : world.armors()) {
+        mix(hash, entityId);
+        mix(hash, static_cast<std::uint64_t>(armor.value));
+    }
+
+    for (const auto& [entityId, frozen] : world.frozenStates()) {
+        mix(hash, entityId);
+        mix(hash, static_cast<std::uint64_t>(frozen.remainingTicks));
+        mix(hash, static_cast<std::uint64_t>(frozen.slowPermille));
+    }
+
+    for (const auto& [entityId, power] : world.powerConsumers()) {
+        mix(hash, entityId);
+        mix(hash, static_cast<std::uint64_t>(power.requiredPower));
+        mix(hash, power.enabled ? 1ULL : 0ULL);
+    }
+
     for (const auto& [entityId, queue] : world.commandBuffers()) {
         mix(hash, entityId);
         mix(hash, static_cast<std::uint64_t>(queue.queued.size()));

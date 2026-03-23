@@ -105,10 +105,10 @@ tcp::logic::ecs::World makeDemoWorld() {
     world.setCommandBuffer(p0Unit, tcp::logic::ecs::CommandBuffer{});
     world.setCommandBuffer(p1Unit, tcp::logic::ecs::CommandBuffer{});
 
-    world.setSunForTeam(0, 120);
-    world.setSunForTeam(1, 120);
-    world.setPowerForTeam(0, 80);
-    world.setPowerForTeam(1, 80);
+    world.setSunForTeam(0, 6000000);
+    world.setSunForTeam(1, 6000000);
+    world.setPowerForTeam(0, 160000);
+    world.setPowerForTeam(1, 160000);
 
     return world;
 }
@@ -338,8 +338,10 @@ bool runVisualSingle(const AppOptions& options) {
 #if TCP_VISUAL_SFML_ENABLED
     constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
     constexpr std::uint32_t kSunPowerPlantArchetypeId = 902U;
+    constexpr std::uint32_t kCornCannonBastionArchetypeId = 903U;
     constexpr std::int32_t kPeaMilitaryCampCostSun = 20;
     constexpr std::int32_t kSunPowerPlantCostSun = 25;
+    constexpr std::int32_t kCornCannonBastionCostSun = 1200000;
 
     tcp::logic::runtime::SimulationDriver driver(makeDemoWorld());
     driver.useSingleLocalMode();
@@ -378,11 +380,17 @@ bool runVisualSingle(const AppOptions& options) {
         tcp::logic::ecs::EntityId parentEntity{0};
     };
 
-    std::optional<tcp::logic::ecs::EntityId> selectedEntity;
+    struct GroupMenuState {
+        sf::Vector2f anchor{};
+        std::vector<tcp::logic::ecs::EntityId> members{};
+    };
+
+    std::vector<tcp::logic::ecs::EntityId> selectedGroup;
     std::optional<MoveMarker> moveMarker;
     std::optional<AttackMarker> attackMarker;
     std::optional<BuildMenuState> buildMenu;
     std::optional<ProductionMenuState> productionMenu;
+    std::optional<GroupMenuState> groupMenu;
     auto previousFrameTime = std::chrono::steady_clock::now();
 
 #if TCP_VISUAL_SFML_TEXTURES
@@ -392,6 +400,7 @@ bool runVisualSingle(const AppOptions& options) {
     sf::Texture texSunflower;
     sf::Texture texSunPowerPlant;
     sf::Texture texPeaMilitaryCamp;
+    sf::Texture texCornCannonBastion;
     sf::Texture texGrass;
     sf::Texture texSelectionRing;
     sf::Texture texMoveMarker;
@@ -414,12 +423,17 @@ bool runVisualSingle(const AppOptions& options) {
 
     const bool hasHq0Texture = loadTexture(texHq0, "assets/visual/buildings/hq_team0.png");
     const bool hasHq1Texture = loadTexture(texHq1, "assets/visual/buildings/hq_team1.png");
-    const bool hasPeaTexture = loadTexture(texPeaMilitia, "assets/visual/units/pea_militia.png");
+    const bool hasPeaTexture =
+        loadTexture(texPeaMilitia, "assets/visual/units/pea_militia_overlap.png") ||
+        loadTexture(texPeaMilitia, "assets/visual/units/pea_militia.png");
     const bool hasSunflowerTexture = loadTexture(texSunflower, "assets/visual/units/sunflower_generator.png");
     const bool hasSunPowerPlantTexture =
         loadTexture(texSunPowerPlant, "assets/visual/buildings/sunflower_power_plant.png") ||
         loadTexture(texSunPowerPlant, "assets/visual/units/sunflower_generator.png");
     const bool hasPeaMilitaryCampTexture = loadTexture(texPeaMilitaryCamp, "assets/visual/buildings/pea_military_camp.png");
+    const bool hasCornCannonBastionTexture =
+        loadTexture(texCornCannonBastion, "assets/visual/buildings/corn_cannon_bastion.png") ||
+        loadTexture(texCornCannonBastion, "assets/visual/buildings/pea_military_camp.png");
     const bool hasGrassTexture = loadTexture(texGrass, "assets/visual/environment/grass_camouflage_64x64.png");
     if (hasGrassTexture) {
         texGrass.setRepeated(true);
@@ -456,8 +470,16 @@ bool runVisualSingle(const AppOptions& options) {
         return sf::FloatRect{state.anchor.x, state.anchor.y + 56.0F, 196.0F, 52.0F};
     };
 
+    const auto buildMenuBastionRect = [&](const BuildMenuState& state) {
+        return sf::FloatRect{state.anchor.x, state.anchor.y + 112.0F, 196.0F, 52.0F};
+    };
+
     const auto productionMenuPeaRect = [&](const ProductionMenuState& state) {
         return sf::FloatRect{state.anchor.x, state.anchor.y, 120.0F, 40.0F};
+    };
+
+    const auto groupMenuItemRect = [&](const GroupMenuState& state, std::size_t row) {
+        return sf::FloatRect{state.anchor.x, state.anchor.y + static_cast<float>(row) * 44.0F, 190.0F, 40.0F};
     };
 
     const auto pointInRect = [](const sf::FloatRect& rect, const sf::Vector2f point) {
@@ -497,6 +519,40 @@ bool runVisualSingle(const AppOptions& options) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     const sf::Vector2f clickPos{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)};
 
+                    bool consumedByGroupMenu = false;
+                    if (groupMenu.has_value()) {
+                        auto baseRect = groupMenuItemRect(groupMenu.value(), 0U);
+                        const float totalHeight = static_cast<float>(groupMenu->members.size()) * 44.0F - 4.0F;
+                        const float maxMenuRight = static_cast<float>(window.getSize().x) - 20.0F;
+                        const float maxMenuBottom = static_cast<float>(window.getSize().y) - 20.0F;
+                        if ((baseRect.left + baseRect.width) > maxMenuRight) {
+                            baseRect.left = maxMenuRight - baseRect.width;
+                        }
+                        if ((baseRect.top + totalHeight) > maxMenuBottom) {
+                            baseRect.top = maxMenuBottom - totalHeight;
+                        }
+
+                        for (std::size_t i = 0; i < groupMenu->members.size(); ++i) {
+                            const sf::FloatRect memberRect{
+                                baseRect.left,
+                                baseRect.top + static_cast<float>(i) * 44.0F,
+                                baseRect.width,
+                                40.0F,
+                            };
+                            if (!pointInRect(memberRect, clickPos)) {
+                                continue;
+                            }
+                            selectedGroup = {groupMenu->members[i]};
+                            consumedByGroupMenu = true;
+                            break;
+                        }
+                        groupMenu.reset();
+                    }
+
+                    if (consumedByGroupMenu) {
+                        continue;
+                    }
+
                     bool consumedByProductionMenu = false;
                     if (productionMenu.has_value()) {
                         const auto produceRect = productionMenuPeaRect(productionMenu.value());
@@ -525,6 +581,7 @@ bool runVisualSingle(const AppOptions& options) {
                     if (buildMenu.has_value()) {
                         const auto campRect = buildMenuCampRect(buildMenu.value());
                         const auto sunPlantRect = buildMenuSunPlantRect(buildMenu.value());
+                        const auto bastionRect = buildMenuBastionRect(buildMenu.value());
                         const auto issuer = findBuildIssuer();
                         if (issuer.has_value()) {
                             const auto [snappedX, snappedY] = snapBuildTargetFromMenu(buildMenu.value());
@@ -546,6 +603,15 @@ bool runVisualSingle(const AppOptions& options) {
                                     snappedY,
                                     kSunPowerPlantCostSun);
                                 consumedByBuildMenu = true;
+                            } else if (pointInRect(bastionRect, clickPos)) {
+                                driver.queueLocalCommand(
+                                    0,
+                                    issuer.value(),
+                                    tcp::logic::ecs::CommandType::kBuildCornCannonBastion,
+                                    snappedX,
+                                    snappedY,
+                                    kCornCannonBastionCostSun);
+                                consumedByBuildMenu = true;
                             }
                         }
                         buildMenu.reset();
@@ -562,10 +628,8 @@ bool runVisualSingle(const AppOptions& options) {
                     const auto& buildings = world.buildings();
                     const auto& identities = world.identities();
 
-                    std::optional<tcp::logic::ecs::EntityId> best;
-                    float bestDistSq = 999999.0F;
-                    constexpr float kSelectRadiusPixels = 26.0F;
-                    constexpr float kSelectRadiusSq = kSelectRadiusPixels * kSelectRadiusPixels;
+                    const auto [clickGX, clickGY] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+                    std::vector<tcp::logic::ecs::EntityId> hitEntities;
                     for (const auto& [entityId, tr] : transforms) {
                         const auto teamIt = teams.find(entityId);
                         if (teamIt == teams.end() || teamIt->second.value != 0U) {
@@ -584,21 +648,24 @@ bool runVisualSingle(const AppOptions& options) {
                             continue;
                         }
 
-                        const auto screen = worldToScreen(tr);
-                        const float dx = screen.x - clickPos.x;
-                        const float dy = screen.y - clickPos.y;
-                        const float distSq = (dx * dx) + (dy * dy);
-                        if (distSq < bestDistSq && distSq <= kSelectRadiusSq) {
-                            bestDistSq = distSq;
-                            best = entityId;
+                        if (tr.x.toIntTrunc() == clickGX && tr.y.toIntTrunc() == clickGY) {
+                            hitEntities.push_back(entityId);
                         }
                     }
 
-                    selectedEntity = best;
+                    if (!hitEntities.empty()) {
+                        std::sort(hitEntities.begin(), hitEntities.end());
+                        selectedGroup = std::move(hitEntities);
+                    } else {
+                        selectedGroup.clear();
+                    }
+
+                    productionMenu.reset();
+                    groupMenu.reset();
                 }
 
-                if (event.mouseButton.button == sf::Mouse::Right && selectedEntity.has_value()) {
-                    const auto selected = selectedEntity.value();
+                if (event.mouseButton.button == sf::Mouse::Right && !selectedGroup.empty()) {
+                    const auto selected = selectedGroup.front();
                     const auto& world = driver.world();
                     const auto teamIt = world.teams().find(selected);
                     const auto idIt = world.identities().find(selected);
@@ -606,15 +673,94 @@ bool runVisualSingle(const AppOptions& options) {
                         (idIt != world.identities().end() &&
                          idIt->second.archetypeId == kPeaMilitaryCampArchetypeId);
 
+                    if (selectedGroup.size() > 1U) {
+                        const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+
+                        bool clickedSelectedCell = false;
+                        const auto leadTrIt = world.transforms().find(selectedGroup.front());
+                        if (leadTrIt != world.transforms().end()) {
+                            clickedSelectedCell =
+                                (leadTrIt->second.x.toIntTrunc() == gx && leadTrIt->second.y.toIntTrunc() == gy);
+                        }
+
+                        if (clickedSelectedCell) {
+                            groupMenu = GroupMenuState{
+                                sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)},
+                                selectedGroup,
+                            };
+                            buildMenu.reset();
+                            productionMenu.reset();
+                            attackMarker.reset();
+                            continue;
+                        }
+
+                        std::optional<tcp::logic::ecs::EntityId> enemyTarget;
+                        for (const auto& [entityId, tr] : world.transforms()) {
+                            if (tr.x.toIntTrunc() != gx || tr.y.toIntTrunc() != gy) {
+                                continue;
+                            }
+                            const auto targetTeamIt = world.teams().find(entityId);
+                            const auto targetHpIt = world.healths().find(entityId);
+                            if (targetTeamIt == world.teams().end() || targetHpIt == world.healths().end()) {
+                                continue;
+                            }
+                            if (targetTeamIt->second.value == 0U || targetHpIt->second.current <= 0) {
+                                continue;
+                            }
+                            enemyTarget = entityId;
+                            break;
+                        }
+
+                        for (const auto member : selectedGroup) {
+                            const auto memberTeamIt = world.teams().find(member);
+                            if (memberTeamIt == world.teams().end()) {
+                                continue;
+                            }
+
+                            if (enemyTarget.has_value()) {
+                                driver.queueLocalCommand(
+                                    memberTeamIt->second.value,
+                                    member,
+                                    tcp::logic::ecs::CommandType::kAttack,
+                                    static_cast<std::int32_t>(enemyTarget.value()),
+                                    0,
+                                    0);
+                            } else {
+                                driver.queueLocalCommand(
+                                    memberTeamIt->second.value,
+                                    member,
+                                    tcp::logic::ecs::CommandType::kMove,
+                                    gx,
+                                    gy,
+                                    0);
+                            }
+                        }
+
+                        if (enemyTarget.has_value()) {
+                            attackMarker = AttackMarker{enemyTarget.value()};
+                            moveMarker.reset();
+                        } else {
+                            moveMarker = MoveMarker{gx, gy, driver.world().currentTick() + 20};
+                            attackMarker.reset();
+                        }
+
+                        groupMenu.reset();
+                        buildMenu.reset();
+                        productionMenu.reset();
+                        continue;
+                    }
+
                     if (isCamp) {
                         productionMenu = ProductionMenuState{
                             sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)},
                             selected,
                         };
                         buildMenu.reset();
+                        groupMenu.reset();
                         attackMarker.reset();
                     } else if (teamIt != world.teams().end()) {
                         const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+                        const bool selectedIsBuilding = (world.buildings().find(selected) != world.buildings().end());
 
                         std::optional<tcp::logic::ecs::EntityId> enemyTarget;
                         for (const auto& [entityId, tr] : world.transforms()) {
@@ -643,7 +789,7 @@ bool runVisualSingle(const AppOptions& options) {
                                 0);
                             attackMarker = AttackMarker{enemyTarget.value()};
                             moveMarker.reset();
-                        } else {
+                        } else if (!selectedIsBuilding) {
                             driver.queueLocalCommand(
                                 teamIt->second.value,
                                 selected,
@@ -653,10 +799,13 @@ bool runVisualSingle(const AppOptions& options) {
                                 0);
                             moveMarker = MoveMarker{gx, gy, driver.world().currentTick() + 20};
                             attackMarker.reset();
+                        } else {
+                            attackMarker.reset();
                         }
 
                         buildMenu.reset();
                         productionMenu.reset();
+                        groupMenu.reset();
                     }
                 } else if (event.mouseButton.button == sf::Mouse::Right) {
                     const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
@@ -666,6 +815,7 @@ bool runVisualSingle(const AppOptions& options) {
                         gy,
                     };
                     productionMenu.reset();
+                    groupMenu.reset();
                     attackMarker.reset();
                 }
             }
@@ -736,6 +886,24 @@ bool runVisualSingle(const AppOptions& options) {
         const auto& identities = world.identities();
         const auto& sunProducers = world.sunProducers();
 
+        selectedGroup.erase(
+            std::remove_if(selectedGroup.begin(), selectedGroup.end(), [&](const tcp::logic::ecs::EntityId id) {
+                return transforms.find(id) == transforms.end();
+            }),
+            selectedGroup.end());
+
+        std::map<std::pair<std::int32_t, std::int32_t>, std::vector<tcp::logic::ecs::EntityId>> stackedUnits;
+        for (const auto& [entityId, tr] : transforms) {
+            if (hqs.find(entityId) != hqs.end() || buildings.find(entityId) != buildings.end()) {
+                continue;
+            }
+            if (healths.find(entityId) == healths.end()) {
+                continue;
+            }
+            const auto cell = std::pair<std::int32_t, std::int32_t>{tr.x.toIntTrunc(), tr.y.toIntTrunc()};
+            stackedUnits[cell].push_back(entityId);
+        }
+
         if (attackMarker.has_value()) {
             const auto hpIt = healths.find(attackMarker->targetEntity);
             const auto trIt = transforms.find(attackMarker->targetEntity);
@@ -761,6 +929,8 @@ bool runVisualSingle(const AppOptions& options) {
                 (idIt != identities.end() && idIt->second.archetypeId == kPeaMilitaryCampArchetypeId);
             const bool isSunPowerPlant =
                 (idIt != identities.end() && idIt->second.archetypeId == kSunPowerPlantArchetypeId);
+            const bool isCornCannonBastion =
+                (idIt != identities.end() && idIt->second.archetypeId == kCornCannonBastionArchetypeId);
 
             bool drewSprite = false;
 #if TCP_VISUAL_SFML_TEXTURES
@@ -770,6 +940,8 @@ bool runVisualSingle(const AppOptions& options) {
                     texture = &texPeaMilitaryCamp;
                 } else if (isSunPowerPlant && hasSunPowerPlantTexture) {
                     texture = &texSunPowerPlant;
+                } else if (isCornCannonBastion && hasCornCannonBastionTexture) {
+                    texture = &texCornCannonBastion;
                 } else if (teamOne && hasHq1Texture) {
                     texture = &texHq1;
                 } else if (!teamOne && hasHq0Texture) {
@@ -781,7 +953,7 @@ bool runVisualSingle(const AppOptions& options) {
                     const auto size = texture->getSize();
                     if (size.x > 0U && size.y > 0U) {
                         sprite.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
-                        const float targetSize = (isPeaMilitaryCamp || isSunPowerPlant) ? 62.0F : 54.0F;
+                        const float targetSize = (isPeaMilitaryCamp || isSunPowerPlant || isCornCannonBastion) ? 62.0F : 54.0F;
                         sprite.setScale(sf::Vector2f{targetSize / static_cast<float>(size.x), targetSize / static_cast<float>(size.y)});
                     }
                     sprite.setPosition(screen);
@@ -818,20 +990,16 @@ bool runVisualSingle(const AppOptions& options) {
                     hq.setFillColor(teamOne ? sf::Color(170U, 137U, 63U) : sf::Color(65U, 133U, 81U));
                 } else if (isSunPowerPlant) {
                     hq.setFillColor(teamOne ? sf::Color(221U, 183U, 84U) : sf::Color(171U, 194U, 88U));
+                } else if (isCornCannonBastion) {
+                    hq.setFillColor(teamOne ? sf::Color(118U, 138U, 86U) : sf::Color(92U, 128U, 86U));
                 } else {
                     hq.setFillColor(teamOne ? sf::Color(176U, 110U, 32U) : sf::Color(58U, 162U, 74U));
                 }
                 hq.setOutlineColor(sf::Color(22U, 22U, 22U));
                 hq.setOutlineThickness(2.0F);
                 window.draw(hq);
-            } else if (!isHq && !isBuilding && !drewSprite) {
-                sf::CircleShape unit(kEntityRadius);
-                unit.setOrigin(sf::Vector2f{kEntityRadius, kEntityRadius});
-                unit.setPosition(screen);
-                unit.setFillColor(teamOne ? sf::Color(237U, 170U, 74U) : sf::Color(118U, 206U, 122U));
-                unit.setOutlineColor(sf::Color(20U, 20U, 20U));
-                unit.setOutlineThickness(2.0F);
-                window.draw(unit);
+            } else if (!isHq && !isBuilding) {
+                continue;
             }
 
             const auto hpIt = healths.find(entityId);
@@ -873,6 +1041,161 @@ bool runVisualSingle(const AppOptions& options) {
                         window.draw(pFill);
                     }
                 }
+            }
+        }
+
+        const auto drawStackDigit = [&](int digit, const sf::Vector2f origin, const sf::Color color) {
+            static constexpr std::array<std::uint8_t, 10> kDigitMasks = {
+                0b0111111,
+                0b0000110,
+                0b1011011,
+                0b1001111,
+                0b1100110,
+                0b1101101,
+                0b1111101,
+                0b0000111,
+                0b1111111,
+                0b1101111,
+            };
+            if (digit < 0 || digit > 9) {
+                return;
+            }
+            const float w = 7.0F;
+            const float h = 8.0F;
+            const float t = 2.0F;
+            const auto mask = kDigitMasks[static_cast<std::size_t>(digit)];
+            const auto drawSegment = [&](bool enabled, const sf::Vector2f pos, const sf::Vector2f size) {
+                if (!enabled) {
+                    return;
+                }
+                sf::RectangleShape seg(size);
+                seg.setPosition(pos);
+                seg.setFillColor(color);
+                window.draw(seg);
+            };
+            drawSegment((mask & 0b0000001U) != 0U, sf::Vector2f{origin.x, origin.y}, sf::Vector2f{w, t});
+            drawSegment((mask & 0b0000010U) != 0U, sf::Vector2f{origin.x + w - t, origin.y}, sf::Vector2f{t, h});
+            drawSegment((mask & 0b0000100U) != 0U, sf::Vector2f{origin.x + w - t, origin.y + h}, sf::Vector2f{t, h});
+            drawSegment((mask & 0b0001000U) != 0U, sf::Vector2f{origin.x, origin.y + (2.0F * h)}, sf::Vector2f{w, t});
+            drawSegment((mask & 0b0010000U) != 0U, sf::Vector2f{origin.x, origin.y + h}, sf::Vector2f{t, h});
+            drawSegment((mask & 0b0100000U) != 0U, sf::Vector2f{origin.x, origin.y}, sf::Vector2f{t, h});
+            drawSegment((mask & 0b1000000U) != 0U, sf::Vector2f{origin.x, origin.y + h}, sf::Vector2f{w, t});
+        };
+
+        const auto drawStackCount = [&](int value, const sf::Vector2f origin) {
+            const auto text = std::to_string(std::max(0, value));
+            for (std::size_t i = 0; i < text.size(); ++i) {
+                drawStackDigit(text[i] - '0', sf::Vector2f{origin.x + static_cast<float>(i) * 10.0F, origin.y}, sf::Color(248U, 236U, 168U));
+            }
+        };
+
+        for (auto& [cell, members] : stackedUnits) {
+            if (members.empty()) {
+                continue;
+            }
+
+            std::sort(members.begin(), members.end());
+
+            tcp::logic::ecs::Transform center{};
+            center.x = tcp::logic::math::FixedPoint::fromInt(cell.first);
+            center.y = tcp::logic::math::FixedPoint::fromInt(cell.second);
+            const auto screen = worldToScreen(center);
+
+            const auto teamIt = teams.find(members.front());
+            const bool teamOne = (teamIt != teams.end() && teamIt->second.value == 1U);
+            bool selectedStack = false;
+            for (const auto member : members) {
+                if (std::find(selectedGroup.begin(), selectedGroup.end(), member) != selectedGroup.end()) {
+                    selectedStack = true;
+                    break;
+                }
+            }
+
+            std::int32_t sumCurrent = 0;
+            std::int32_t sumMax = 0;
+            for (const auto member : members) {
+                const auto hpIt = healths.find(member);
+                if (hpIt == healths.end()) {
+                    continue;
+                }
+                sumCurrent += hpIt->second.current;
+                sumMax += hpIt->second.max;
+            }
+
+            if (members.size() == 1U) {
+                bool drewSprite = false;
+#if TCP_VISUAL_SFML_TEXTURES
+                const auto member = members.front();
+                const bool isSunProducer = sunProducers.find(member) != sunProducers.end();
+                const sf::Texture* texture = nullptr;
+                if (isSunProducer && hasSunflowerTexture) {
+                    texture = &texSunflower;
+                } else if (hasPeaTexture) {
+                    texture = &texPeaMilitia;
+                }
+                if (texture != nullptr) {
+                    sf::Sprite sprite(*texture);
+                    const auto size = texture->getSize();
+                    if (size.x > 0U && size.y > 0U) {
+                        sprite.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
+                        sprite.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
+                    }
+                    sprite.setPosition(screen);
+                    window.draw(sprite);
+                    drewSprite = true;
+                }
+#endif
+                if (!drewSprite) {
+                    sf::CircleShape unit(kEntityRadius);
+                    unit.setOrigin(sf::Vector2f{kEntityRadius, kEntityRadius});
+                    unit.setPosition(screen);
+                    unit.setFillColor(teamOne ? sf::Color(237U, 170U, 74U) : sf::Color(118U, 206U, 122U));
+                    unit.setOutlineColor(sf::Color(20U, 20U, 20U));
+                    unit.setOutlineThickness(2.0F);
+                    window.draw(unit);
+                }
+            } else {
+                for (int i = 0; i < 3; ++i) {
+                    sf::CircleShape blob(7.0F);
+                    blob.setOrigin(sf::Vector2f{7.0F, 7.0F});
+                    blob.setPosition(sf::Vector2f{screen.x + (static_cast<float>(i) - 1.0F) * 7.0F, screen.y + static_cast<float>((i % 2) * 5)});
+                    blob.setFillColor(teamOne ? sf::Color(230U, 166U, 80U, 220U) : sf::Color(116U, 203U, 126U, 220U));
+                    blob.setOutlineColor(sf::Color(26U, 26U, 26U));
+                    blob.setOutlineThickness(1.5F);
+                    window.draw(blob);
+                }
+
+                sf::RectangleShape countBg(sf::Vector2f{18.0F, 14.0F});
+                countBg.setPosition(sf::Vector2f{screen.x + 10.0F, screen.y + 8.0F});
+                countBg.setFillColor(sf::Color(18U, 22U, 18U, 220U));
+                countBg.setOutlineColor(sf::Color(98U, 132U, 92U));
+                countBg.setOutlineThickness(1.0F);
+                window.draw(countBg);
+                drawStackCount(static_cast<int>(members.size()), sf::Vector2f{screen.x + 13.0F, screen.y + 10.0F});
+            }
+
+            if (sumMax > 0) {
+                const float ratio = static_cast<float>(sumCurrent) / static_cast<float>(sumMax);
+                const float clamped = std::max(0.0F, std::min(1.0F, ratio));
+                sf::RectangleShape barBack(sf::Vector2f{40.0F, 5.0F});
+                barBack.setPosition(sf::Vector2f{screen.x - 20.0F, screen.y - 32.0F});
+                barBack.setFillColor(sf::Color(35U, 35U, 35U));
+                window.draw(barBack);
+
+                sf::RectangleShape barFill(sf::Vector2f{40.0F * clamped, 5.0F});
+                barFill.setPosition(sf::Vector2f{screen.x - 20.0F, screen.y - 32.0F});
+                barFill.setFillColor(sf::Color(118U, 220U, 93U));
+                window.draw(barFill);
+            }
+
+            if (selectedStack) {
+                sf::CircleShape ring(22.0F);
+                ring.setOrigin(sf::Vector2f{22.0F, 22.0F});
+                ring.setPosition(screen);
+                ring.setFillColor(sf::Color(0U, 0U, 0U, 0U));
+                ring.setOutlineColor(sf::Color(223U, 236U, 116U));
+                ring.setOutlineThickness(2.5F);
+                window.draw(ring);
             }
         }
 
@@ -947,49 +1270,57 @@ bool runVisualSingle(const AppOptions& options) {
             window.draw(buildCell);
         }
 
-        if (selectedEntity.has_value()) {
-            const auto trIt = transforms.find(selectedEntity.value());
-            if (trIt != transforms.end()) {
-                const auto screen = worldToScreen(trIt->second);
-#if TCP_VISUAL_SFML_TEXTURES
-                if (hasSelectionRingTexture) {
-                    sf::Sprite ringSprite(texSelectionRing);
-                    const auto size = texSelectionRing.getSize();
-                    if (size.x > 0U && size.y > 0U) {
-                        ringSprite.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
-                        ringSprite.setScale(sf::Vector2f{42.0F / static_cast<float>(size.x), 42.0F / static_cast<float>(size.y)});
-                    }
-                    ringSprite.setPosition(screen);
-                    window.draw(ringSprite);
-                } else {
-#endif
-                    sf::CircleShape ring(22.0F);
-                    ring.setOrigin(sf::Vector2f{22.0F, 22.0F});
-                    ring.setPosition(screen);
-                    ring.setFillColor(sf::Color(0U, 0U, 0U, 0U));
-                    ring.setOutlineColor(sf::Color(223U, 236U, 116U));
-                    ring.setOutlineThickness(2.5F);
-                    window.draw(ring);
-#if TCP_VISUAL_SFML_TEXTURES
-                }
-#endif
+        for (const auto selectedId : selectedGroup) {
+            const auto trIt = transforms.find(selectedId);
+            if (trIt == transforms.end()) {
+                continue;
             }
+            if (buildings.find(selectedId) == buildings.end() && hqs.find(selectedId) == hqs.end()) {
+                continue;
+            }
+
+            const auto screen = worldToScreen(trIt->second);
+#if TCP_VISUAL_SFML_TEXTURES
+            if (hasSelectionRingTexture) {
+                sf::Sprite ringSprite(texSelectionRing);
+                const auto size = texSelectionRing.getSize();
+                if (size.x > 0U && size.y > 0U) {
+                    ringSprite.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
+                    ringSprite.setScale(sf::Vector2f{42.0F / static_cast<float>(size.x), 42.0F / static_cast<float>(size.y)});
+                }
+                ringSprite.setPosition(screen);
+                window.draw(ringSprite);
+            } else {
+#endif
+                sf::CircleShape ring(22.0F);
+                ring.setOrigin(sf::Vector2f{22.0F, 22.0F});
+                ring.setPosition(screen);
+                ring.setFillColor(sf::Color(0U, 0U, 0U, 0U));
+                ring.setOutlineColor(sf::Color(223U, 236U, 116U));
+                ring.setOutlineThickness(2.5F);
+                window.draw(ring);
+#if TCP_VISUAL_SFML_TEXTURES
+            }
+#endif
         }
 
         if (buildMenu.has_value()) {
             auto campRect = buildMenuCampRect(buildMenu.value());
             auto sunPlantRect = buildMenuSunPlantRect(buildMenu.value());
+            auto bastionRect = buildMenuBastionRect(buildMenu.value());
             const float maxMenuRight = static_cast<float>(window.getSize().x) - 20.0F;
             const float maxMenuBottom = static_cast<float>(window.getSize().y) - 20.0F;
-            if ((sunPlantRect.left + sunPlantRect.width) > maxMenuRight) {
-                const float offset = maxMenuRight - (sunPlantRect.left + sunPlantRect.width);
+            if ((bastionRect.left + bastionRect.width) > maxMenuRight) {
+                const float offset = maxMenuRight - (bastionRect.left + bastionRect.width);
                 campRect.left += offset;
                 sunPlantRect.left += offset;
+                bastionRect.left += offset;
             }
-            if ((sunPlantRect.top + sunPlantRect.height) > maxMenuBottom) {
-                const float offset = maxMenuBottom - (sunPlantRect.top + sunPlantRect.height);
+            if ((bastionRect.top + bastionRect.height) > maxMenuBottom) {
+                const float offset = maxMenuBottom - (bastionRect.top + bastionRect.height);
                 campRect.top += offset;
                 sunPlantRect.top += offset;
+                bastionRect.top += offset;
             }
 
             sf::RectangleShape campBg(sf::Vector2f{campRect.width, campRect.height});
@@ -1005,6 +1336,13 @@ bool runVisualSingle(const AppOptions& options) {
             sunBg.setOutlineColor(sf::Color(102U, 146U, 90U));
             sunBg.setOutlineThickness(2.0F);
             window.draw(sunBg);
+
+            sf::RectangleShape bastionBg(sf::Vector2f{bastionRect.width, bastionRect.height});
+            bastionBg.setPosition(sf::Vector2f{bastionRect.left, bastionRect.top});
+            bastionBg.setFillColor(sf::Color(26U, 32U, 28U, 232U));
+            bastionBg.setOutlineColor(sf::Color(106U, 128U, 100U));
+            bastionBg.setOutlineThickness(2.0F);
+            window.draw(bastionBg);
 
 #if TCP_VISUAL_SFML_TEXTURES
             if (hasPeaMilitaryCampTexture) {
@@ -1041,6 +1379,29 @@ bool runVisualSingle(const AppOptions& options) {
                 window.draw(sunPreview);
             } else {
 #endif
+
+#if TCP_VISUAL_SFML_TEXTURES
+            if (hasCornCannonBastionTexture) {
+                sf::Sprite bastionPreview(texCornCannonBastion);
+                const auto size = texCornCannonBastion.getSize();
+                if (size.x > 0U && size.y > 0U) {
+                    bastionPreview.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
+                    bastionPreview.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
+                }
+                bastionPreview.setPosition(sf::Vector2f{bastionRect.left + 28.0F, bastionRect.top + 26.0F});
+                window.draw(bastionPreview);
+            } else {
+#endif
+                sf::RectangleShape bastionPreview(sf::Vector2f{30.0F, 30.0F});
+                bastionPreview.setOrigin(sf::Vector2f{15.0F, 15.0F});
+                bastionPreview.setPosition(sf::Vector2f{bastionRect.left + 28.0F, bastionRect.top + 26.0F});
+                bastionPreview.setFillColor(sf::Color(136U, 162U, 102U));
+                bastionPreview.setOutlineColor(sf::Color(28U, 28U, 28U));
+                bastionPreview.setOutlineThickness(2.0F);
+                window.draw(bastionPreview);
+#if TCP_VISUAL_SFML_TEXTURES
+            }
+#endif
                 sf::CircleShape sunPreview(14.0F, 8U);
                 sunPreview.setOrigin(sf::Vector2f{14.0F, 14.0F});
                 sunPreview.setPosition(sf::Vector2f{sunPlantRect.left + 28.0F, sunPlantRect.top + 26.0F});
@@ -1071,6 +1432,16 @@ bool runVisualSingle(const AppOptions& options) {
             sunCostBar.setPosition(sf::Vector2f{sunPlantRect.left + 50.0F, sunPlantRect.top + 36.0F});
             sunCostBar.setFillColor(sf::Color(244U, 207U, 96U));
             window.draw(sunCostBar);
+
+            sf::RectangleShape bastionLabelBar(sf::Vector2f{126.0F, 12.0F});
+            bastionLabelBar.setPosition(sf::Vector2f{bastionRect.left + 50.0F, bastionRect.top + 20.0F});
+            bastionLabelBar.setFillColor(sf::Color(176U, 202U, 160U));
+            window.draw(bastionLabelBar);
+
+            sf::RectangleShape bastionCostBar(sf::Vector2f{110.0F, 8.0F});
+            bastionCostBar.setPosition(sf::Vector2f{bastionRect.left + 50.0F, bastionRect.top + 36.0F});
+            bastionCostBar.setFillColor(sf::Color(237U, 208U, 110U));
+            window.draw(bastionCostBar);
         }
 
         if (productionMenu.has_value()) {
@@ -1121,6 +1492,45 @@ bool runVisualSingle(const AppOptions& options) {
             costBar.setPosition(sf::Vector2f{produceRect.left + 30.0F, produceRect.top + 24.0F});
             costBar.setFillColor(sf::Color(243U, 210U, 103U));
             window.draw(costBar);
+        }
+
+        if (groupMenu.has_value()) {
+            auto baseRect = groupMenuItemRect(groupMenu.value(), 0U);
+            const float totalHeight = static_cast<float>(groupMenu->members.size()) * 44.0F - 4.0F;
+            const float maxMenuRight = static_cast<float>(window.getSize().x) - 20.0F;
+            const float maxMenuBottom = static_cast<float>(window.getSize().y) - 20.0F;
+            if ((baseRect.left + baseRect.width) > maxMenuRight) {
+                baseRect.left = maxMenuRight - baseRect.width;
+            }
+            if ((baseRect.top + totalHeight) > maxMenuBottom) {
+                baseRect.top = maxMenuBottom - totalHeight;
+            }
+
+            for (std::size_t i = 0; i < groupMenu->members.size(); ++i) {
+                sf::FloatRect memberRect{
+                    baseRect.left,
+                    baseRect.top + static_cast<float>(i) * 44.0F,
+                    baseRect.width,
+                    40.0F,
+                };
+
+                sf::RectangleShape memberBg(sf::Vector2f{memberRect.width, memberRect.height});
+                memberBg.setPosition(sf::Vector2f{memberRect.left, memberRect.top});
+                memberBg.setFillColor(sf::Color(23U, 30U, 23U, 230U));
+                memberBg.setOutlineColor(sf::Color(88U, 128U, 84U));
+                memberBg.setOutlineThickness(2.0F);
+                window.draw(memberBg);
+
+                sf::RectangleShape memberBar(sf::Vector2f{100.0F, 9.0F});
+                memberBar.setPosition(sf::Vector2f{memberRect.left + 14.0F, memberRect.top + 14.0F});
+                memberBar.setFillColor(sf::Color(156U, 204U, 152U));
+                window.draw(memberBar);
+
+                sf::RectangleShape idBar(sf::Vector2f{46.0F, 8.0F});
+                idBar.setPosition(sf::Vector2f{memberRect.left + 130.0F, memberRect.top + 15.0F});
+                idBar.setFillColor(sf::Color(210U, 228U, 160U));
+                window.draw(idBar);
+            }
         }
 
         const float hudWidth = std::max(360.0F, static_cast<float>(window.getSize().x) - 40.0F);
@@ -1205,17 +1615,23 @@ bool runVisualSingle(const AppOptions& options) {
               << " entities=" << world.entityCount() << " sun0=" << world.sunForTeam(0)
               << " power0=" << world.powerForTeam(0)
               << " selected=";
-        if (selectedEntity.has_value()) {
-            title << selectedEntity.value();
+        if (!selectedGroup.empty()) {
+            title << selectedGroup.front();
+            if (selectedGroup.size() > 1U) {
+                title << " x" << selectedGroup.size();
+            }
         } else {
             title << "none";
         }
         if (buildMenu.has_value()) {
             const auto [snapX, snapY] = snapBuildTargetFromMenu(buildMenu.value());
-            title << " | build-menu camp/solar @(" << snapX << ',' << snapY << ')';
+            title << " | build-menu camp/solar/corn @(" << snapX << ',' << snapY << ')';
         }
         if (productionMenu.has_value()) {
             title << " | production-menu pea(20)";
+        }
+        if (groupMenu.has_value()) {
+            title << " | group-menu members=" << groupMenu->members.size();
         }
         title << " alpha=" << frameReport.interpolationPermille;
         window.setTitle(title.str());

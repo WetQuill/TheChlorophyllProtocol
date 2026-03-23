@@ -17,17 +17,32 @@ constexpr std::int32_t kDefaultSunPowerPlantCostSun = 25;
 constexpr std::int32_t kBuildingHealth = 20;
 constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
 constexpr std::uint32_t kSunPowerPlantArchetypeId = 902U;
+constexpr std::uint32_t kCornCannonBastionArchetypeId = 903U;
 constexpr std::int32_t kSunPowerPlantPerTick = 3;
 constexpr std::uint32_t kPeaMilitiaArchetypeId = 101U;
 constexpr std::int32_t kPeaMilitiaHealth = 30;
 constexpr std::int32_t kPeaMilitiaDamage = 5;
 constexpr std::int32_t kPeaMilitiaAttackCooldown = 1;
 constexpr std::int32_t kProducePeaCostSun = 20;
+constexpr std::int32_t kCornCannonCostSun = 1200000;
+constexpr std::int32_t kCornCannonPowerRequirement = 80000;
+constexpr std::int32_t kCornCannonHealth = 2500000;
+constexpr std::int32_t kCornCannonArmor = 25000;
+constexpr std::int32_t kCornCannonButterDamage = 300000;
+constexpr std::int32_t kCornCannonReloadTicks = 150;
+constexpr std::int32_t kCornCannonFrozenTicks = 150;
+constexpr std::int32_t kCornCannonProjectileTravelTicks = 24;
 
 struct BuildBlueprint {
     std::uint32_t archetypeId{0};
     std::int32_t defaultCostSun{0};
     std::int32_t defaultCostPower{0};
+    std::int32_t health{kBuildingHealth};
+    std::int32_t armor{0};
+    std::int32_t requiredPower{0};
+    bool hasCommandBuffer{false};
+    bool hasArtilleryWeapon{false};
+    ArtilleryWeapon artilleryWeapon{};
     bool grantsSunProduction{false};
     std::int32_t sunPerTick{0};
 };
@@ -90,6 +105,68 @@ struct BuildBlueprint {
     return false;
 }
 
+[[nodiscard]] std::int32_t mitigatedDamage(const World& world, EntityId targetId, std::int32_t baseDamage) {
+    if (baseDamage <= 0) {
+        return 0;
+    }
+
+    const auto armorIt = world.armors().find(targetId);
+    const auto armor = (armorIt == world.armors().end()) ? 0 : armorIt->second.value;
+    if (baseDamage <= armor) {
+        return 0;
+    }
+    return baseDamage - armor;
+}
+
+void updatePowerConsumerStates(World& world) {
+    auto& consumers = world.mutablePowerConsumers();
+    const auto& teams = world.teams();
+    for (auto& [entityId, consumer] : consumers) {
+        const auto teamIt = teams.find(entityId);
+        if (teamIt == teams.end()) {
+            consumer.enabled = false;
+            continue;
+        }
+        consumer.enabled = world.powerForTeam(teamIt->second.value) >= consumer.requiredPower;
+    }
+}
+
+void applyButterAoeAt(World& world,
+                      std::uint8_t sourceTeam,
+                      const math::FixedPoint centerX,
+                      const math::FixedPoint centerY,
+                      const math::FixedPoint aoeRadius,
+                      std::int32_t damage,
+                      std::int32_t frozenTicks) {
+    auto& healths = world.mutableHealths();
+    const auto& transforms = world.transforms();
+    const auto& teams = world.teams();
+    const auto radiusSq = aoeRadius * aoeRadius;
+
+    for (auto& [entityId, health] : healths) {
+        const auto trIt = transforms.find(entityId);
+        const auto teamIt = teams.find(entityId);
+        if (trIt == transforms.end() || teamIt == teams.end()) {
+            continue;
+        }
+        if (teamIt->second.value == sourceTeam) {
+            continue;
+        }
+
+        const auto dx = trIt->second.x - centerX;
+        const auto dy = trIt->second.y - centerY;
+        const auto distSq = (dx * dx) + (dy * dy);
+        if (distSq > radiusSq) {
+            continue;
+        }
+
+        health.current -= mitigatedDamage(world, entityId, damage);
+        if (frozenTicks > 0) {
+            world.setFrozenState(entityId, FrozenState{frozenTicks, 1000});
+        }
+    }
+}
+
 void tryHandleBuildCommand(World& world,
                            EntityId issuerId,
                            const QueuedCommand& cmd,
@@ -128,9 +205,21 @@ void tryHandleBuildCommand(World& world,
     const auto buildingEntity = world.createEntity();
     world.setTeam(buildingEntity, Team{teamIt->second.value});
     world.setTransform(buildingEntity, toTransform(buildCell));
-    world.setHealth(buildingEntity, Health{kBuildingHealth, kBuildingHealth});
+    world.setHealth(buildingEntity, Health{blueprint.health, blueprint.health});
     world.setBuilding(buildingEntity, Building{true});
     world.setIdentity(buildingEntity, Identity{blueprint.archetypeId, 1});
+    if (blueprint.armor > 0) {
+        world.setArmor(buildingEntity, Armor{blueprint.armor});
+    }
+    if (blueprint.requiredPower > 0) {
+        world.setPowerConsumer(buildingEntity, PowerConsumer{blueprint.requiredPower, true});
+    }
+    if (blueprint.hasCommandBuffer) {
+        world.setCommandBuffer(buildingEntity, CommandBuffer{});
+    }
+    if (blueprint.hasArtilleryWeapon) {
+        world.setArtilleryWeapon(buildingEntity, blueprint.artilleryWeapon);
+    }
     if (blueprint.grantsSunProduction && blueprint.sunPerTick > 0) {
         world.setSunProducer(buildingEntity, SunProducer{blueprint.sunPerTick});
     }
@@ -205,6 +294,12 @@ void runInputPhase(World& world, std::int64_t tick) {
                     kPeaMilitaryCampArchetypeId,
                     kDefaultBuildCostSun,
                     10,
+                    kBuildingHealth,
+                    0,
+                    0,
+                    false,
+                    false,
+                    ArtilleryWeapon{},
                     false,
                     0,
                 };
@@ -214,10 +309,40 @@ void runInputPhase(World& world, std::int64_t tick) {
                     kSunPowerPlantArchetypeId,
                     kDefaultSunPowerPlantCostSun,
                     12,
+                    kBuildingHealth,
+                    0,
+                    0,
+                    false,
+                    false,
+                    ArtilleryWeapon{},
                     true,
                     kSunPowerPlantPerTick,
                 };
                 tryHandleBuildCommand(world, entityId, cmd, sunPlantBlueprint);
+            } else if (cmd.type == CommandType::kBuildCornCannonBastion) {
+                const BuildBlueprint bastionBlueprint{
+                    kCornCannonBastionArchetypeId,
+                    kCornCannonCostSun,
+                    0,
+                    kCornCannonHealth,
+                    kCornCannonArmor,
+                    kCornCannonPowerRequirement,
+                    true,
+                    true,
+                    ArtilleryWeapon{
+                        math::FixedPoint::fromRaw(400000),
+                        math::FixedPoint::fromRaw(1800000),
+                        math::FixedPoint::fromRaw(200000),
+                        kCornCannonButterDamage,
+                        kCornCannonReloadTicks,
+                        0,
+                        kCornCannonProjectileTravelTicks,
+                        kCornCannonFrozenTicks,
+                    },
+                    false,
+                    0,
+                };
+                tryHandleBuildCommand(world, entityId, cmd, bastionBlueprint);
             } else if (cmd.type == CommandType::kProducePea) {
                 tryHandleProducePeaCommand(world, entityId, cmd);
             }
@@ -307,6 +432,12 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
     clearTargets.reserve(targets.size());
 
     for (const auto& [entityId, target] : targets) {
+        if (buildings.find(entityId) != buildings.end()) {
+            world.setVelocity(entityId, Velocity{});
+            clearTargets.push_back(entityId);
+            continue;
+        }
+
         const auto trIt = transforms.find(entityId);
         if (trIt == transforms.end()) {
             clearTargets.push_back(entityId);
@@ -358,9 +489,26 @@ void runMovementPhase(World& world, std::int64_t tick) {
     (void)tick;
     auto& transforms = world.mutableTransforms();
     const auto& velocities = world.velocities();
+    auto& frozenStates = world.mutableFrozenStates();
+
+    for (auto it = frozenStates.begin(); it != frozenStates.end();) {
+        if (it->second.remainingTicks > 0) {
+            --it->second.remainingTicks;
+        }
+        if (it->second.remainingTicks <= 0) {
+            it = frozenStates.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     for (auto& [entityId, transform] : transforms) {
         const auto velIt = velocities.find(entityId);
         if (velIt == velocities.end()) {
+            continue;
+        }
+        const auto frozenIt = frozenStates.find(entityId);
+        if (frozenIt != frozenStates.end() && frozenIt->second.remainingTicks > 0 && frozenIt->second.slowPermille >= 1000) {
             continue;
         }
         transform.x += velIt->second.xPerTick;
@@ -370,15 +518,54 @@ void runMovementPhase(World& world, std::int64_t tick) {
 
 void runCombatPhase(World& world, std::int64_t tick) {
     (void)tick;
+    updatePowerConsumerStates(world);
+
+    {
+        auto& projectiles = world.mutableBallisticProjectiles();
+        std::vector<EntityId> detonated;
+        detonated.reserve(projectiles.size());
+
+        for (auto& [projectileId, projectile] : projectiles) {
+            if (projectile.remainingTicks > 0) {
+                --projectile.remainingTicks;
+            }
+
+            if (projectile.remainingTicks > 0) {
+                continue;
+            }
+
+            applyButterAoeAt(
+                world,
+                projectile.sourceTeam,
+                projectile.targetX,
+                projectile.targetY,
+                projectile.aoeRadius,
+                projectile.damage,
+                projectile.frozenTicks);
+            detonated.push_back(projectileId);
+        }
+
+        for (const auto projectileId : detonated) {
+            world.destroyEntity(projectileId);
+        }
+    }
+
     auto& weapons = world.mutableWeapons();
+    auto& artilleryWeapons = world.mutableArtilleryWeapons();
     auto& healths = world.mutableHealths();
     const auto& teams = world.teams();
     const auto& transforms = world.transforms();
     const auto& attackTargets = world.attackTargets();
+    const auto& consumers = world.powerConsumers();
 
     for (auto& [attackerId, weapon] : weapons) {
-        if (weapon.remainingCooldownTicks > 0) {
+        const auto powerIt = consumers.find(attackerId);
+        const bool attackerEnabled = (powerIt == consumers.end()) || powerIt->second.enabled;
+        if (attackerEnabled && weapon.remainingCooldownTicks > 0) {
             --weapon.remainingCooldownTicks;
+        }
+        if (!attackerEnabled) {
+            continue;
         }
 
         const auto atkTeamIt = teams.find(attackerId);
@@ -420,8 +607,76 @@ void runCombatPhase(World& world, std::int64_t tick) {
             continue;
         }
 
-        targetHealthIt->second.current -= weapon.damage;
+        targetHealthIt->second.current -= mitigatedDamage(world, targetId, weapon.damage);
         weapon.remainingCooldownTicks = std::max(0, weapon.cooldownTicks);
+    }
+
+    for (auto& [attackerId, weapon] : artilleryWeapons) {
+        const auto powerIt = consumers.find(attackerId);
+        const bool attackerEnabled = (powerIt == consumers.end()) || powerIt->second.enabled;
+        if (attackerEnabled && weapon.remainingCooldownTicks > 0) {
+            --weapon.remainingCooldownTicks;
+        }
+        if (!attackerEnabled) {
+            continue;
+        }
+
+        const auto atkTeamIt = teams.find(attackerId);
+        const auto atkPosIt = transforms.find(attackerId);
+        if (atkTeamIt == teams.end() || atkPosIt == transforms.end()) {
+            continue;
+        }
+
+        const auto targetIt = attackTargets.find(attackerId);
+        if (targetIt == attackTargets.end()) {
+            continue;
+        }
+
+        const EntityId targetId = targetIt->second;
+        const auto targetTeamIt = teams.find(targetId);
+        const auto targetPosIt = transforms.find(targetId);
+        auto targetHealthIt = healths.find(targetId);
+        if (targetTeamIt == teams.end() || targetPosIt == transforms.end() || targetHealthIt == healths.end()) {
+            world.clearAttackTarget(attackerId);
+            continue;
+        }
+
+        if (targetTeamIt->second.value == atkTeamIt->second.value) {
+            world.clearAttackTarget(attackerId);
+            continue;
+        }
+
+        if (targetHealthIt->second.current <= 0) {
+            world.clearAttackTarget(attackerId);
+            continue;
+        }
+
+        const auto distSq = distanceSquared(atkPosIt->second, targetPosIt->second);
+        const auto minRangeSq = weapon.minRange * weapon.minRange;
+        const auto maxRangeSq = weapon.maxRange * weapon.maxRange;
+        if (distSq < minRangeSq || distSq > maxRangeSq) {
+            continue;
+        }
+
+        if (weapon.remainingCooldownTicks > 0) {
+            continue;
+        }
+
+        const auto projectileEntity = world.createEntity();
+        world.setTeam(projectileEntity, Team{atkTeamIt->second.value});
+        world.setTransform(projectileEntity, atkPosIt->second);
+        world.setBallisticProjectile(projectileEntity,
+                                     BallisticProjectile{
+                                         atkTeamIt->second.value,
+                                         weapon.damage,
+                                         weapon.aoeRadius,
+                                         weapon.frozenTicks,
+                                         std::max(1, weapon.projectileTravelTicks),
+                                         targetPosIt->second.x,
+                                         targetPosIt->second.y,
+                                     });
+
+        weapon.remainingCooldownTicks = std::max(0, weapon.reloadTicks);
     }
 }
 

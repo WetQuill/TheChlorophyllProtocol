@@ -46,6 +46,10 @@ public:
     bool setIdentity(EntityId entityId, const Identity& component);
     bool setProduction(EntityId entityId, const Production& component);
     bool setWeapon(EntityId entityId, const Weapon& component);
+    bool setArtilleryWeapon(EntityId entityId, const ArtilleryWeapon& component);
+    bool setBallisticProjectile(EntityId entityId, const BallisticProjectile& component);
+    bool setArmor(EntityId entityId, const Armor& component);
+    bool setFrozenState(EntityId entityId, const FrozenState& component);
     bool setVision(EntityId entityId, const Vision& component);
     bool setPowerConsumer(EntityId entityId, const PowerConsumer& component);
     bool setCommandBuffer(EntityId entityId, const CommandBuffer& component);
@@ -60,6 +64,10 @@ public:
     [[nodiscard]] const std::map<EntityId, Identity>& identities() const noexcept;
     [[nodiscard]] const std::map<EntityId, Production>& productions() const noexcept;
     [[nodiscard]] const std::map<EntityId, Weapon>& weapons() const noexcept;
+    [[nodiscard]] const std::map<EntityId, ArtilleryWeapon>& artilleryWeapons() const noexcept;
+    [[nodiscard]] const std::map<EntityId, BallisticProjectile>& ballisticProjectiles() const noexcept;
+    [[nodiscard]] const std::map<EntityId, Armor>& armors() const noexcept;
+    [[nodiscard]] const std::map<EntityId, FrozenState>& frozenStates() const noexcept;
     [[nodiscard]] const std::map<EntityId, Vision>& visions() const noexcept;
     [[nodiscard]] const std::map<EntityId, PowerConsumer>& powerConsumers() const noexcept;
     [[nodiscard]] const std::map<EntityId, CommandBuffer>& commandBuffers() const noexcept;
@@ -72,6 +80,10 @@ public:
     [[nodiscard]] std::map<EntityId, Health>& mutableHealths() noexcept;
     [[nodiscard]] std::map<EntityId, CommandBuffer>& mutableCommandBuffers() noexcept;
     [[nodiscard]] std::map<EntityId, Weapon>& mutableWeapons() noexcept;
+    [[nodiscard]] std::map<EntityId, ArtilleryWeapon>& mutableArtilleryWeapons() noexcept;
+    [[nodiscard]] std::map<EntityId, BallisticProjectile>& mutableBallisticProjectiles() noexcept;
+    [[nodiscard]] std::map<EntityId, FrozenState>& mutableFrozenStates() noexcept;
+    [[nodiscard]] std::map<EntityId, PowerConsumer>& mutablePowerConsumers() noexcept;
 
     [[nodiscard]] std::int32_t sunForTeam(std::uint8_t teamId) const noexcept;
     void setSunForTeam(std::uint8_t teamId, std::int32_t value) noexcept;
@@ -121,6 +133,10 @@ private:
     std::map<EntityId, Identity> identities_{};
     std::map<EntityId, Production> productions_{};
     std::map<EntityId, Weapon> weapons_{};
+    std::map<EntityId, ArtilleryWeapon> artilleryWeapons_{};
+    std::map<EntityId, BallisticProjectile> ballisticProjectiles_{};
+    std::map<EntityId, Armor> armors_{};
+    std::map<EntityId, FrozenState> frozenStates_{};
     std::map<EntityId, Vision> visions_{};
     std::map<EntityId, PowerConsumer> powerConsumers_{};
     std::map<EntityId, CommandBuffer> commandBuffers_{};

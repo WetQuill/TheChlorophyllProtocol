@@ -221,6 +221,14 @@ target_link_libraries(logic_tick_budget_test PRIVATE tcp_logic)
 
 add_test(NAME LogicTickBudget COMMAND logic_tick_budget_test)
 
+add_executable(corn_cannon_bastion_test
+    src/tests/systems/CornCannonBastionTest.cpp
+)
+
+target_link_libraries(corn_cannon_bastion_test PRIVATE tcp_logic)
+
+add_test(NAME CornCannonBastion COMMAND corn_cannon_bastion_test)
+
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
     add_test(

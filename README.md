@@ -73,11 +73,18 @@ Visual controls (single mode):
 - Right-click with no selected unit to open the build list.
 - Left-click build list item #1 to place a pea military camp building.
 - Left-click build list item #2 to place a sunflower power plant building that generates sun each tick.
+- Left-click build list item #3 to place a corn cannon bastion defensive artillery.
 - The top-left HUD area displays current Team 0 sun and power values.
 - Building placement consumes both sun and power based on building type.
 - Right-click a selected pea military camp to open a production menu and queue pea unit production (20 sun).
 - Right-click with a selected combat unit on an enemy entity cell to issue an explicit attack order.
 - Combat units no longer auto-acquire targets; they attack only after explicit attack commands.
+- Corn cannon bastion uses scaled stats (sun 1200000, power requirement 80000, HP 2500000, armor 25000).
+- Corn cannon bastion launches delayed ballistic shells with butter AOE (radius 200000) and applies frozen state for 150 ticks.
+- Multiple units on the same grid cell are rendered as a stacked squad icon with count and average HP.
+- Left-click a stacked squad to select the whole group.
+- Right-click with a multi-unit selection issues a default group command (move or attack).
+- Right-click the currently selected stack cell opens a per-unit menu to switch to single-unit control.
 
 Build placement behavior:
 
@@ -88,9 +95,9 @@ Visual window defaults:
 
 - The visual mode window now starts at `1600x900`.
 
-Startup economy (demo world):
+Startup economy (demo world, fixed-point scale x1000):
 
-- Team 0 and Team 1 each start with 120 sun and 80 power.
+- Team 0 and Team 1 each start with 6000000 sun and 160000 power.
 
 Examples:
 

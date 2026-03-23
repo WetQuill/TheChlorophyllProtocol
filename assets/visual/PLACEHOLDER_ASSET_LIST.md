@@ -5,7 +5,7 @@ Final art should replace these files in-place (same path and same file name).
 
 ## Units
 
-- File: `assets/visual/units/pea_militia.png`
+- File: `assets/visual/units/pea_militia_overlap.png`
 - Usage: basic mobile unit sprite
 - Spec: PNG with alpha, 64x64, center anchor
 
@@ -29,6 +29,10 @@ Final art should replace these files in-place (same path and same file name).
 
 - File: `assets/visual/buildings/sunflower_power_plant.png`
 - Usage: buildable sunflower power plant (sun generation)
+- Spec: PNG with alpha, 96x96, center anchor
+
+- File: `assets/visual/buildings/corn_cannon_bastion.png`
+- Usage: buildable corn cannon bastion artillery
 - Spec: PNG with alpha, 96x96, center anchor
 
 ## Map / FX

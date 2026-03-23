@@ -47,6 +47,36 @@ struct Weapon {
     std::int32_t remainingCooldownTicks{0};
 };
 
+struct ArtilleryWeapon {
+    math::FixedPoint minRange{};
+    math::FixedPoint maxRange{};
+    math::FixedPoint aoeRadius{};
+    std::int32_t damage{0};
+    std::int32_t reloadTicks{0};
+    std::int32_t remainingCooldownTicks{0};
+    std::int32_t projectileTravelTicks{0};
+    std::int32_t frozenTicks{0};
+};
+
+struct BallisticProjectile {
+    std::uint8_t sourceTeam{0};
+    std::int32_t damage{0};
+    math::FixedPoint aoeRadius{};
+    std::int32_t frozenTicks{0};
+    std::int32_t remainingTicks{0};
+    math::FixedPoint targetX{};
+    math::FixedPoint targetY{};
+};
+
+struct Armor {
+    std::int32_t value{0};
+};
+
+struct FrozenState {
+    std::int32_t remainingTicks{0};
+    std::int32_t slowPermille{1000};
+};
+
 struct Vision {
     std::int32_t radiusCells{0};
 };
@@ -80,6 +110,7 @@ enum class CommandType : std::uint8_t {
     kStop = 3,
     kBuildSunPowerPlant = 4,
     kProducePea = 5,
+    kBuildCornCannonBastion = 6,
 };
 
 struct QueuedCommand {

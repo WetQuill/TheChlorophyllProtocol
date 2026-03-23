@@ -117,6 +117,38 @@ bool World::setWeapon(EntityId entityId, const Weapon& component) {
     return true;
 }
 
+bool World::setArtilleryWeapon(EntityId entityId, const ArtilleryWeapon& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    artilleryWeapons_[entityId] = component;
+    return true;
+}
+
+bool World::setBallisticProjectile(EntityId entityId, const BallisticProjectile& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    ballisticProjectiles_[entityId] = component;
+    return true;
+}
+
+bool World::setArmor(EntityId entityId, const Armor& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    armors_[entityId] = component;
+    return true;
+}
+
+bool World::setFrozenState(EntityId entityId, const FrozenState& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    frozenStates_[entityId] = component;
+    return true;
+}
+
 bool World::setVision(EntityId entityId, const Vision& component) {
     if (!hasEntity(entityId)) {
         return false;
@@ -193,6 +225,22 @@ const std::map<EntityId, Weapon>& World::weapons() const noexcept {
     return weapons_;
 }
 
+const std::map<EntityId, ArtilleryWeapon>& World::artilleryWeapons() const noexcept {
+    return artilleryWeapons_;
+}
+
+const std::map<EntityId, BallisticProjectile>& World::ballisticProjectiles() const noexcept {
+    return ballisticProjectiles_;
+}
+
+const std::map<EntityId, Armor>& World::armors() const noexcept {
+    return armors_;
+}
+
+const std::map<EntityId, FrozenState>& World::frozenStates() const noexcept {
+    return frozenStates_;
+}
+
 const std::map<EntityId, Vision>& World::visions() const noexcept {
     return visions_;
 }
@@ -235,6 +283,22 @@ std::map<EntityId, CommandBuffer>& World::mutableCommandBuffers() noexcept {
 
 std::map<EntityId, Weapon>& World::mutableWeapons() noexcept {
     return weapons_;
+}
+
+std::map<EntityId, ArtilleryWeapon>& World::mutableArtilleryWeapons() noexcept {
+    return artilleryWeapons_;
+}
+
+std::map<EntityId, BallisticProjectile>& World::mutableBallisticProjectiles() noexcept {
+    return ballisticProjectiles_;
+}
+
+std::map<EntityId, FrozenState>& World::mutableFrozenStates() noexcept {
+    return frozenStates_;
+}
+
+std::map<EntityId, PowerConsumer>& World::mutablePowerConsumers() noexcept {
+    return powerConsumers_;
 }
 
 std::int32_t World::sunForTeam(std::uint8_t teamId) const noexcept {
@@ -377,6 +441,10 @@ void World::removeComponents(EntityId entityId) {
     identities_.erase(entityId);
     productions_.erase(entityId);
     weapons_.erase(entityId);
+    artilleryWeapons_.erase(entityId);
+    ballisticProjectiles_.erase(entityId);
+    armors_.erase(entityId);
+    frozenStates_.erase(entityId);
     visions_.erase(entityId);
     powerConsumers_.erase(entityId);
     commandBuffers_.erase(entityId);
