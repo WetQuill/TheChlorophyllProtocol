@@ -32,6 +32,12 @@
 #include <SFML/Graphics/RectangleShape.h>
 #endif
 
+#if __has_include(<SFML/Graphics/ConvexShape.hpp>)
+#include <SFML/Graphics/ConvexShape.hpp>
+#elif __has_include(<SFML/Graphics/ConvexShape.h>)
+#include <SFML/Graphics/ConvexShape.h>
+#endif
+
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #if __has_include(<SFML/System/Vector2.hpp>)
@@ -357,6 +363,8 @@ bool runVisualSingle(const AppOptions& options) {
     constexpr unsigned int kWindowWidth = 1600U;
     constexpr unsigned int kWindowHeight = 900U;
     constexpr float kCellPixels = 48.0F;
+    constexpr float kIsoTileHalfW = 48.0F;
+    constexpr float kIsoTileHalfH = 24.0F;
     constexpr float kEntityRadius = 16.0F;
     constexpr float kMapMinCell = -50.0F;
     constexpr float kMapMaxCell = 50.0F;
@@ -387,8 +395,10 @@ bool runVisualSingle(const AppOptions& options) {
             if (teamIt->second.value != 0U) {
                 continue;
             }
-            initialCenter.x = static_cast<float>(trIt->second.x.toIntTrunc()) * kCellPixels;
-            initialCenter.y = static_cast<float>(trIt->second.y.toIntTrunc()) * kCellPixels;
+            const float gxInit = static_cast<float>(trIt->second.x.toIntTrunc());
+            const float gyInit = static_cast<float>(trIt->second.y.toIntTrunc());
+            initialCenter.x = (gxInit - gyInit) * kIsoTileHalfW;
+            initialCenter.y = (gxInit + gyInit) * kIsoTileHalfH;
             break;
         }
     }
@@ -489,20 +499,22 @@ bool runVisualSingle(const AppOptions& options) {
     const bool hasMoveMarkerTexture = loadTexture(texMoveMarker, "assets/visual/fx/move_target_marker.png");
 #endif
 
-    const auto worldToScreen = [&](const tcp::logic::ecs::Transform& tr) {
+    const auto worldToScreen = [&](const tcp::logic::ecs::Transform& tr) -> sf::Vector2f {
+        const float gx = static_cast<float>(tr.x.toIntTrunc());
+        const float gy = static_cast<float>(tr.y.toIntTrunc());
         return sf::Vector2f{
-            static_cast<float>(tr.x.toIntTrunc()) * kCellPixels,
-            static_cast<float>(tr.y.toIntTrunc()) * kCellPixels,
+            (gx - gy) * kIsoTileHalfW,
+            (gx + gy) * kIsoTileHalfH,
         };
     };
 
     const auto mouseToGrid = [&](const sf::Vector2i pixelPos) {
         const sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos, gameView);
-        const float gx = worldPos.x / kCellPixels;
-        const float gy = worldPos.y / kCellPixels;
+        const float gxf = (worldPos.x / kIsoTileHalfW + worldPos.y / kIsoTileHalfH) * 0.5F;
+        const float gyf = (worldPos.y / kIsoTileHalfH - worldPos.x / kIsoTileHalfW) * 0.5F;
         return std::pair<std::int32_t, std::int32_t>{
-            static_cast<std::int32_t>(std::lround(gx)),
-            static_cast<std::int32_t>(std::lround(gy)),
+            static_cast<std::int32_t>(std::lround(gxf)),
+            static_cast<std::int32_t>(std::lround(gyf)),
         };
     };
 
@@ -1039,8 +1051,10 @@ bool runVisualSingle(const AppOptions& options) {
             center.x += cameraDelta.x * deltaSeconds;
             center.y += cameraDelta.y * deltaSeconds;
 
-            const float mapMinPx = kMapMinCell * kCellPixels;
-            const float mapMaxPx = kMapMaxCell * kCellPixels;
+            const float mapMinPx = (kMapMinCell - kMapMaxCell) * kIsoTileHalfW;
+            const float mapMaxPx = (kMapMaxCell - kMapMinCell) * kIsoTileHalfW;
+            const float mapMinPy = (kMapMinCell + kMapMinCell) * kIsoTileHalfH;
+            const float mapMaxPy = (kMapMaxCell + kMapMaxCell) * kIsoTileHalfH;
             const sf::Vector2f viewSize = gameView.getSize();
             const float halfW = viewSize.x * 0.5F;
             const float halfH = viewSize.y * 0.5F;
@@ -1053,7 +1067,7 @@ bool runVisualSingle(const AppOptions& options) {
             };
 
             center.x = clampAxis(center.x, mapMinPx + halfW, mapMaxPx - halfW);
-            center.y = clampAxis(center.y, mapMinPx + halfH, mapMaxPx - halfH);
+            center.y = clampAxis(center.y, mapMinPy + halfH, mapMaxPy - halfH);
             gameView.setCenter(center);
         }
 
@@ -1063,10 +1077,12 @@ bool runVisualSingle(const AppOptions& options) {
 #if TCP_VISUAL_SFML_TEXTURES
         if (hasGrassTexture) {
             sf::Sprite ground(texGrass);
-            const int mapMinPx = static_cast<int>(kMapMinCell * kCellPixels);
-            const int mapSizePx = static_cast<int>((kMapMaxCell - kMapMinCell) * kCellPixels);
-            ground.setPosition(sf::Vector2f{static_cast<float>(mapMinPx), static_cast<float>(mapMinPx)});
-            ground.setTextureRect(sf::IntRect(mapMinPx, mapMinPx, mapSizePx, mapSizePx));
+            const int mapScreenMinX = static_cast<int>((kMapMinCell - kMapMaxCell) * kIsoTileHalfW);
+            const int mapScreenMaxX = static_cast<int>((kMapMaxCell - kMapMinCell) * kIsoTileHalfW);
+            const int mapScreenMinY = static_cast<int>((kMapMinCell + kMapMinCell) * kIsoTileHalfH);
+            const int mapScreenMaxY = static_cast<int>((kMapMaxCell + kMapMaxCell) * kIsoTileHalfH);
+            ground.setPosition(sf::Vector2f{static_cast<float>(mapScreenMinX), static_cast<float>(mapScreenMinY)});
+            ground.setTextureRect(sf::IntRect(0, 0, mapScreenMaxX - mapScreenMinX, mapScreenMaxY - mapScreenMinY));
             window.draw(ground);
         }
 #endif
@@ -1078,29 +1094,54 @@ bool runVisualSingle(const AppOptions& options) {
         const float worldTop = cameraCenter.y - (cameraSize.y * 0.5F);
         const float worldBottom = cameraCenter.y + (cameraSize.y * 0.5F);
 
-        const int gridMinX = std::max(static_cast<int>(kMapMinCell), static_cast<int>(std::floor(worldLeft / kCellPixels)) - 1);
-        const int gridMaxX = std::min(static_cast<int>(kMapMaxCell), static_cast<int>(std::ceil(worldRight / kCellPixels)) + 1);
-        const int gridMinY = std::max(static_cast<int>(kMapMinCell), static_cast<int>(std::floor(worldTop / kCellPixels)) - 1);
-        const int gridMaxY = std::min(static_cast<int>(kMapMaxCell), static_cast<int>(std::ceil(worldBottom / kCellPixels)) + 1);
+        const auto screenToGridFloat = [&](float sx, float sy) {
+            const float gxf = (sx / kIsoTileHalfW + sy / kIsoTileHalfH) * 0.5F;
+            const float gyf = (sy / kIsoTileHalfH - sx / kIsoTileHalfW) * 0.5F;
+            return std::pair<float, float>{gxf, gyf};
+        };
 
-        const float gridActualLeft = static_cast<float>(gridMinX) * kCellPixels;
-        const float gridActualRight = static_cast<float>(gridMaxX) * kCellPixels;
-        const float gridActualTop = static_cast<float>(gridMinY) * kCellPixels;
-        const float gridActualBottom = static_cast<float>(gridMaxY) * kCellPixels;
-        const float gridActualWidth = gridActualRight - gridActualLeft;
-        const float gridActualHeight = gridActualBottom - gridActualTop;
+        auto [gx0, gy0] = screenToGridFloat(worldLeft, worldTop);
+        auto [gx1, gy1] = screenToGridFloat(worldRight, worldTop);
+        auto [gx2, gy2] = screenToGridFloat(worldLeft, worldBottom);
+        auto [gx3, gy3] = screenToGridFloat(worldRight, worldBottom);
 
-        for (int gx = gridMinX; gx <= gridMaxX; ++gx) {
-            sf::RectangleShape vline(sf::Vector2f{1.0F, gridActualHeight});
-            vline.setFillColor(sf::Color(255U, 255U, 255U, 30U));
-            vline.setPosition(sf::Vector2f{static_cast<float>(gx) * kCellPixels, gridActualTop});
-            window.draw(vline);
-        }
-        for (int gy = gridMinY; gy <= gridMaxY; ++gy) {
-            sf::RectangleShape hline(sf::Vector2f{gridActualWidth, 1.0F});
-            hline.setFillColor(sf::Color(255U, 255U, 255U, 30U));
-            hline.setPosition(sf::Vector2f{gridActualLeft, static_cast<float>(gy) * kCellPixels});
-            window.draw(hline);
+        const float minGX = std::min({gx0, gx1, gx2, gx3});
+        const float maxGX = std::max({gx0, gx1, gx2, gx3});
+        const float minGY = std::min({gy0, gy1, gy2, gy3});
+        const float maxGY = std::max({gy0, gy1, gy2, gy3});
+
+        const int gridMinX = std::max(static_cast<int>(kMapMinCell), static_cast<int>(std::floor(minGX)) - 1);
+        const int gridMaxX = std::min(static_cast<int>(kMapMaxCell), static_cast<int>(std::ceil(maxGX)) + 1);
+        const int gridMinY = std::max(static_cast<int>(kMapMinCell), static_cast<int>(std::floor(minGY)) - 1);
+        const int gridMaxY = std::min(static_cast<int>(kMapMaxCell), static_cast<int>(std::ceil(maxGY)) + 1);
+
+        const auto atTr = [](std::int32_t x, std::int32_t y) {
+            tcp::logic::ecs::Transform tr{};
+            tr.x = tcp::logic::math::FixedPoint::fromInt(x);
+            tr.y = tcp::logic::math::FixedPoint::fromInt(y);
+            return tr;
+        };
+
+        {
+            sf::Color gridColor(255U, 255U, 255U, 30U);
+            for (int gx = gridMinX; gx <= gridMaxX; ++gx) {
+                sf::Vector2f p1 = worldToScreen(atTr(gx, gridMinY));
+                sf::Vector2f p2 = worldToScreen(atTr(gx, gridMaxY));
+                sf::Vertex line[] = {
+                    sf::Vertex(p1, gridColor),
+                    sf::Vertex(p2, gridColor),
+                };
+                window.draw(line, 2U, sf::Lines);
+            }
+            for (int gy = gridMinY; gy <= gridMaxY; ++gy) {
+                sf::Vector2f p1 = worldToScreen(atTr(gridMinX, gy));
+                sf::Vector2f p2 = worldToScreen(atTr(gridMaxX, gy));
+                sf::Vertex line[] = {
+                    sf::Vertex(p1, gridColor),
+                    sf::Vertex(p2, gridColor),
+                };
+                window.draw(line, 2U, sf::Lines);
+            }
         }
 
         const auto& world = driver.world();
@@ -1139,12 +1180,36 @@ bool runVisualSingle(const AppOptions& options) {
             }
         }
 
+        struct SortedEntity {
+            tcp::logic::ecs::EntityId id;
+            std::int32_t depthKey;
+        };
+        std::vector<SortedEntity> sortedEntities;
+        sortedEntities.reserve(world.entityCount());
         for (const auto entityId : world.entities()) {
             const auto trIt = transforms.find(entityId);
             if (trIt == transforms.end()) {
                 continue;
             }
+            const bool isHqEnt = hqs.find(entityId) != hqs.end();
+            const bool isBuildingEnt = buildings.find(entityId) != buildings.end();
+            if (!isHqEnt && !isBuildingEnt) {
+                continue;
+            }
+            sortedEntities.push_back(SortedEntity{
+                entityId,
+                trIt->second.x.toIntTrunc() + trIt->second.y.toIntTrunc(),
+            });
+        }
+        std::sort(sortedEntities.begin(), sortedEntities.end(),
+            [](const SortedEntity& a, const SortedEntity& b) {
+                if (a.depthKey != b.depthKey) return a.depthKey < b.depthKey;
+                return a.id < b.id;
+            });
 
+        for (const auto& sorted : sortedEntities) {
+            const auto entityId = sorted.id;
+            const auto trIt = transforms.find(entityId);
             const auto screen = worldToScreen(trIt->second);
             const auto teamIt = teams.find(entityId);
             const bool teamOne = (teamIt != teams.end() && teamIt->second.value == 1U);
@@ -1374,7 +1439,21 @@ bool runVisualSingle(const AppOptions& options) {
             }
         };
 
-        for (auto& [cell, members] : stackedUnits) {
+        std::vector<std::pair<std::pair<std::int32_t, std::int32_t>, std::vector<tcp::logic::ecs::EntityId>>> sortedStackedCells;
+        sortedStackedCells.reserve(stackedUnits.size());
+        for (auto& kv : stackedUnits) {
+            sortedStackedCells.emplace_back(std::move(kv));
+        }
+        std::sort(sortedStackedCells.begin(), sortedStackedCells.end(),
+            [](const auto& a, const auto& b) {
+                const int depthA = a.first.first + a.first.second;
+                const int depthB = b.first.first + b.first.second;
+                if (depthA != depthB) return depthA < depthB;
+                if (a.first.first != b.first.first) return a.first.first < b.first.first;
+                return a.first.second < b.first.second;
+            });
+
+        for (auto& [cell, members] : sortedStackedCells) {
             if (members.empty()) {
                 continue;
             }
@@ -1546,8 +1625,13 @@ bool runVisualSingle(const AppOptions& options) {
             buildPreview.y = tcp::logic::math::FixedPoint::fromInt(snapY);
             const auto screen = worldToScreen(buildPreview);
 
-            sf::RectangleShape buildCell(sf::Vector2f{kCellPixels - 4.0F, kCellPixels - 4.0F});
-            buildCell.setOrigin(sf::Vector2f{(kCellPixels - 4.0F) * 0.5F, (kCellPixels - 4.0F) * 0.5F});
+            const float bHalfW = kIsoTileHalfW - 2.0F;
+            const float bHalfH = kIsoTileHalfH - 2.0F;
+            sf::ConvexShape buildCell(4U);
+            buildCell.setPoint(0U, sf::Vector2f{0.0F, -bHalfH});
+            buildCell.setPoint(1U, sf::Vector2f{bHalfW, 0.0F});
+            buildCell.setPoint(2U, sf::Vector2f{0.0F, bHalfH});
+            buildCell.setPoint(3U, sf::Vector2f{-bHalfW, 0.0F});
             buildCell.setPosition(screen);
             buildCell.setFillColor(sf::Color(186U, 214U, 126U, 70U));
             buildCell.setOutlineColor(sf::Color(202U, 236U, 138U, 210U));
