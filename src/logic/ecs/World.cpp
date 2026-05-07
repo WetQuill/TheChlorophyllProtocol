@@ -429,6 +429,39 @@ std::uint64_t World::lastStateHash() const noexcept {
     return lastStateHash_;
 }
 
+void World::setTilemap(const logic::map::Tilemap& tm) {
+    tilemap_ = tm;
+}
+
+const logic::map::Tilemap& World::tilemap() const noexcept {
+    return tilemap_;
+}
+
+logic::map::Tilemap& World::mutableTilemap() noexcept {
+    return tilemap_;
+}
+
+void World::initFogOfWar() {
+    teamFogOfWar_.clear();
+}
+
+logic::map::FogOfWar& World::fogOfWarForTeam(std::uint8_t teamId) {
+    auto& fog = teamFogOfWar_[teamId];
+    if (fog.width != tilemap_.width || fog.height != tilemap_.height) {
+        fog.resize(tilemap_.width, tilemap_.height);
+    }
+    return fog;
+}
+
+const logic::map::FogOfWar& World::fogOfWarForTeam(std::uint8_t teamId) const {
+    static logic::map::FogOfWar emptyFog{};
+    const auto it = teamFogOfWar_.find(teamId);
+    if (it == teamFogOfWar_.end()) {
+        return emptyFog;
+    }
+    return it->second;
+}
+
 bool World::hasEntity(EntityId entityId) const noexcept {
     return std::find(entities_.begin(), entities_.end(), entityId) != entities_.end();
 }

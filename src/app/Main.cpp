@@ -14,9 +14,11 @@
 #include <vector>
 
 #include "GameLoop.h"
+#include "../data/MapLoader.h"
 #include "../logic/debug/StateHasher.h"
 #include "../logic/ecs/systems/BuiltInSystems.h"
 #include "../logic/runtime/SimulationDriver.h"
+#include "../render/MapRenderer.h"
 
 #if defined(TCP_HAS_SFML) && __has_include(<SFML/Graphics/RenderWindow.hpp>)
 #define TCP_VISUAL_SFML_ENABLED 1
@@ -99,6 +101,8 @@ tcp::logic::ecs::World makeDemoWorld() {
     world.setHealth(hq1, tcp::logic::ecs::Health{200, 200});
     world.setHeadquarters(hq0, tcp::logic::ecs::Headquarters{true});
     world.setHeadquarters(hq1, tcp::logic::ecs::Headquarters{true});
+    world.setVision(hq0, tcp::logic::ecs::Vision{8});
+    world.setVision(hq1, tcp::logic::ecs::Vision{8});
 
     const auto p0Unit = world.createEntity();
     const auto p1Unit = world.createEntity();
@@ -110,6 +114,8 @@ tcp::logic::ecs::World makeDemoWorld() {
     world.setHealth(p1Unit, tcp::logic::ecs::Health{30, 30});
     world.setWeapon(p0Unit, tcp::logic::ecs::Weapon{tcp::logic::math::FixedPoint::fromInt(2), 5, 1, 0});
     world.setWeapon(p1Unit, tcp::logic::ecs::Weapon{tcp::logic::math::FixedPoint::fromInt(2), 5, 1, 0});
+    world.setVision(p0Unit, tcp::logic::ecs::Vision{4});
+    world.setVision(p1Unit, tcp::logic::ecs::Vision{4});
     world.setCommandBuffer(p0Unit, tcp::logic::ecs::CommandBuffer{});
     world.setCommandBuffer(p1Unit, tcp::logic::ecs::CommandBuffer{});
 
@@ -357,6 +363,11 @@ bool runVisualSingle(const AppOptions& options) {
     tcp::logic::runtime::SimulationDriver driver(makeDemoWorld());
     driver.useSingleLocalMode();
 
+    tcp::logic::map::Tilemap loadedMap{};
+    if (tcp::data::loadMapFromJsonFile("assets/data/maps/frontline_grave.json", loadedMap)) {
+        driver.world().setTilemap(loadedMap);
+    }
+
     const tcp::logic::SimulationConfig config{};
     tcp::app::GameLoop loop(config);
 
@@ -376,6 +387,12 @@ bool runVisualSingle(const AppOptions& options) {
 
     sf::View gameView(sf::FloatRect{0.0F, 0.0F, 1600.0F, 900.0F});
     gameView.zoom(0.6F);
+
+    tcp::render::MapRenderer mapRenderer;
+    const bool hasTilemap = driver.world().tilemap().width > 0;
+    if (hasTilemap) {
+        mapRenderer.rebuildTerrain(driver.world().tilemap(), kIsoTileHalfW, kIsoTileHalfH);
+    }
 
     sf::Vector2f initialCenter{0.0F, 0.0F};
     {
@@ -1051,10 +1068,19 @@ bool runVisualSingle(const AppOptions& options) {
             center.x += cameraDelta.x * deltaSeconds;
             center.y += cameraDelta.y * deltaSeconds;
 
-            const float mapMinPx = (kMapMinCell - kMapMaxCell) * kIsoTileHalfW;
-            const float mapMaxPx = (kMapMaxCell - kMapMinCell) * kIsoTileHalfW;
-            const float mapMinPy = (kMapMinCell + kMapMinCell) * kIsoTileHalfH;
-            const float mapMaxPy = (kMapMaxCell + kMapMaxCell) * kIsoTileHalfH;
+            float mapMinPx, mapMaxPx, mapMinPy, mapMaxPy;
+            if (hasTilemap) {
+                const auto& tm = driver.world().tilemap();
+                mapMinPx = static_cast<float>(0 - (tm.height - 1)) * kIsoTileHalfW;
+                mapMaxPx = static_cast<float>((tm.width - 1) - 0) * kIsoTileHalfW;
+                mapMinPy = static_cast<float>(0 + 0) * kIsoTileHalfH;
+                mapMaxPy = static_cast<float>((tm.width - 1) + (tm.height - 1)) * kIsoTileHalfH;
+            } else {
+                mapMinPx = (kMapMinCell - kMapMaxCell) * kIsoTileHalfW;
+                mapMaxPx = (kMapMaxCell - kMapMinCell) * kIsoTileHalfW;
+                mapMinPy = (kMapMinCell + kMapMinCell) * kIsoTileHalfH;
+                mapMaxPy = (kMapMaxCell + kMapMaxCell) * kIsoTileHalfH;
+            }
             const sf::Vector2f viewSize = gameView.getSize();
             const float halfW = viewSize.x * 0.5F;
             const float halfH = viewSize.y * 0.5F;
@@ -1074,18 +1100,22 @@ bool runVisualSingle(const AppOptions& options) {
         window.clear(sf::Color(18U, 22U, 18U));
         window.setView(gameView);
 
+        if (hasTilemap) {
+            mapRenderer.drawTerrain(window);
+        } else {
 #if TCP_VISUAL_SFML_TEXTURES
-        if (hasGrassTexture) {
-            sf::Sprite ground(texGrass);
-            const int mapScreenMinX = static_cast<int>((kMapMinCell - kMapMaxCell) * kIsoTileHalfW);
-            const int mapScreenMaxX = static_cast<int>((kMapMaxCell - kMapMinCell) * kIsoTileHalfW);
-            const int mapScreenMinY = static_cast<int>((kMapMinCell + kMapMinCell) * kIsoTileHalfH);
-            const int mapScreenMaxY = static_cast<int>((kMapMaxCell + kMapMaxCell) * kIsoTileHalfH);
-            ground.setPosition(sf::Vector2f{static_cast<float>(mapScreenMinX), static_cast<float>(mapScreenMinY)});
-            ground.setTextureRect(sf::IntRect(0, 0, mapScreenMaxX - mapScreenMinX, mapScreenMaxY - mapScreenMinY));
-            window.draw(ground);
-        }
+            if (hasGrassTexture) {
+                sf::Sprite ground(texGrass);
+                const int mapScreenMinX = static_cast<int>((kMapMinCell - kMapMaxCell) * kIsoTileHalfW);
+                const int mapScreenMaxX = static_cast<int>((kMapMaxCell - kMapMinCell) * kIsoTileHalfW);
+                const int mapScreenMinY = static_cast<int>((kMapMinCell + kMapMinCell) * kIsoTileHalfH);
+                const int mapScreenMaxY = static_cast<int>((kMapMaxCell + kMapMaxCell) * kIsoTileHalfH);
+                ground.setPosition(sf::Vector2f{static_cast<float>(mapScreenMinX), static_cast<float>(mapScreenMinY)});
+                ground.setTextureRect(sf::IntRect(0, 0, mapScreenMaxX - mapScreenMinX, mapScreenMaxY - mapScreenMinY));
+                window.draw(ground);
+            }
 #endif
+        }
 
         const sf::Vector2f cameraCenter = gameView.getCenter();
         const sf::Vector2f cameraSize = gameView.getSize();
@@ -1110,10 +1140,24 @@ bool runVisualSingle(const AppOptions& options) {
         const float minGY = std::min({gy0, gy1, gy2, gy3});
         const float maxGY = std::max({gy0, gy1, gy2, gy3});
 
-        const int gridMinX = std::max(static_cast<int>(kMapMinCell), static_cast<int>(std::floor(minGX)) - 1);
-        const int gridMaxX = std::min(static_cast<int>(kMapMaxCell), static_cast<int>(std::ceil(maxGX)) + 1);
-        const int gridMinY = std::max(static_cast<int>(kMapMinCell), static_cast<int>(std::floor(minGY)) - 1);
-        const int gridMaxY = std::min(static_cast<int>(kMapMaxCell), static_cast<int>(std::ceil(maxGY)) + 1);
+        float gridClampMinX, gridClampMaxX, gridClampMinY, gridClampMaxY;
+        if (hasTilemap) {
+            const auto& tm = driver.world().tilemap();
+            gridClampMinX = 0;
+            gridClampMaxX = static_cast<float>(tm.width - 1);
+            gridClampMinY = 0;
+            gridClampMaxY = static_cast<float>(tm.height - 1);
+        } else {
+            gridClampMinX = kMapMinCell;
+            gridClampMaxX = kMapMaxCell;
+            gridClampMinY = kMapMinCell;
+            gridClampMaxY = kMapMaxCell;
+        }
+
+        const int gridMinX = std::max(static_cast<int>(gridClampMinX), static_cast<int>(std::floor(minGX)) - 1);
+        const int gridMaxX = std::min(static_cast<int>(gridClampMaxX), static_cast<int>(std::ceil(maxGX)) + 1);
+        const int gridMinY = std::max(static_cast<int>(gridClampMinY), static_cast<int>(std::floor(minGY)) - 1);
+        const int gridMaxY = std::min(static_cast<int>(gridClampMaxY), static_cast<int>(std::ceil(maxGY)) + 1);
 
         const auto atTr = [](std::int32_t x, std::int32_t y) {
             tcp::logic::ecs::Transform tr{};
@@ -1122,27 +1166,7 @@ bool runVisualSingle(const AppOptions& options) {
             return tr;
         };
 
-        {
-            sf::Color gridColor(255U, 255U, 255U, 30U);
-            for (int gx = gridMinX; gx <= gridMaxX; ++gx) {
-                sf::Vector2f p1 = worldToScreen(atTr(gx, gridMinY));
-                sf::Vector2f p2 = worldToScreen(atTr(gx, gridMaxY));
-                sf::Vertex line[] = {
-                    sf::Vertex(p1, gridColor),
-                    sf::Vertex(p2, gridColor),
-                };
-                window.draw(line, 2U, sf::Lines);
-            }
-            for (int gy = gridMinY; gy <= gridMaxY; ++gy) {
-                sf::Vector2f p1 = worldToScreen(atTr(gridMinX, gy));
-                sf::Vector2f p2 = worldToScreen(atTr(gridMaxX, gy));
-                sf::Vertex line[] = {
-                    sf::Vertex(p1, gridColor),
-                    sf::Vertex(p2, gridColor),
-                };
-                window.draw(line, 2U, sf::Lines);
-            }
-        }
+        mapRenderer.drawGrid(window, gridMinX, gridMaxX, gridMinY, gridMaxY, kIsoTileHalfW, kIsoTileHalfH);
 
         const auto& world = driver.world();
         const auto& transforms = world.transforms();
@@ -1671,6 +1695,12 @@ bool runVisualSingle(const AppOptions& options) {
 #if TCP_VISUAL_SFML_TEXTURES
             }
 #endif
+        }
+
+        if (hasTilemap) {
+            const auto& worldConst = driver.world();
+            const auto& fog = worldConst.fogOfWarForTeam(0U);
+            mapRenderer.drawFogOfWar(window, fog, kIsoTileHalfW, kIsoTileHalfH);
         }
 
         window.setView(window.getDefaultView());

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../map/FogOfWar.h"
+#include "../map/Tilemap.h"
 #include "components/Components.h"
 #include "systems/SystemPipeline.h"
 
@@ -117,6 +119,14 @@ public:
     void setLastStateHash(std::uint64_t hash) noexcept;
     [[nodiscard]] std::uint64_t lastStateHash() const noexcept;
 
+    void setTilemap(const logic::map::Tilemap& tm);
+    [[nodiscard]] const logic::map::Tilemap& tilemap() const noexcept;
+    [[nodiscard]] logic::map::Tilemap& mutableTilemap() noexcept;
+
+    void initFogOfWar();
+    [[nodiscard]] logic::map::FogOfWar& fogOfWarForTeam(std::uint8_t teamId);
+    [[nodiscard]] const logic::map::FogOfWar& fogOfWarForTeam(std::uint8_t teamId) const;
+
 private:
     [[nodiscard]] bool hasEntity(EntityId entityId) const noexcept;
     void removeComponents(EntityId entityId);
@@ -154,6 +164,9 @@ private:
     TickTelemetry telemetry_{};
     bool determinismDebugEnabled_{false};
     std::uint64_t lastStateHash_{0};
+
+    logic::map::Tilemap tilemap_{};
+    std::map<std::uint8_t, logic::map::FogOfWar> teamFogOfWar_{};
 };
 
 }  // namespace tcp::logic::ecs

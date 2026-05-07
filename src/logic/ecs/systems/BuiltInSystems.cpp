@@ -1,5 +1,7 @@
 #include "BuiltInSystems.h"
 
+#include "../../map/FogOfWar.h"
+#include "../../map/Tilemap.h"
 #include "../../path/AStarGrid.h"
 
 #include <algorithm>
@@ -23,6 +25,7 @@ constexpr std::uint32_t kPeaMilitiaArchetypeId = 101U;
 constexpr std::int32_t kPeaMilitiaHealth = 30;
 constexpr std::int32_t kPeaMilitiaDamage = 5;
 constexpr std::int32_t kPeaMilitiaAttackCooldown = 1;
+constexpr std::int32_t kPeaMilitiaVisionRadius = 4;
 constexpr std::int32_t kProducePeaCostSun = 20;
 constexpr std::int32_t kCornCannonCostSun = 1200000;
 constexpr std::int32_t kCornCannonPowerRequirement = 80000;
@@ -62,6 +65,9 @@ struct BuildBlueprint {
 }
 
 [[nodiscard]] bool isCellOccupied(const World& world, path::GridCoord cell) {
+    if (world.tilemap().width > 0 && world.tilemap().height > 0) {
+        return world.tilemap().entityAt(cell.x, cell.y) != 0;
+    }
     const auto& buildings = world.buildings();
     const auto& transforms = world.transforms();
     for (const auto& [entityId, building] : buildings) {
@@ -223,6 +229,11 @@ void tryHandleBuildCommand(World& world,
     if (blueprint.grantsSunProduction && blueprint.sunPerTick > 0) {
         world.setSunProducer(buildingEntity, SunProducer{blueprint.sunPerTick});
     }
+
+    if (world.tilemap().width > 0 && world.tilemap().height > 0) {
+        world.mutableTilemap().setOccupancy(buildCell.x, buildCell.y,
+                                            static_cast<std::int32_t>(buildingEntity));
+    }
 }
 
 void tryHandleProducePeaCommand(World& world, EntityId issuerId, const QueuedCommand& cmd) {
@@ -256,6 +267,7 @@ void tryHandleProducePeaCommand(World& world, EntityId issuerId, const QueuedCom
     world.setHealth(unitEntity, Health{kPeaMilitiaHealth, kPeaMilitiaHealth});
     world.setIdentity(unitEntity, Identity{kPeaMilitiaArchetypeId, 1});
     world.setCommandBuffer(unitEntity, CommandBuffer{});
+    world.setVision(unitEntity, Vision{kPeaMilitiaVisionRadius});
     world.setWeapon(unitEntity,
                     Weapon{math::FixedPoint::fromInt(2),
                            kPeaMilitiaDamage,
@@ -424,9 +436,34 @@ void runProductionPhase(World& world, std::int64_t tick) {
 void runPathfindingPhase(World& world, std::int64_t tick) {
     (void)tick;
 
+    // Refresh tilemap occupancy from current building state
+    auto& tilemap = world.mutableTilemap();
+    if (tilemap.width > 0 && tilemap.height > 0) {
+        tilemap.clearAllOccupancy();
+        const auto& buildings = world.buildings();
+        const auto& transforms = world.transforms();
+        for (const auto& [entityId, building] : buildings) {
+            (void)building;
+            const auto trIt = transforms.find(entityId);
+            if (trIt == transforms.end()) {
+                continue;
+            }
+            const auto cell = toGridCoord(trIt->second);
+            tilemap.setOccupancy(cell.x, cell.y, static_cast<std::int32_t>(entityId));
+        }
+    }
+
     const auto& targets = world.moveTargets();
     const auto& transforms = world.transforms();
     const auto& buildings = world.buildings();
+
+    const bool useTilemap = tilemap.width > 0 && tilemap.height > 0;
+    const path::GridBounds pathBounds{
+        useTilemap ? 0 : -32,
+        useTilemap ? tilemap.width - 1 : 32,
+        useTilemap ? 0 : -32,
+        useTilemap ? tilemap.height - 1 : 32,
+    };
 
     std::vector<EntityId> clearTargets;
     clearTargets.reserve(targets.size());
@@ -454,19 +491,29 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
         }
 
         std::set<path::GridCoord> blocked;
-        for (const auto& [blockEntity, marker] : buildings) {
-            (void)marker;
-            if (blockEntity == entityId) {
-                continue;
+        if (useTilemap) {
+            for (std::int32_t gy = pathBounds.minY; gy <= pathBounds.maxY; ++gy) {
+                for (std::int32_t gx = pathBounds.minX; gx <= pathBounds.maxX; ++gx) {
+                    if (!tilemap.isWalkable(gx, gy)) {
+                        blocked.insert({gx, gy});
+                    }
+                }
             }
-            const auto blockTrIt = transforms.find(blockEntity);
-            if (blockTrIt == transforms.end()) {
-                continue;
+        } else {
+            for (const auto& [blockEntity, marker] : buildings) {
+                (void)marker;
+                if (blockEntity == entityId) {
+                    continue;
+                }
+                const auto blockTrIt = transforms.find(blockEntity);
+                if (blockTrIt == transforms.end()) {
+                    continue;
+                }
+                blocked.insert(toGridCoord(blockTrIt->second));
             }
-            blocked.insert(toGridCoord(blockTrIt->second));
         }
 
-        const auto path = path::findPathAStar(start, goal, blocked, path::GridBounds{-32, 32, -32, 32});
+        const auto path = path::findPathAStar(start, goal, blocked, pathBounds);
         world.addPathRequest();
         if (path.size() < 2U) {
             world.setVelocity(entityId, Velocity{});
@@ -735,6 +782,42 @@ void runCleanupPhase(World& world, std::int64_t tick) {
     }
 }
 
+void runFogOfWarSystem(World& world, std::int64_t tick) {
+    (void)tick;
+    auto& tilemap = world.mutableTilemap();
+    if (tilemap.width <= 0 || tilemap.height <= 0) {
+        return;
+    }
+
+    const auto& visions = world.visions();
+    const auto& teams = world.teams();
+    const auto& transforms = world.transforms();
+
+    // Collect unique team IDs from all existing teams
+    std::set<std::uint8_t> teamIds;
+    for (const auto& [entityId, team] : teams) {
+        (void)entityId;
+        teamIds.insert(team.value);
+    }
+
+    // Advance fog for each known team
+    for (const auto teamId : teamIds) {
+        world.fogOfWarForTeam(teamId).advanceTick();
+    }
+
+    // Reveal from vision entities
+    for (const auto& [entityId, vision] : visions) {
+        const auto teamIt = teams.find(entityId);
+        const auto trIt = transforms.find(entityId);
+        if (teamIt == teams.end() || trIt == transforms.end()) {
+            continue;
+        }
+        auto& fog = world.fogOfWarForTeam(teamIt->second.value);
+        const auto cell = toGridCoord(trIt->second);
+        fog.reveal(cell.x, cell.y, vision.radiusCells);
+    }
+}
+
 void registerCoreSystems(World& world) {
     world.registerSystem(SystemPhase::kInput, runInputPhase);
     world.registerSystem(SystemPhase::kProduction, runProductionPhase);
@@ -743,6 +826,7 @@ void registerCoreSystems(World& world) {
     world.registerSystem(SystemPhase::kCombat, runCombatPhase);
     world.registerSystem(SystemPhase::kResource, runResourcePhase);
     world.registerSystem(SystemPhase::kCleanup, runCleanupPhase);
+    world.registerSystem(SystemPhase::kResource, runFogOfWarSystem);
 }
 
 }  // namespace tcp::logic::ecs

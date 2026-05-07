@@ -12,6 +12,7 @@ option(TCP_ENABLE_ENTT "Enable EnTT integration if installed" OFF)
 option(TCP_ENABLE_GTEST "Enable GoogleTest integration if installed" OFF)
 
 add_library(tcp_logic STATIC
+    src/data/MapLoader.cpp
     src/data/UnitConfigLoader.cpp
     src/net/CommandSyncController.cpp
     src/logic/commands/CommandQueue.cpp
@@ -21,6 +22,8 @@ add_library(tcp_logic STATIC
     src/logic/debug/StateHasher.cpp
     src/logic/ecs/World.cpp
     src/logic/ecs/systems/BuiltInSystems.cpp
+    src/logic/map/FogOfWar.cpp
+    src/logic/map/Tilemap.cpp
     src/logic/math/FixedPoint.cpp
     src/logic/factory/UnitFactory.cpp
     src/logic/path/AStarGrid.cpp
@@ -75,6 +78,7 @@ endif()
 
 add_executable(chlorophyll_app
     src/app/Main.cpp
+    src/render/MapRenderer.cpp
 )
 
 target_link_libraries(chlorophyll_app
@@ -228,6 +232,23 @@ add_executable(corn_cannon_bastion_test
 target_link_libraries(corn_cannon_bastion_test PRIVATE tcp_logic)
 
 add_test(NAME CornCannonBastion COMMAND corn_cannon_bastion_test)
+
+add_executable(map_loading_test
+    src/tests/MapLoadingTest.cpp
+)
+
+target_link_libraries(map_loading_test PRIVATE tcp_logic)
+
+add_test(NAME MapLoading COMMAND map_loading_test
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
+add_executable(fog_of_war_test
+    src/tests/FogOfWarTest.cpp
+)
+
+target_link_libraries(fog_of_war_test PRIVATE tcp_logic)
+
+add_test(NAME FogOfWar COMMAND fog_of_war_test)
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
