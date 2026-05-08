@@ -79,6 +79,11 @@ endif()
 add_executable(chlorophyll_app
     src/app/Main.cpp
     src/render/MapRenderer.cpp
+    src/render/FontCache.cpp
+    src/render/ResourceBar.cpp
+    src/render/Sidebar.cpp
+    src/render/UnitInfoPanel.cpp
+    src/render/UiRenderer.cpp
 )
 
 target_link_libraries(chlorophyll_app

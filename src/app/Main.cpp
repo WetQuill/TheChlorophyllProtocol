@@ -19,6 +19,8 @@
 #include "../logic/ecs/systems/BuiltInSystems.h"
 #include "../logic/runtime/SimulationDriver.h"
 #include "../render/MapRenderer.h"
+#include "../render/UiRenderer.h"
+#include "../render/FontCache.h"
 
 #if defined(TCP_HAS_SFML) && __has_include(<SFML/Graphics/RenderWindow.hpp>)
 #define TCP_VISUAL_SFML_ENABLED 1
@@ -385,6 +387,12 @@ bool runVisualSingle(const AppOptions& options) {
     sf::RenderWindow window(sf::VideoMode(kWindowWidth, kWindowHeight), "The Chlorophyll Protocol - Visual Single");
     window.setFramerateLimit(60U);
 
+    tcp::render::FontCache fontCache;
+    fontCache.load();
+
+    tcp::render::UiRenderer uiRenderer;
+    uiRenderer.initialize(window, fontCache);
+
     sf::View gameView(sf::FloatRect{0.0F, 0.0F, 1600.0F, 900.0F});
     gameView.zoom(0.6F);
 
@@ -435,6 +443,8 @@ bool runVisualSingle(const AppOptions& options) {
         sf::Vector2f anchor{};
         std::int32_t gridX{0};
         std::int32_t gridY{0};
+        std::uint32_t archetypeId{0};
+        std::int32_t costSun{0};
     };
 
     struct ProductionMenuState {
@@ -535,26 +545,6 @@ bool runVisualSingle(const AppOptions& options) {
         };
     };
 
-    const auto snapBuildTargetFromMenu = [&](const BuildMenuState& state) {
-        return std::pair<std::int32_t, std::int32_t>{state.gridX, state.gridY};
-    };
-
-    const auto buildMenuCampRect = [&](const BuildMenuState& state) {
-        return sf::FloatRect{state.anchor.x, state.anchor.y, 196.0F, 52.0F};
-    };
-
-    const auto buildMenuSunPlantRect = [&](const BuildMenuState& state) {
-        return sf::FloatRect{state.anchor.x, state.anchor.y + 56.0F, 196.0F, 52.0F};
-    };
-
-    const auto buildMenuBastionRect = [&](const BuildMenuState& state) {
-        return sf::FloatRect{state.anchor.x, state.anchor.y + 112.0F, 196.0F, 52.0F};
-    };
-
-    const auto productionMenuPeaRect = [&](const ProductionMenuState& state) {
-        return sf::FloatRect{state.anchor.x, state.anchor.y, 120.0F, 40.0F};
-    };
-
     const auto groupMenuItemRect = [&](const GroupMenuState& state, std::size_t row) {
         return sf::FloatRect{state.anchor.x, state.anchor.y + static_cast<float>(row) * 44.0F, 190.0F, 40.0F};
     };
@@ -610,8 +600,68 @@ bool runVisualSingle(const AppOptions& options) {
                 break;
             }
 
+            if (event.type == sf::Event::Resized) {
+                gameView.setSize(sf::Vector2f{
+                    static_cast<float>(event.size.width),
+                    static_cast<float>(event.size.height)});
+                gameView.zoom(0.6F);
+                uiRenderer.handleResize(window);
+                continue;
+            }
+
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
+                    auto uiResult = uiRenderer.handleEvent(event, window);
+                    if (uiResult == tcp::render::UiEventResult::kConsumed) {
+                        if (uiRenderer.toggleButterModeClicked()) {
+                            if (!selectedGroup.empty()) {
+                                const auto selected = selectedGroup.front();
+                                const auto teamIt = driver.world().teams().find(selected);
+                                if (teamIt != driver.world().teams().end()) {
+                                    driver.queueLocalCommand(
+                                        teamIt->second.value,
+                                        selected,
+                                        tcp::logic::ecs::CommandType::kToggleButterMode,
+                                        0, 0, 0);
+                                }
+                            }
+                        } else if (uiRenderer.slotClicked()) {
+                            const auto* slotDef = uiRenderer.clickedSlotDef();
+                            if (slotDef && slotDef->isBuilding) {
+                                buildMenu = BuildMenuState{};
+                                buildMenu->anchor = sf::Vector2f{
+                                    static_cast<float>(event.mouseButton.x),
+                                    static_cast<float>(event.mouseButton.y)};
+                                const auto [gx, gy] = mouseToGrid(
+                                    sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+                                buildMenu->gridX = gx;
+                                buildMenu->gridY = gy;
+                                buildMenu->archetypeId = slotDef->archetypeId;
+                                buildMenu->costSun = slotDef->sunCost;
+                                productionMenu.reset();
+                                groupMenu.reset();
+                            } else if (slotDef && !slotDef->isBuilding) {
+                                // Infantry production: queue kProducePea on an active camp
+                                const auto& world = driver.world();
+                                const auto& identities = world.identities();
+                                const auto& teams = world.teams();
+                                const auto& buildings = world.buildings();
+                                const auto issuer = findBuildIssuer();
+                                if (issuer.has_value()) {
+                                    driver.queueLocalCommand(
+                                        0,
+                                        issuer.value(),
+                                        tcp::logic::ecs::CommandType::kProducePea,
+                                        0, 0,
+                                        slotDef->sunCost);
+                                }
+                                productionMenu.reset();
+                                groupMenu.reset();
+                            }
+                        }
+                        continue;
+                    }
+
                     const sf::Vector2f clickPos{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)};
 
                     bool consumedByGroupMenu = false;
@@ -648,85 +698,39 @@ bool runVisualSingle(const AppOptions& options) {
                         continue;
                     }
 
-                    bool consumedByProductionMenu = false;
-                    if (productionMenu.has_value()) {
-                        const auto produceRect = productionMenuPeaRect(productionMenu.value());
-                        if (pointInRect(produceRect, clickPos)) {
-                            const auto parent = productionMenu->parentEntity;
-                            const auto teamIt = driver.world().teams().find(parent);
-                            if (teamIt != driver.world().teams().end()) {
-                                driver.queueLocalCommand(
-                                    teamIt->second.value,
-                                    parent,
-                                    tcp::logic::ecs::CommandType::kProducePea,
-                                    0,
-                                    0,
-                                    20);
-                            }
-                            consumedByProductionMenu = true;
-                        }
-                        productionMenu.reset();
-                    }
-
-                    if (consumedByProductionMenu) {
-                        continue;
-                    }
-
                     bool consumedByBuildMenu = false;
-                    if (buildMenu.has_value()) {
-                        const auto campRect = buildMenuCampRect(buildMenu.value());
-                        const auto sunPlantRect = buildMenuSunPlantRect(buildMenu.value());
-                        const auto bastionRect = buildMenuBastionRect(buildMenu.value());
+                    if (buildMenu.has_value() && buildMenu->archetypeId != 0U) {
                         const auto issuer = findBuildIssuer();
                         if (issuer.has_value()) {
-                            const auto [snappedX, snappedY] = snapBuildTargetFromMenu(buildMenu.value());
-                            if (pointInRect(campRect, clickPos)) {
-                                driver.queueLocalCommand(
-                                    0,
-                                    issuer.value(),
-                                    tcp::logic::ecs::CommandType::kBuild,
-                                    snappedX,
-                                    snappedY,
-                                    kPeaMilitaryCampCostSun);
-                                pendingConstructionArms.push_back(PendingConstructionArm{
-                                    kPeaMilitaryCampArchetypeId,
-                                    snappedX,
-                                    snappedY,
-                                    driver.world().currentTick() + 8,
-                                });
-                                consumedByBuildMenu = true;
-                            } else if (pointInRect(sunPlantRect, clickPos)) {
-                                driver.queueLocalCommand(
-                                    0,
-                                    issuer.value(),
-                                    tcp::logic::ecs::CommandType::kBuildSunPowerPlant,
-                                    snappedX,
-                                    snappedY,
-                                    kSunPowerPlantCostSun);
-                                pendingConstructionArms.push_back(PendingConstructionArm{
-                                    kSunPowerPlantArchetypeId,
-                                    snappedX,
-                                    snappedY,
-                                    driver.world().currentTick() + 8,
-                                });
-                                consumedByBuildMenu = true;
-                            } else if (pointInRect(bastionRect, clickPos)) {
-                                driver.queueLocalCommand(
-                                    0,
-                                    issuer.value(),
-                                    tcp::logic::ecs::CommandType::kBuildCornCannonBastion,
-                                    snappedX,
-                                    snappedY,
-                                    kCornCannonBastionCostSun);
-                                pendingConstructionArms.push_back(PendingConstructionArm{
-                                    kCornCannonBastionArchetypeId,
-                                    snappedX,
-                                    snappedY,
-                                    driver.world().currentTick() + 8,
-                                });
-                                consumedByBuildMenu = true;
+                            const auto [clickGX, clickGY] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+                            tcp::logic::ecs::CommandType cmdType = tcp::logic::ecs::CommandType::kBuild;
+                            std::int64_t conTicks = kCampConstructionTicks;
+                            if (buildMenu->archetypeId == kSunPowerPlantArchetypeId) {
+                                cmdType = tcp::logic::ecs::CommandType::kBuildSunPowerPlant;
+                                conTicks = kSolarConstructionTicks;
+                            } else if (buildMenu->archetypeId == kCornCannonBastionArchetypeId) {
+                                cmdType = tcp::logic::ecs::CommandType::kBuildCornCannonBastion;
+                                conTicks = kBastionConstructionTicks;
                             }
+
+                            driver.queueLocalCommand(
+                                0,
+                                issuer.value(),
+                                cmdType,
+                                clickGX,
+                                clickGY,
+                                buildMenu->costSun);
+
+                            pendingConstructionArms.push_back(PendingConstructionArm{
+                                buildMenu->archetypeId,
+                                clickGX,
+                                clickGY,
+                                driver.world().currentTick() + 8,
+                            });
+                            consumedByBuildMenu = true;
                         }
+                        buildMenu.reset();
+                    } else if (buildMenu.has_value() && buildMenu->archetypeId == 0U) {
                         buildMenu.reset();
                     }
 
@@ -781,11 +785,6 @@ bool runVisualSingle(const AppOptions& options) {
                     const auto selected = selectedGroup.front();
                     const auto& world = driver.world();
                     const auto teamIt = world.teams().find(selected);
-                    const auto idIt = world.identities().find(selected);
-                    const bool isCamp =
-                        (idIt != world.identities().end() &&
-                         idIt->second.archetypeId == kPeaMilitaryCampArchetypeId);
-
                     if (selectedGroup.size() > 1U) {
                         const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
 
@@ -866,17 +865,34 @@ bool runVisualSingle(const AppOptions& options) {
                         continue;
                     }
 
-                    if (isCamp && !isUnderConstruction(selected)) {
-                        productionMenu = ProductionMenuState{
-                            sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)},
-                            selected,
-                        };
-                        buildMenu.reset();
-                        groupMenu.reset();
-                        attackMarker.reset();
-                    } else if (teamIt != world.teams().end()) {
+                    if (teamIt != world.teams().end()) {
                         const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
                         const bool selectedIsBuilding = (world.buildings().find(selected) != world.buildings().end());
+
+                        const bool isSelectedBastion = [&]() {
+                            const auto idIt = world.identities().find(selected);
+                            return idIt != world.identities().end() &&
+                                   idIt->second.archetypeId == kCornCannonBastionArchetypeId;
+                        }();
+
+                        if (isSelectedBastion && !isUnderConstruction(selected)) {
+                            const auto selectedTr = world.transforms().find(selected);
+                            if (selectedTr != world.transforms().end() &&
+                                selectedTr->second.x.toIntTrunc() == gx &&
+                                selectedTr->second.y.toIntTrunc() == gy) {
+                                driver.queueLocalCommand(
+                                    teamIt->second.value,
+                                    selected,
+                                    tcp::logic::ecs::CommandType::kToggleButterMode,
+                                    0, 0, 0);
+                                attackMarker.reset();
+                                moveMarker.reset();
+                                buildMenu.reset();
+                                productionMenu.reset();
+                                groupMenu.reset();
+                                continue;
+                            }
+                        }
 
                         std::optional<tcp::logic::ecs::EntityId> enemyTarget;
                         for (const auto& [entityId, tr] : world.transforms()) {
@@ -924,12 +940,7 @@ bool runVisualSingle(const AppOptions& options) {
                         groupMenu.reset();
                     }
                 } else if (event.mouseButton.button == sf::Mouse::Right) {
-                    const auto [gx, gy] = mouseToGrid(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
-                    buildMenu = BuildMenuState{
-                        sf::Vector2f{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)},
-                        gx,
-                        gy,
-                    };
+                    buildMenu.reset();
                     productionMenu.reset();
                     groupMenu.reset();
                     attackMarker.reset();
@@ -1642,8 +1653,9 @@ bool runVisualSingle(const AppOptions& options) {
             }
         }
 
-        if (buildMenu.has_value()) {
-            const auto [snapX, snapY] = snapBuildTargetFromMenu(buildMenu.value());
+        if (buildMenu.has_value() && buildMenu->archetypeId != 0U) {
+            const auto mousePixel3 = sf::Mouse::getPosition(window);
+            const auto [snapX, snapY] = mouseToGrid(mousePixel3);
             tcp::logic::ecs::Transform buildPreview{};
             buildPreview.x = tcp::logic::math::FixedPoint::fromInt(snapX);
             buildPreview.y = tcp::logic::math::FixedPoint::fromInt(snapY);
@@ -1673,6 +1685,14 @@ bool runVisualSingle(const AppOptions& options) {
             }
 
             const auto screen = worldToScreen(trIt->second);
+
+            // Glow effect behind selection ring
+            sf::CircleShape glowRing(28.0F);
+            glowRing.setOrigin(sf::Vector2f{28.0F, 28.0F});
+            glowRing.setPosition(screen);
+            glowRing.setFillColor(sf::Color(220U, 240U, 120U, 60U));
+            window.draw(glowRing);
+
 #if TCP_VISUAL_SFML_TEXTURES
             if (hasSelectionRingTexture) {
                 sf::Sprite ringSprite(texSelectionRing);
@@ -1703,202 +1723,33 @@ bool runVisualSingle(const AppOptions& options) {
             mapRenderer.drawFogOfWar(window, fog, kIsoTileHalfW, kIsoTileHalfH);
         }
 
-        window.setView(window.getDefaultView());
+        // Update UI state from simulation
+        uiRenderer.update(world, 0U, selectedGroup, constructionTimers);
 
-        if (buildMenu.has_value()) {
-            auto campRect = buildMenuCampRect(buildMenu.value());
-            auto sunPlantRect = buildMenuSunPlantRect(buildMenu.value());
-            auto bastionRect = buildMenuBastionRect(buildMenu.value());
-            const float maxMenuRight = static_cast<float>(window.getSize().x) - 20.0F;
-            const float maxMenuBottom = static_cast<float>(window.getSize().y) - 20.0F;
-            if ((bastionRect.left + bastionRect.width) > maxMenuRight) {
-                const float offset = maxMenuRight - (bastionRect.left + bastionRect.width);
-                campRect.left += offset;
-                sunPlantRect.left += offset;
-                bastionRect.left += offset;
-            }
-            if ((bastionRect.top + bastionRect.height) > maxMenuBottom) {
-                const float offset = maxMenuBottom - (bastionRect.top + bastionRect.height);
-                campRect.top += offset;
-                sunPlantRect.top += offset;
-                bastionRect.top += offset;
-            }
+        // Draw build placement preview when placing a building
+        if (buildMenu.has_value() && buildMenu->archetypeId != 0U) {
+            window.setView(gameView);
+            const auto mousePixel = sf::Mouse::getPosition(window);
+            const auto [snapX, snapY] = mouseToGrid(mousePixel);
+            const sf::Vector2f previewCenter{
+                (static_cast<float>(snapX) - static_cast<float>(snapY)) * kIsoTileHalfW,
+                (static_cast<float>(snapX) + static_cast<float>(snapY)) * kIsoTileHalfH,
+            };
 
-            sf::RectangleShape campBg(sf::Vector2f{campRect.width, campRect.height});
-            campBg.setPosition(sf::Vector2f{campRect.left, campRect.top});
-            campBg.setFillColor(sf::Color(23U, 30U, 23U, 230U));
-            campBg.setOutlineColor(sf::Color(88U, 128U, 84U));
-            campBg.setOutlineThickness(2.0F);
-            window.draw(campBg);
-
-            sf::RectangleShape sunBg(sf::Vector2f{sunPlantRect.width, sunPlantRect.height});
-            sunBg.setPosition(sf::Vector2f{sunPlantRect.left, sunPlantRect.top});
-            sunBg.setFillColor(sf::Color(28U, 36U, 24U, 230U));
-            sunBg.setOutlineColor(sf::Color(102U, 146U, 90U));
-            sunBg.setOutlineThickness(2.0F);
-            window.draw(sunBg);
-
-            sf::RectangleShape bastionBg(sf::Vector2f{bastionRect.width, bastionRect.height});
-            bastionBg.setPosition(sf::Vector2f{bastionRect.left, bastionRect.top});
-            bastionBg.setFillColor(sf::Color(26U, 32U, 28U, 232U));
-            bastionBg.setOutlineColor(sf::Color(106U, 128U, 100U));
-            bastionBg.setOutlineThickness(2.0F);
-            window.draw(bastionBg);
-
-#if TCP_VISUAL_SFML_TEXTURES
-            if (hasPeaMilitaryCampTexture) {
-                sf::Sprite campPreview(texPeaMilitaryCamp);
-                const auto size = texPeaMilitaryCamp.getSize();
-                if (size.x > 0U && size.y > 0U) {
-                    campPreview.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
-                    campPreview.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
-                }
-                campPreview.setPosition(sf::Vector2f{campRect.left + 28.0F, campRect.top + 26.0F});
-                window.draw(campPreview);
-            } else {
-#endif
-                sf::RectangleShape campPreview(sf::Vector2f{30.0F, 30.0F});
-                campPreview.setOrigin(sf::Vector2f{15.0F, 15.0F});
-                campPreview.setPosition(sf::Vector2f{campRect.left + 28.0F, campRect.top + 26.0F});
-                campPreview.setFillColor(sf::Color(91U, 142U, 95U));
-                campPreview.setOutlineColor(sf::Color(26U, 26U, 26U));
-                campPreview.setOutlineThickness(2.0F);
-                window.draw(campPreview);
-#if TCP_VISUAL_SFML_TEXTURES
-            }
-#endif
-
-#if TCP_VISUAL_SFML_TEXTURES
-            if (hasSunPowerPlantTexture) {
-                sf::Sprite sunPreview(texSunPowerPlant);
-                const auto size = texSunPowerPlant.getSize();
-                if (size.x > 0U && size.y > 0U) {
-                    sunPreview.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
-                    sunPreview.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
-                }
-                sunPreview.setPosition(sf::Vector2f{sunPlantRect.left + 28.0F, sunPlantRect.top + 26.0F});
-                window.draw(sunPreview);
-            } else {
-#endif
-
-#if TCP_VISUAL_SFML_TEXTURES
-            if (hasCornCannonBastionTexture) {
-                sf::Sprite bastionPreview(texCornCannonBastion);
-                const auto size = texCornCannonBastion.getSize();
-                if (size.x > 0U && size.y > 0U) {
-                    bastionPreview.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
-                    bastionPreview.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
-                }
-                bastionPreview.setPosition(sf::Vector2f{bastionRect.left + 28.0F, bastionRect.top + 26.0F});
-                window.draw(bastionPreview);
-            } else {
-#endif
-                sf::RectangleShape bastionPreview(sf::Vector2f{30.0F, 30.0F});
-                bastionPreview.setOrigin(sf::Vector2f{15.0F, 15.0F});
-                bastionPreview.setPosition(sf::Vector2f{bastionRect.left + 28.0F, bastionRect.top + 26.0F});
-                bastionPreview.setFillColor(sf::Color(136U, 162U, 102U));
-                bastionPreview.setOutlineColor(sf::Color(28U, 28U, 28U));
-                bastionPreview.setOutlineThickness(2.0F);
-                window.draw(bastionPreview);
-#if TCP_VISUAL_SFML_TEXTURES
-            }
-#endif
-                sf::CircleShape sunPreview(14.0F, 8U);
-                sunPreview.setOrigin(sf::Vector2f{14.0F, 14.0F});
-                sunPreview.setPosition(sf::Vector2f{sunPlantRect.left + 28.0F, sunPlantRect.top + 26.0F});
-                sunPreview.setFillColor(sf::Color(235U, 193U, 81U));
-                sunPreview.setOutlineColor(sf::Color(49U, 41U, 19U));
-                sunPreview.setOutlineThickness(2.0F);
-                window.draw(sunPreview);
-#if TCP_VISUAL_SFML_TEXTURES
-            }
-#endif
-
-            sf::RectangleShape labelBar(sf::Vector2f{126.0F, 12.0F});
-            labelBar.setPosition(sf::Vector2f{campRect.left + 50.0F, campRect.top + 20.0F});
-            labelBar.setFillColor(sf::Color(166U, 214U, 164U));
-            window.draw(labelBar);
-
-            sf::RectangleShape costBar(sf::Vector2f{58.0F, 8.0F});
-            costBar.setPosition(sf::Vector2f{campRect.left + 50.0F, campRect.top + 36.0F});
-            costBar.setFillColor(sf::Color(236U, 212U, 103U));
-            window.draw(costBar);
-
-            sf::RectangleShape sunLabelBar(sf::Vector2f{126.0F, 12.0F});
-            sunLabelBar.setPosition(sf::Vector2f{sunPlantRect.left + 50.0F, sunPlantRect.top + 20.0F});
-            sunLabelBar.setFillColor(sf::Color(208U, 229U, 132U));
-            window.draw(sunLabelBar);
-
-            sf::RectangleShape sunCostBar(sf::Vector2f{72.0F, 8.0F});
-            sunCostBar.setPosition(sf::Vector2f{sunPlantRect.left + 50.0F, sunPlantRect.top + 36.0F});
-            sunCostBar.setFillColor(sf::Color(244U, 207U, 96U));
-            window.draw(sunCostBar);
-
-            sf::RectangleShape bastionLabelBar(sf::Vector2f{126.0F, 12.0F});
-            bastionLabelBar.setPosition(sf::Vector2f{bastionRect.left + 50.0F, bastionRect.top + 20.0F});
-            bastionLabelBar.setFillColor(sf::Color(176U, 202U, 160U));
-            window.draw(bastionLabelBar);
-
-            sf::RectangleShape bastionCostBar(sf::Vector2f{110.0F, 8.0F});
-            bastionCostBar.setPosition(sf::Vector2f{bastionRect.left + 50.0F, bastionRect.top + 36.0F});
-            bastionCostBar.setFillColor(sf::Color(237U, 208U, 110U));
-            window.draw(bastionCostBar);
+            sf::RectangleShape ghost(sf::Vector2f{kCellPixels, kCellPixels * 0.5f});
+            ghost.setOrigin(sf::Vector2f{kCellPixels * 0.5f, kCellPixels * 0.25f});
+            ghost.setPosition(previewCenter);
+            ghost.setFillColor(sf::Color(80U, 200U, 120U, 100U));
+            ghost.setOutlineColor(sf::Color(120U, 255U, 160U, 180U));
+            ghost.setOutlineThickness(2.0F);
+            window.draw(ghost);
         }
 
-        if (productionMenu.has_value() && isUnderConstruction(productionMenu->parentEntity)) {
-            productionMenu.reset();
-        }
+        // Draw all UI panels
+        uiRenderer.draw(window, fontCache);
 
-        if (productionMenu.has_value()) {
-            auto produceRect = productionMenuPeaRect(productionMenu.value());
-            const float maxMenuRight = static_cast<float>(window.getSize().x) - 20.0F;
-            const float maxMenuBottom = static_cast<float>(window.getSize().y) - 20.0F;
-            if ((produceRect.left + produceRect.width) > maxMenuRight) {
-                produceRect.left = maxMenuRight - produceRect.width;
-            }
-            if ((produceRect.top + produceRect.height) > maxMenuBottom) {
-                produceRect.top = maxMenuBottom - produceRect.height;
-            }
-
-            sf::RectangleShape prodBg(sf::Vector2f{produceRect.width, produceRect.height});
-            prodBg.setPosition(sf::Vector2f{produceRect.left, produceRect.top});
-            prodBg.setFillColor(sf::Color(20U, 28U, 20U, 224U));
-            prodBg.setOutlineColor(sf::Color(116U, 156U, 93U));
-            prodBg.setOutlineThickness(2.0F);
-            window.draw(prodBg);
-
-#if TCP_VISUAL_SFML_TEXTURES
-            if (hasPeaTexture) {
-                sf::Sprite peaPreview(texPeaMilitia);
-                const auto size = texPeaMilitia.getSize();
-                if (size.x > 0U && size.y > 0U) {
-                    peaPreview.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
-                    peaPreview.setScale(sf::Vector2f{22.0F / static_cast<float>(size.x), 22.0F / static_cast<float>(size.y)});
-                }
-                peaPreview.setPosition(sf::Vector2f{produceRect.left + 16.0F, produceRect.top + 20.0F});
-                window.draw(peaPreview);
-            } else {
-#endif
-                sf::CircleShape peaPreview(10.0F);
-                peaPreview.setOrigin(sf::Vector2f{10.0F, 10.0F});
-                peaPreview.setPosition(sf::Vector2f{produceRect.left + 16.0F, produceRect.top + 20.0F});
-                peaPreview.setFillColor(sf::Color(114U, 203U, 118U));
-                window.draw(peaPreview);
-#if TCP_VISUAL_SFML_TEXTURES
-            }
-#endif
-
-            sf::RectangleShape textBar(sf::Vector2f{78.0F, 10.0F});
-            textBar.setPosition(sf::Vector2f{produceRect.left + 30.0F, produceRect.top + 10.0F});
-            textBar.setFillColor(sf::Color(178U, 220U, 170U));
-            window.draw(textBar);
-
-            sf::RectangleShape costBar(sf::Vector2f{56.0F, 8.0F});
-            costBar.setPosition(sf::Vector2f{produceRect.left + 30.0F, produceRect.top + 24.0F});
-            costBar.setFillColor(sf::Color(243U, 210U, 103U));
-            window.draw(costBar);
-        }
-
+        // Group menu (kept for multi-select right-click)
+        window.setView(uiRenderer.uiView());
         if (groupMenu.has_value()) {
             auto baseRect = groupMenuItemRect(groupMenu.value(), 0U);
             const float totalHeight = static_cast<float>(groupMenu->members.size()) * 44.0F - 4.0F;
@@ -1938,80 +1789,6 @@ bool runVisualSingle(const AppOptions& options) {
             }
         }
 
-        const float hudWidth = std::max(360.0F, static_cast<float>(window.getSize().x) - 40.0F);
-        sf::RectangleShape hudBg(sf::Vector2f{hudWidth, 58.0F});
-        hudBg.setPosition(sf::Vector2f{20.0F, 18.0F});
-        hudBg.setFillColor(sf::Color(12U, 17U, 12U, 210U));
-        hudBg.setOutlineColor(sf::Color(55U, 95U, 61U));
-        hudBg.setOutlineThickness(1.0F);
-        window.draw(hudBg);
-
-        const auto drawSevenSegmentDigit = [&](int digit, const sf::Vector2f origin, const sf::Color color) {
-            static constexpr std::array<std::uint8_t, 10> kDigitMasks = {
-                0b0111111,  // 0
-                0b0000110,  // 1
-                0b1011011,  // 2
-                0b1001111,  // 3
-                0b1100110,  // 4
-                0b1101101,  // 5
-                0b1111101,  // 6
-                0b0000111,  // 7
-                0b1111111,  // 8
-                0b1101111,  // 9
-            };
-
-            if (digit < 0 || digit > 9) {
-                return;
-            }
-
-            const float w = 8.0F;
-            const float h = 10.0F;
-            const float t = 3.0F;
-            const auto mask = kDigitMasks[static_cast<std::size_t>(digit)];
-
-            const auto drawSegment = [&](bool enabled, const sf::Vector2f pos, const sf::Vector2f size) {
-                if (!enabled) {
-                    return;
-                }
-                sf::RectangleShape seg(size);
-                seg.setPosition(pos);
-                seg.setFillColor(color);
-                window.draw(seg);
-            };
-
-            drawSegment((mask & 0b0000001U) != 0U, sf::Vector2f{origin.x, origin.y}, sf::Vector2f{w, t});
-            drawSegment((mask & 0b0000010U) != 0U, sf::Vector2f{origin.x + w - t, origin.y}, sf::Vector2f{t, h});
-            drawSegment((mask & 0b0000100U) != 0U, sf::Vector2f{origin.x + w - t, origin.y + h}, sf::Vector2f{t, h});
-            drawSegment((mask & 0b0001000U) != 0U, sf::Vector2f{origin.x, origin.y + (2.0F * h)}, sf::Vector2f{w, t});
-            drawSegment((mask & 0b0010000U) != 0U, sf::Vector2f{origin.x, origin.y + h}, sf::Vector2f{t, h});
-            drawSegment((mask & 0b0100000U) != 0U, sf::Vector2f{origin.x, origin.y}, sf::Vector2f{t, h});
-            drawSegment((mask & 0b1000000U) != 0U, sf::Vector2f{origin.x, origin.y + h}, sf::Vector2f{w, t});
-        };
-
-        const auto drawNumber = [&](int value, const sf::Vector2f origin, const sf::Color color) {
-            const std::string text = std::to_string(std::max(0, value));
-            for (std::size_t i = 0; i < text.size(); ++i) {
-                const int digit = text[i] - '0';
-                drawSevenSegmentDigit(digit, sf::Vector2f{origin.x + static_cast<float>(i) * 18.0F, origin.y}, color);
-            }
-        };
-
-        const int sunValue = world.sunForTeam(0);
-        const int powerValue = world.powerForTeam(0);
-
-        sf::CircleShape sunIcon(6.0F, 8U);
-        sunIcon.setPosition(sf::Vector2f{36.0F, 24.0F});
-        sunIcon.setFillColor(sf::Color(243U, 204U, 82U));
-        window.draw(sunIcon);
-
-        sf::RectangleShape powerIcon(sf::Vector2f{8.0F, 12.0F});
-        powerIcon.setPosition(sf::Vector2f{36.0F, 48.0F});
-        powerIcon.setFillColor(sf::Color(118U, 208U, 240U));
-        window.draw(powerIcon);
-
-        drawNumber(sunValue, sf::Vector2f{54.0F, 22.0F}, sf::Color(246U, 218U, 116U));
-        drawNumber(powerValue, sf::Vector2f{54.0F, 46.0F}, sf::Color(162U, 226U, 246U));
-
         window.display();
 
         std::ostringstream title;
@@ -2028,12 +1805,10 @@ bool runVisualSingle(const AppOptions& options) {
         } else {
             title << "none";
         }
-        if (buildMenu.has_value()) {
-            const auto [snapX, snapY] = snapBuildTargetFromMenu(buildMenu.value());
-            title << " | build-menu camp/solar/corn @(" << snapX << ',' << snapY << ')';
-        }
-        if (productionMenu.has_value()) {
-            title << " | production-menu pea(20)";
+        if (buildMenu.has_value() && buildMenu->archetypeId != 0U) {
+            const auto mousePixel2 = sf::Mouse::getPosition(window);
+            const auto [snapX, snapY] = mouseToGrid(mousePixel2);
+            title << " | placing @" << snapX << ',' << snapY;
         }
         if (groupMenu.has_value()) {
             title << " | group-menu members=" << groupMenu->members.size();
