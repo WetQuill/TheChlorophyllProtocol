@@ -383,6 +383,7 @@ bool runVisualSingle(const AppOptions& options) {
     constexpr float kMapMaxCell = 50.0F;
     constexpr float kEdgeBufferPixels = 40.0F;
     constexpr float kScrollSpeedPixelsPerSecond = 600.0F;
+    constexpr float kMapPadPixels = 250.0F;
 
     sf::RenderWindow window(sf::VideoMode(kWindowWidth, kWindowHeight), "The Chlorophyll Protocol - Visual Single");
     window.setFramerateLimit(60U);
@@ -400,6 +401,20 @@ bool runVisualSingle(const AppOptions& options) {
     const bool hasTilemap = driver.world().tilemap().width > 0;
     if (hasTilemap) {
         mapRenderer.rebuildTerrain(driver.world().tilemap(), kIsoTileHalfW, kIsoTileHalfH);
+    }
+
+    float mapMinPx, mapMaxPx, mapMinPy, mapMaxPy;
+    if (hasTilemap) {
+        const auto& tm = driver.world().tilemap();
+        mapMinPx = static_cast<float>(0 - (tm.height - 1)) * kIsoTileHalfW - kMapPadPixels;
+        mapMaxPx = static_cast<float>((tm.width - 1) - 0) * kIsoTileHalfW + kMapPadPixels;
+        mapMinPy = static_cast<float>(0 + 0) * kIsoTileHalfH - kMapPadPixels;
+        mapMaxPy = static_cast<float>((tm.width - 1) + (tm.height - 1)) * kIsoTileHalfH + kMapPadPixels;
+    } else {
+        mapMinPx = (kMapMinCell - kMapMaxCell) * kIsoTileHalfW;
+        mapMaxPx = (kMapMaxCell - kMapMinCell) * kIsoTileHalfW;
+        mapMinPy = (kMapMinCell + kMapMinCell) * kIsoTileHalfH;
+        mapMaxPy = (kMapMaxCell + kMapMaxCell) * kIsoTileHalfH;
     }
 
     sf::Vector2f initialCenter{0.0F, 0.0F};
@@ -426,6 +441,13 @@ bool runVisualSingle(const AppOptions& options) {
             initialCenter.y = (gxInit + gyInit) * kIsoTileHalfH;
             break;
         }
+    }
+    {
+        const sf::Vector2f vs = gameView.getSize();
+        const float hw = vs.x * 0.5F;
+        const float hh = vs.y * 0.5F;
+        initialCenter.x = std::max(mapMinPx + hw, std::min(mapMaxPx - hw, initialCenter.x));
+        initialCenter.y = std::max(mapMinPy + hh, std::min(mapMaxPy - hh, initialCenter.y));
     }
     gameView.setCenter(initialCenter);
 
@@ -770,6 +792,7 @@ bool runVisualSingle(const AppOptions& options) {
                         }
                     }
 
+
                     if (!hitEntities.empty()) {
                         std::sort(hitEntities.begin(), hitEntities.end());
                         selectedGroup = std::move(hitEntities);
@@ -1082,10 +1105,10 @@ bool runVisualSingle(const AppOptions& options) {
             float mapMinPx, mapMaxPx, mapMinPy, mapMaxPy;
             if (hasTilemap) {
                 const auto& tm = driver.world().tilemap();
-                mapMinPx = static_cast<float>(0 - (tm.height - 1)) * kIsoTileHalfW;
-                mapMaxPx = static_cast<float>((tm.width - 1) - 0) * kIsoTileHalfW;
-                mapMinPy = static_cast<float>(0 + 0) * kIsoTileHalfH;
-                mapMaxPy = static_cast<float>((tm.width - 1) + (tm.height - 1)) * kIsoTileHalfH;
+                mapMinPx = static_cast<float>(0 - (tm.height - 1)) * kIsoTileHalfW - kMapPadPixels;
+                mapMaxPx = static_cast<float>((tm.width - 1) - 0) * kIsoTileHalfW + kMapPadPixels;
+                mapMinPy = static_cast<float>(0 + 0) * kIsoTileHalfH - kMapPadPixels;
+                mapMaxPy = static_cast<float>((tm.width - 1) + (tm.height - 1)) * kIsoTileHalfH + kMapPadPixels;
             } else {
                 mapMinPx = (kMapMinCell - kMapMaxCell) * kIsoTileHalfW;
                 mapMaxPx = (kMapMaxCell - kMapMinCell) * kIsoTileHalfW;

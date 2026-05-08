@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -35,6 +36,8 @@ constexpr std::int32_t kCornCannonButterDamage = 300000;
 constexpr std::int32_t kCornCannonReloadTicks = 150;
 constexpr std::int32_t kCornCannonFrozenTicks = 150;
 constexpr std::int32_t kCornCannonProjectileTravelTicks = 24;
+constexpr std::int32_t kCornCannonHeDamage = 1000000;
+constexpr std::int32_t kCornCannonHeAoeRadiusRaw = 250000;
 
 struct BuildBlueprint {
     std::uint32_t archetypeId{0};
@@ -173,6 +176,58 @@ void applyButterAoeAt(World& world,
     }
 }
 
+[[nodiscard]] math::FixedPoint distanceSquared(const Transform& a, const Transform& b) noexcept {
+    const auto dx = a.x - b.x;
+    const auto dy = a.y - b.y;
+    return (dx * dx) + (dy * dy);
+}
+
+[[nodiscard]] bool isCornCannonBastion(const World& world, EntityId entityId) {
+    const auto idIt = world.identities().find(entityId);
+    return idIt != world.identities().end() && idIt->second.archetypeId == kCornCannonBastionArchetypeId;
+}
+
+[[nodiscard]] std::optional<EntityId> scanNearestEnemyForBastion(
+    const World& world,
+    EntityId attackerId,
+    std::uint8_t attackerTeam,
+    const Transform& attackerPos,
+    const ArtilleryWeapon& weapon) noexcept {
+    (void)attackerId;
+    const auto& healths = world.healths();
+    const auto& teams = world.teams();
+    const auto& transforms = world.transforms();
+    const auto minRangeSq = weapon.minRange * weapon.minRange;
+    const auto maxRangeSq = weapon.maxRange * weapon.maxRange;
+
+    std::optional<EntityId> bestTarget;
+    math::FixedPoint bestDistSq;
+
+    for (const auto& [entityId, health] : healths) {
+        if (health.current <= 0) {
+            continue;
+        }
+        const auto teamIt = teams.find(entityId);
+        if (teamIt == teams.end() || teamIt->second.value == attackerTeam) {
+            continue;
+        }
+        const auto trIt = transforms.find(entityId);
+        if (trIt == transforms.end()) {
+            continue;
+        }
+        const auto distSq = distanceSquared(attackerPos, trIt->second);
+        if (distSq < minRangeSq || distSq > maxRangeSq) {
+            continue;
+        }
+        if (!bestTarget.has_value() || distSq < bestDistSq ||
+            (distSq == bestDistSq && entityId < bestTarget.value())) {
+            bestTarget = entityId;
+            bestDistSq = distSq;
+        }
+    }
+    return bestTarget;
+}
+
 void tryHandleBuildCommand(World& world,
                            EntityId issuerId,
                            const QueuedCommand& cmd,
@@ -275,12 +330,6 @@ void tryHandleProducePeaCommand(World& world, EntityId issuerId, const QueuedCom
                            0});
 }
 
-[[nodiscard]] math::FixedPoint distanceSquared(const Transform& a, const Transform& b) noexcept {
-    const auto dx = a.x - b.x;
-    const auto dy = a.y - b.y;
-    return (dx * dx) + (dy * dy);
-}
-
 }  // namespace
 
 void runInputPhase(World& world, std::int64_t tick) {
@@ -344,12 +393,12 @@ void runInputPhase(World& world, std::int64_t tick) {
                     ArtilleryWeapon{
                         math::FixedPoint::fromRaw(400000),
                         math::FixedPoint::fromRaw(1800000),
-                        math::FixedPoint::fromRaw(200000),
-                        kCornCannonButterDamage,
+                        math::FixedPoint::fromRaw(kCornCannonHeAoeRadiusRaw),
+                        kCornCannonHeDamage,
                         kCornCannonReloadTicks,
                         0,
                         kCornCannonProjectileTravelTicks,
-                        kCornCannonFrozenTicks,
+                        0,
                     },
                     false,
                     0,
@@ -357,6 +406,22 @@ void runInputPhase(World& world, std::int64_t tick) {
                 tryHandleBuildCommand(world, entityId, cmd, bastionBlueprint);
             } else if (cmd.type == CommandType::kProducePea) {
                 tryHandleProducePeaCommand(world, entityId, cmd);
+            } else if (cmd.type == CommandType::kToggleButterMode) {
+                auto& artilleryWeapons = world.mutableArtilleryWeapons();
+                const auto weaponIt = artilleryWeapons.find(entityId);
+                if (weaponIt != artilleryWeapons.end()) {
+                    auto& weapon = weaponIt->second;
+                    weapon.isButterMode = !weapon.isButterMode;
+                    if (weapon.isButterMode) {
+                        weapon.damage = kCornCannonButterDamage;
+                        weapon.aoeRadius = math::FixedPoint::fromRaw(200000);
+                        weapon.frozenTicks = kCornCannonFrozenTicks;
+                    } else {
+                        weapon.damage = kCornCannonHeDamage;
+                        weapon.aoeRadius = math::FixedPoint::fromRaw(kCornCannonHeAoeRadiusRaw);
+                        weapon.frozenTicks = 0;
+                    }
+                }
             }
         }
 
@@ -665,6 +730,9 @@ void runCombatPhase(World& world, std::int64_t tick) {
             --weapon.remainingCooldownTicks;
         }
         if (!attackerEnabled) {
+            if (isCornCannonBastion(world, attackerId)) {
+                world.clearAttackTarget(attackerId);
+            }
             continue;
         }
 
@@ -672,6 +740,37 @@ void runCombatPhase(World& world, std::int64_t tick) {
         const auto atkPosIt = transforms.find(attackerId);
         if (atkTeamIt == teams.end() || atkPosIt == transforms.end()) {
             continue;
+        }
+
+        if (isCornCannonBastion(world, attackerId)) {
+            bool targetValid = false;
+            const auto existingTarget = attackTargets.find(attackerId);
+            if (existingTarget != attackTargets.end()) {
+                const EntityId tid = existingTarget->second;
+                const auto tTeamIt = teams.find(tid);
+                const auto tPosIt = transforms.find(tid);
+                auto tHealthIt = healths.find(tid);
+                if (tTeamIt != teams.end() && tPosIt != transforms.end() && tHealthIt != healths.end()
+                    && tTeamIt->second.value != atkTeamIt->second.value
+                    && tHealthIt->second.current > 0) {
+                    const auto dsq = distanceSquared(atkPosIt->second, tPosIt->second);
+                    const auto minRSq = weapon.minRange * weapon.minRange;
+                    const auto maxRSq = weapon.maxRange * weapon.maxRange;
+                    if (dsq >= minRSq && dsq <= maxRSq) {
+                        targetValid = true;
+                    }
+                }
+            }
+            if (!targetValid) {
+                world.clearAttackTarget(attackerId);
+                if ((tick % 10) == 0) {
+                    const auto scanned = scanNearestEnemyForBastion(
+                        world, attackerId, atkTeamIt->second.value, atkPosIt->second, weapon);
+                    if (scanned.has_value()) {
+                        world.setAttackTarget(attackerId, scanned.value());
+                    }
+                }
+            }
         }
 
         const auto targetIt = attackTargets.find(attackerId);

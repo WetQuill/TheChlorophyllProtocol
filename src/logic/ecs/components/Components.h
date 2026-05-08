@@ -56,6 +56,7 @@ struct ArtilleryWeapon {
     std::int32_t remainingCooldownTicks{0};
     std::int32_t projectileTravelTicks{0};
     std::int32_t frozenTicks{0};
+    bool isButterMode{false};
 };
 
 struct BallisticProjectile {
@@ -111,6 +112,7 @@ enum class CommandType : std::uint8_t {
     kBuildSunPowerPlant = 4,
     kProducePea = 5,
     kBuildCornCannonBastion = 6,
+    kToggleButterMode = 7,
 };
 
 struct QueuedCommand {

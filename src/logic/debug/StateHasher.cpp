@@ -78,6 +78,7 @@ std::uint64_t hashWorldState(const ecs::World& world) noexcept {
         mix(hash, static_cast<std::uint64_t>(weapon.remainingCooldownTicks));
         mix(hash, static_cast<std::uint64_t>(weapon.projectileTravelTicks));
         mix(hash, static_cast<std::uint64_t>(weapon.frozenTicks));
+        mix(hash, weapon.isButterMode ? 1ULL : 0ULL);
     }
 
     for (const auto& [entityId, projectile] : world.ballisticProjectiles()) {
