@@ -1,5 +1,8 @@
 #include "BuiltInSystems.h"
+#include "SpawnerSystem.h"
+#include "ZombieAISystem.h"
 
+#include "../../debug/DebugLog.h"
 #include "../../map/FogOfWar.h"
 #include "../../map/Tilemap.h"
 #include "../../path/AStarGrid.h"
@@ -499,7 +502,7 @@ void runProductionPhase(World& world, std::int64_t tick) {
 }
 
 void runPathfindingPhase(World& world, std::int64_t tick) {
-    (void)tick;
+    (void)tick;  // reserved for future per-entity throttle logging
 
     // Refresh tilemap occupancy from current building state
     auto& tilemap = world.mutableTilemap();
@@ -552,6 +555,7 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
         if (start == goal) {
             world.setVelocity(entityId, Velocity{});
             clearTargets.push_back(entityId);
+            TCP_DEBUG("PATH", tick, "entity %u reached goal (%d,%d)", entityId, goal.x, goal.y);
             continue;
         }
 
@@ -582,6 +586,7 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
         world.addPathRequest();
         if (path.size() < 2U) {
             world.setVelocity(entityId, Velocity{});
+            TCP_DEBUG("PATH", tick, "entity %u no path from (%d,%d) to (%d,%d)", entityId, start.x, start.y, goal.x, goal.y);
             continue;
         }
 
@@ -629,7 +634,6 @@ void runMovementPhase(World& world, std::int64_t tick) {
 }
 
 void runCombatPhase(World& world, std::int64_t tick) {
-    (void)tick;
     updatePowerConsumerStates(world);
 
     {
@@ -659,6 +663,7 @@ void runCombatPhase(World& world, std::int64_t tick) {
 
         for (const auto projectileId : detonated) {
             world.destroyEntity(projectileId);
+            TCP_DEBUG("COMBAT", tick, "projectile %u detonated", projectileId);
         }
     }
 
@@ -721,6 +726,8 @@ void runCombatPhase(World& world, std::int64_t tick) {
 
         targetHealthIt->second.current -= mitigatedDamage(world, targetId, weapon.damage);
         weapon.remainingCooldownTicks = std::max(0, weapon.cooldownTicks);
+        TCP_DEBUG("COMBAT", tick, "entity %u melee hit %u for %d dmg (HP: %d/%d)",
+                  attackerId, targetId, weapon.damage, targetHealthIt->second.current, targetHealthIt->second.max);
     }
 
     for (auto& [attackerId, weapon] : artilleryWeapons) {
@@ -823,6 +830,7 @@ void runCombatPhase(World& world, std::int64_t tick) {
                                      });
 
         weapon.remainingCooldownTicks = std::max(0, weapon.reloadTicks);
+        TCP_DEBUG("COMBAT", tick, "entity %u fired artillery at %u", attackerId, targetId);
     }
 }
 
@@ -840,7 +848,6 @@ void runResourcePhase(World& world, std::int64_t tick) {
 }
 
 void runCleanupPhase(World& world, std::int64_t tick) {
-    (void)tick;
     std::vector<EntityId> toDestroy;
     const auto& healths = world.healths();
     toDestroy.reserve(healths.size());
@@ -848,6 +855,10 @@ void runCleanupPhase(World& world, std::int64_t tick) {
         if (health.current <= 0) {
             toDestroy.push_back(entityId);
         }
+    }
+
+    if (!toDestroy.empty()) {
+        TCP_DEBUG("CLEANUP", tick, "destroying %zu dead entities", toDestroy.size());
     }
 
     for (const auto entityId : toDestroy) {
@@ -918,9 +929,12 @@ void runFogOfWarSystem(World& world, std::int64_t tick) {
 }
 
 void registerCoreSystems(World& world) {
+    world.registerSystem(SystemPhase::kInput, runSpawnerSystem);
     world.registerSystem(SystemPhase::kInput, runInputPhase);
+    world.registerSystem(SystemPhase::kInput, runZombieAISystem);
     world.registerSystem(SystemPhase::kProduction, runProductionPhase);
     world.registerSystem(SystemPhase::kPathfinding, runPathfindingPhase);
+    world.registerSystem(SystemPhase::kPathfinding, runZombieSpeedLimiter);
     world.registerSystem(SystemPhase::kMovement, runMovementPhase);
     world.registerSystem(SystemPhase::kCombat, runCombatPhase);
     world.registerSystem(SystemPhase::kResource, runResourcePhase);

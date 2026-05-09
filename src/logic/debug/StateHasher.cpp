@@ -114,6 +114,13 @@ std::uint64_t hashWorldState(const ecs::World& world) noexcept {
         mix(hash, static_cast<std::uint64_t>(queue.queued.size()));
     }
 
+    for (const auto& [entityId, ai] : world.zombieAIFSMs()) {
+        mix(hash, entityId);
+        mix(hash, static_cast<std::uint64_t>(ai.currentState));
+        mix(hash, ai.targetPlant);
+        mix(hash, static_cast<std::uint64_t>(ai.pathUpdateTimer));
+    }
+
     for (const auto& [entityId, targetId] : world.attackTargets()) {
         mix(hash, entityId);
         mix(hash, targetId);

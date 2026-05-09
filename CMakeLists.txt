@@ -22,6 +22,8 @@ add_library(tcp_logic STATIC
     src/logic/debug/StateHasher.cpp
     src/logic/ecs/World.cpp
     src/logic/ecs/systems/BuiltInSystems.cpp
+    src/logic/ecs/systems/SpawnerSystem.cpp
+    src/logic/ecs/systems/ZombieAISystem.cpp
     src/logic/map/FogOfWar.cpp
     src/logic/map/Tilemap.cpp
     src/logic/math/FixedPoint.cpp

@@ -1,5 +1,7 @@
 #include "World.h"
 
+#include "../debug/DebugLog.h"
+
 #include <algorithm>
 #include <utility>
 
@@ -10,6 +12,7 @@ EntityId World::createEntity() {
     ++nextEntityId_;
     entities_.push_back(entityId);
     ++telemetry_.spawnedEntities;
+    TCP_DEBUG("ENTITY", currentTick_, "entity %u created", entityId);
     return entityId;
 }
 
@@ -22,6 +25,7 @@ bool World::destroyEntity(EntityId entityId) {
     entities_.erase(it);
     removeComponents(entityId);
     ++telemetry_.destroyedEntities;
+    TCP_DEBUG("ENTITY", currentTick_, "entity %u destroyed", entityId);
     return true;
 }
 
@@ -197,6 +201,14 @@ bool World::setBuilding(EntityId entityId, const Building& component) {
     return true;
 }
 
+bool World::setZombieAIFSM(EntityId entityId, const ZombieAIFSM& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    zombieAIFSMs_[entityId] = component;
+    return true;
+}
+
 const std::map<EntityId, Transform>& World::transforms() const noexcept {
     return transforms_;
 }
@@ -265,6 +277,10 @@ const std::map<EntityId, Building>& World::buildings() const noexcept {
     return buildings_;
 }
 
+const std::map<EntityId, ZombieAIFSM>& World::zombieAIFSMs() const noexcept {
+    return zombieAIFSMs_;
+}
+
 std::map<EntityId, Transform>& World::mutableTransforms() noexcept {
     return transforms_;
 }
@@ -299,6 +315,10 @@ std::map<EntityId, FrozenState>& World::mutableFrozenStates() noexcept {
 
 std::map<EntityId, PowerConsumer>& World::mutablePowerConsumers() noexcept {
     return powerConsumers_;
+}
+
+std::map<EntityId, ZombieAIFSM>& World::mutableZombieAIFSMs() noexcept {
+    return zombieAIFSMs_;
 }
 
 std::int32_t World::sunForTeam(std::uint8_t teamId) const noexcept {
@@ -484,6 +504,7 @@ void World::removeComponents(EntityId entityId) {
     sunProducers_.erase(entityId);
     headquarters_.erase(entityId);
     buildings_.erase(entityId);
+    zombieAIFSMs_.erase(entityId);
     moveTargets_.erase(entityId);
     attackTargets_.erase(entityId);
 

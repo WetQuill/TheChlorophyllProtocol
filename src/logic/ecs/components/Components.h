@@ -99,6 +99,18 @@ struct Building {
     bool blocksMovement{true};
 };
 
+enum class ZombieState : std::uint8_t {
+    IDLE = 0,
+    MOVE_TO_HQ = 1,
+    ATTACK_OBSTACLE = 2,
+};
+
+struct ZombieAIFSM {
+    ZombieState currentState{ZombieState::IDLE};
+    std::uint32_t targetPlant{0};
+    std::int32_t pathUpdateTimer{0};
+};
+
 struct GridTarget {
     std::int32_t x{0};
     std::int32_t y{0};

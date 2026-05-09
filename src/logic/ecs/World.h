@@ -58,6 +58,7 @@ public:
     bool setSunProducer(EntityId entityId, const SunProducer& component);
     bool setHeadquarters(EntityId entityId, const Headquarters& component);
     bool setBuilding(EntityId entityId, const Building& component);
+    bool setZombieAIFSM(EntityId entityId, const ZombieAIFSM& component);
 
     [[nodiscard]] const std::map<EntityId, Transform>& transforms() const noexcept;
     [[nodiscard]] const std::map<EntityId, Velocity>& velocities() const noexcept;
@@ -76,6 +77,7 @@ public:
     [[nodiscard]] const std::map<EntityId, SunProducer>& sunProducers() const noexcept;
     [[nodiscard]] const std::map<EntityId, Headquarters>& headquarters() const noexcept;
     [[nodiscard]] const std::map<EntityId, Building>& buildings() const noexcept;
+    [[nodiscard]] const std::map<EntityId, ZombieAIFSM>& zombieAIFSMs() const noexcept;
 
     [[nodiscard]] std::map<EntityId, Transform>& mutableTransforms() noexcept;
     [[nodiscard]] std::map<EntityId, Velocity>& mutableVelocities() noexcept;
@@ -86,6 +88,7 @@ public:
     [[nodiscard]] std::map<EntityId, BallisticProjectile>& mutableBallisticProjectiles() noexcept;
     [[nodiscard]] std::map<EntityId, FrozenState>& mutableFrozenStates() noexcept;
     [[nodiscard]] std::map<EntityId, PowerConsumer>& mutablePowerConsumers() noexcept;
+    [[nodiscard]] std::map<EntityId, ZombieAIFSM>& mutableZombieAIFSMs() noexcept;
 
     [[nodiscard]] std::int32_t sunForTeam(std::uint8_t teamId) const noexcept;
     void setSunForTeam(std::uint8_t teamId, std::int32_t value) noexcept;
@@ -153,6 +156,7 @@ private:
     std::map<EntityId, SunProducer> sunProducers_{};
     std::map<EntityId, Headquarters> headquarters_{};
     std::map<EntityId, Building> buildings_{};
+    std::map<EntityId, ZombieAIFSM> zombieAIFSMs_{};
 
     std::map<EntityId, GridTarget> moveTargets_{};
     std::map<EntityId, EntityId> attackTargets_{};
