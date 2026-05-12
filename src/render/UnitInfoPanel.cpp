@@ -11,6 +11,7 @@ namespace {
         switch (id) {
         case 101U: return "Pea Militia";
         case 201U: return "Sunflower Generator";
+        case 202U: return "Buckethead Zombie";
         case 901U: return "Pea Military Camp";
         case 902U: return "Sun Power Plant";
         case 903U: return "Corn Cannon Bastion";

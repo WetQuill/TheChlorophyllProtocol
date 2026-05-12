@@ -497,7 +497,7 @@ void World::setTilemap(const logic::map::Tilemap& tm) {
         for (std::int32_t gy = 0; gy < tm.height; ++gy) {
             for (std::int32_t gx = 0; gx < tm.width; ++gx) {
                 const auto t = tm.tileAt(gx, gy);
-                if (t == logic::map::TileType::Obstacle || t == logic::map::TileType::Water) {
+                if (t == logic::map::TileType::Obstacle) {
                     terrainBlockedCache_.push_back({gx, gy});
                 }
             }

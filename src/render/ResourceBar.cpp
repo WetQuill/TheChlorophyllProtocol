@@ -66,7 +66,7 @@ void ResourceBar::draw(sf::RenderTarget& target, const UiScale& scale, FontCache
         sunValue_.setFont(fonts.monoFont());
         sunValue_.setCharacterSize(static_cast<unsigned int>(scale.fontSizeLarge));
     }
-    sunValue_.setString(std::to_string(sun_));
+    sunValue_.setString(std::to_string(sun_ / 1000));
     sunValue_.setPosition(x, y - 2.0f * scale.dpiScale);
     target.draw(sunValue_);
 
@@ -106,7 +106,7 @@ void ResourceBar::draw(sf::RenderTarget& target, const UiScale& scale, FontCache
         powerLabel_.setFont(fonts.monoFont());
         powerLabel_.setCharacterSize(static_cast<unsigned int>(scale.fontSizeSmall));
     }
-    powerLabel_.setString("PWR " + std::to_string(power_) + "/" + std::to_string(powerConsumed_));
+    powerLabel_.setString("PWR " + std::to_string(power_ / 1000) + "/" + std::to_string(powerConsumed_ / 1000));
     powerLabel_.setPosition(gaugeX + gaugeWidth + 10.0f * scale.dpiScale, gaugeY - 1.0f);
     powerLabel_.setFillColor(powerWarning_ ? colors_.powerBad : colors_.powerGood);
     target.draw(powerLabel_);

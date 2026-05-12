@@ -24,8 +24,8 @@ namespace cmd {
 }  // namespace cmd
 
 const std::array<ProductionSlotDef, 4> Sidebar::buildingSlots_{
-    ProductionSlotDef{kCampArchetypeId, 20, 10, cmd::kBuild, "Pea Military Camp", true},
-    ProductionSlotDef{kPowerPlantArchetypeId, 25, 12, cmd::kBuildSunPowerPlant, "Sun Power Plant", true},
+    ProductionSlotDef{kCampArchetypeId, 300000, 20000, cmd::kBuild, "Pea Military Camp", true},
+    ProductionSlotDef{kPowerPlantArchetypeId, 150000, 0, cmd::kBuildSunPowerPlant, "Sun Power Plant", true},
     ProductionSlotDef{kBastionArchetypeId, 1'200'000, 80'000, cmd::kBuildCornCannonBastion, "Corn Cannon Bastion", true},
     ProductionSlotDef{0, 0, 0, -1, "Future Building", true},
 };
@@ -35,7 +35,7 @@ const std::array<ProductionSlotDef, 1> Sidebar::defenseSlots_{
 };
 
 const std::array<ProductionSlotDef, 1> Sidebar::infantrySlots_{
-    ProductionSlotDef{kPeaMilitiaArchetypeId, 20, 0, cmd::kProducePea, "Pea Militia", false},
+    ProductionSlotDef{kPeaMilitiaArchetypeId, 100000, 0, cmd::kProducePea, "Pea Militia", false},
 };
 
 const std::array<ProductionSlotDef, 1> Sidebar::vehicleSlots_{
@@ -265,9 +265,9 @@ void Sidebar::draw(sf::RenderTarget& target, const UiScale& scale, FontCache& fo
             costText.setCharacterSize(static_cast<unsigned int>(scale.fontSizeSmall));
         }
         {
-            std::string costStr = "S:" + std::to_string(def.sunCost);
+            std::string costStr = "S:" + std::to_string(def.sunCost / 1000);
             if (def.powerCost > 0) {
-                costStr += " P:" + std::to_string(def.powerCost);
+                costStr += " P:" + std::to_string(def.powerCost / 1000);
             }
             costText.setString(costStr);
         }

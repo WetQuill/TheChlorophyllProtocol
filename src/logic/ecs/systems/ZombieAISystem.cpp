@@ -34,8 +34,6 @@ void runZombieAISystem(World& world, std::int64_t currentTick) {
     const auto& teams = world.teams();
     const auto& healths = world.healths();
     const auto& headquarters = world.headquarters();
-    const auto& entities = world.entities();
-
     // Find player HQ position once per tick
     bool hqFound = false;
     path::GridCoord hqGrid{};
@@ -78,7 +76,8 @@ void runZombieAISystem(World& world, std::int64_t currentTick) {
                 break;
             }
             fsm.currentState = ZombieState::MOVE_TO_HQ;
-            fsm.pathUpdateTimer = 0;
+            fsm.pathUpdateTimer = kPathUpdateInterval;
+            world.setMoveTarget(entityId, GridTarget{hqGrid.x, hqGrid.y});
             TCP_DEBUG("ZOMBIE", currentTick, "entity %u IDLE -> MOVE_TO_HQ, HQ at (%d,%d)",
                       entityId, hqGrid.x, hqGrid.y);
             break;
@@ -150,15 +149,12 @@ void runZombieAISystem(World& world, std::int64_t currentTick) {
         }
 
         case ZombieState::ATTACK_OBSTACLE: {
-            // Verify target is still alive
+            // Verify target is still alive (transforms lookup suffices — dead entities lose all components)
             bool targetValid = false;
             if (fsm.targetPlant != 0) {
                 auto hpIt = healths.find(fsm.targetPlant);
                 if (hpIt != healths.end() && hpIt->second.current > 0) {
-                    auto entIt = std::find(entities.begin(), entities.end(), fsm.targetPlant);
-                    if (entIt != entities.end()) {
-                        targetValid = true;
-                    }
+                    targetValid = true;
                 }
             }
 
@@ -168,7 +164,10 @@ void runZombieAISystem(World& world, std::int64_t currentTick) {
                           entityId, fsm.targetPlant);
                 fsm.targetPlant = 0;
                 fsm.currentState = ZombieState::MOVE_TO_HQ;
-                fsm.pathUpdateTimer = 0;
+                fsm.pathUpdateTimer = kPathUpdateInterval;
+                if (hqFound) {
+                    world.setMoveTarget(entityId, GridTarget{hqGrid.x, hqGrid.y});
+                }
                 break;
             }
 
@@ -178,28 +177,6 @@ void runZombieAISystem(World& world, std::int64_t currentTick) {
             break;
         }
         }  // switch
-    }
-}
-
-void runZombieSpeedLimiter(World& world, std::int64_t /*currentTick*/) {
-    const auto& aiComponents = world.zombieAIFSMs();
-    if (aiComponents.empty()) {
-        return;
-    }
-
-    auto& velocities = world.mutableVelocities();
-
-    for (const auto& [entityId, fsm] : aiComponents) {
-        (void)fsm;
-        auto velIt = velocities.find(entityId);
-        if (velIt == velocities.end()) {
-            continue;
-        }
-
-        auto& vel = velIt->second;
-        const auto kSpeedDivisor = math::FixedPoint::fromInt(3);
-        vel.xPerTick = vel.xPerTick / kSpeedDivisor;
-        vel.yPerTick = vel.yPerTick / kSpeedDivisor;
     }
 }
 

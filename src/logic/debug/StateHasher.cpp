@@ -60,6 +60,13 @@ std::uint64_t hashWorldState(const ecs::World& world) noexcept {
         mix(hash, static_cast<std::uint64_t>(production.producedHealth));
     }
 
+    for (const auto& [entityId, producer] : world.sunProducers()) {
+        mix(hash, entityId);
+        mix(hash, static_cast<std::uint64_t>(producer.amountPerTick));
+        mix(hash, static_cast<std::uint64_t>(producer.cycleTicks));
+        mix(hash, static_cast<std::uint64_t>(producer.maxCycleTicks));
+    }
+
     for (const auto& [entityId, weapon] : world.weapons()) {
         mix(hash, entityId);
         mix(hash, static_cast<std::uint64_t>(weapon.range.raw()));

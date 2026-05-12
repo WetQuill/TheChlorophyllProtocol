@@ -34,6 +34,15 @@ void UiRenderer::initialize(const sf::RenderWindow& window, FontCache& /*fonts*/
         sidebarWidth,
         static_cast<float>(windowSize_.y)));
 
+    // Unit info panel: bottom-left
+    const float panelW = layout_.unitPanelWidth * scale_.dpiScale;
+    const float panelH = layout_.unitPanelHeight * scale_.dpiScale;
+    unitInfoPanel_.handleResize(sf::FloatRect(
+        layout_.edgeMargin,
+        static_cast<float>(windowSize_.y) - panelH - layout_.edgeMargin,
+        panelW,
+        panelH));
+
     unitInfoPanel_.setVisible(false);
 }
 
@@ -52,11 +61,11 @@ void UiRenderer::handleResize(const sf::RenderWindow& window) {
         sidebarWidth,
         static_cast<float>(windowSize_.y)));
 
-    // Unit info panel: centered at bottom
+    // Unit info panel: bottom-left
     const float panelW = layout_.unitPanelWidth * scale_.dpiScale;
     const float panelH = layout_.unitPanelHeight * scale_.dpiScale;
     unitInfoPanel_.handleResize(sf::FloatRect(
-        (static_cast<float>(windowSize_.x) - panelW) * 0.5f,
+        layout_.edgeMargin,
         static_cast<float>(windowSize_.y) - panelH - layout_.edgeMargin,
         panelW,
         panelH));

@@ -97,7 +97,7 @@ tcp::logic::ecs::World makeDemoWorld() {
     const auto hq1 = world.createEntity();
     world.setTeam(hq0, tcp::logic::ecs::Team{0});
     world.setTeam(hq1, tcp::logic::ecs::Team{1});
-    world.setTransform(hq0, at(0, 0));
+    world.setTransform(hq0, at(64, 32));
     world.setTransform(hq1, at(58, 4));
     world.setHealth(hq0, tcp::logic::ecs::Health{200, 200});
     world.setHealth(hq1, tcp::logic::ecs::Health{200, 200});
@@ -110,7 +110,7 @@ tcp::logic::ecs::World makeDemoWorld() {
     const auto p1Unit = world.createEntity();
     world.setTeam(p0Unit, tcp::logic::ecs::Team{0});
     world.setTeam(p1Unit, tcp::logic::ecs::Team{1});
-    world.setTransform(p0Unit, at(0, 1));
+    world.setTransform(p0Unit, at(64, 33));
     world.setTransform(p1Unit, at(58, 5));
     world.setHealth(p0Unit, tcp::logic::ecs::Health{150000, 150000});
     world.setHealth(p1Unit, tcp::logic::ecs::Health{150000, 150000});
@@ -246,7 +246,7 @@ bool runSingle(const std::int64_t ticks, const std::string& replayPath) {
 
     for (std::int64_t tick = 0; tick < ticks; ++tick) {
         if (tick == 0) {
-            single.queueLocalCommand(0, 3, tcp::logic::ecs::CommandType::kMove, 2, 1, 0);
+            single.queueLocalCommand(0, 3, tcp::logic::ecs::CommandType::kMove, 62, 33, 0);
         }
 
         if (!single.stepTick()) {
@@ -308,8 +308,8 @@ bool runLockstep(const std::int64_t ticks) {
         lockstepA.queueLocalCommand(0, 3, tcp::logic::ecs::CommandType::kStop, 0, 0, 0);
         lockstepB.queueLocalCommand(1, 4, tcp::logic::ecs::CommandType::kStop, 0, 0, 0);
         if (tick == 0) {
-            lockstepA.queueLocalCommand(0, 3, tcp::logic::ecs::CommandType::kMove, 3, 1, 0);
-            lockstepB.queueLocalCommand(1, 4, tcp::logic::ecs::CommandType::kMove, 5, 1, 0);
+            lockstepA.queueLocalCommand(0, 3, tcp::logic::ecs::CommandType::kMove, 62, 33, 0);
+            lockstepB.queueLocalCommand(1, 4, tcp::logic::ecs::CommandType::kMove, 56, 5, 0);
         }
 
         const auto outA = lockstepA.drainOutgoingPackets();
@@ -358,6 +358,7 @@ bool runVisualSingle(const AppOptions& options) {
     constexpr std::uint32_t kPeaMilitiaArchetypeId = 101U;
     constexpr std::uint32_t kSunPowerPlantArchetypeId = 902U;
     constexpr std::uint32_t kCornCannonBastionArchetypeId = 903U;
+    constexpr std::uint32_t kRegularZombieArchetypeId = 200U;
     constexpr std::uint32_t kBucketheadZombieArchetypeId = 202U;
     constexpr std::int32_t kPeaMilitaryCampCostSun = 300000;
     constexpr std::int32_t kSunPowerPlantCostSun = 150000;
@@ -518,6 +519,8 @@ bool runVisualSingle(const AppOptions& options) {
     sf::Texture texSunPowerPlant;
     sf::Texture texPeaMilitaryCamp;
     sf::Texture texCornCannonBastion;
+    sf::Texture texZombieSoldier;
+    sf::Texture texArmyZombieSoldier;
     sf::Texture texBucketheadZombie;
     sf::Texture texGrass;
     sf::Texture texSelectionRing;
@@ -552,6 +555,8 @@ bool runVisualSingle(const AppOptions& options) {
     const bool hasCornCannonBastionTexture =
         loadTexture(texCornCannonBastion, "assets/visual/buildings/corn_cannon_bastion.png") ||
         loadTexture(texCornCannonBastion, "assets/visual/buildings/pea_military_camp.png");
+    const bool hasZombieTexture = loadTexture(texZombieSoldier, "assets/visual/units/zombie_soldier.png");
+    const bool hasArmyZombieTexture = loadTexture(texArmyZombieSoldier, "assets/visual/units/army_zombie_soldier.png");
     const bool hasBucketheadTexture = loadTexture(texBucketheadZombie, "assets/visual/units/buckethead_zombie.png");
     const bool hasGrassTexture = loadTexture(texGrass, "assets/visual/environment/grass_camouflage_64x64.png");
     if (hasGrassTexture) {
@@ -1349,6 +1354,8 @@ bool runVisualSingle(const AppOptions& options) {
                 (idIt != identities.end() && idIt->second.archetypeId == kCornCannonBastionArchetypeId);
             const bool isBucketheadZombie =
                 (idIt != identities.end() && idIt->second.archetypeId == kBucketheadZombieArchetypeId);
+            const bool isRegularZombie =
+                (idIt != identities.end() && idIt->second.archetypeId == kRegularZombieArchetypeId);
 
             bool drewSprite = false;
 #if TCP_VISUAL_SFML_TEXTURES
@@ -1395,7 +1402,11 @@ bool runVisualSingle(const AppOptions& options) {
                 }
             } else {
                 const sf::Texture* texture = nullptr;
-                if (isBucketheadZombie && hasBucketheadTexture) {
+                if (isRegularZombie && hasZombieTexture) {
+                    texture = &texZombieSoldier;
+                } else if (isBucketheadZombie && hasArmyZombieTexture) {
+                    texture = &texArmyZombieSoldier;
+                } else if (isBucketheadZombie && hasBucketheadTexture) {
                     texture = &texBucketheadZombie;
                 } else if (isSunProducer && hasSunflowerTexture) {
                     texture = &texSunflower;
@@ -1724,8 +1735,13 @@ bool runVisualSingle(const AppOptions& options) {
                 const bool isSunProducer = sunProducers.find(member) != sunProducers.end();
                 const auto idItStack = identities.find(member);
                 const bool isBuckethead = idItStack != identities.end() && idItStack->second.archetypeId == kBucketheadZombieArchetypeId;
+                const bool isRegularZombieStack = idItStack != identities.end() && idItStack->second.archetypeId == kRegularZombieArchetypeId;
                 const sf::Texture* texture = nullptr;
-                if (isBuckethead && hasBucketheadTexture) {
+                if (isRegularZombieStack && hasZombieTexture) {
+                    texture = &texZombieSoldier;
+                } else if (isBuckethead && hasArmyZombieTexture) {
+                    texture = &texArmyZombieSoldier;
+                } else if (isBuckethead && hasBucketheadTexture) {
                     texture = &texBucketheadZombie;
                 } else if (isSunProducer && hasSunflowerTexture) {
                     texture = &texSunflower;
@@ -1784,24 +1800,61 @@ bool runVisualSingle(const AppOptions& options) {
                         stackFlashing = true;
                     }
                 }
-                for (int i = 0; i < 3; ++i) {
-                    sf::CircleShape blob(7.0F);
-                    blob.setOrigin(sf::Vector2f{7.0F, 7.0F});
-                    blob.setPosition(sf::Vector2f{screen.x + (static_cast<float>(i) - 1.0F) * 7.0F, screen.y + static_cast<float>((i % 2) * 5)});
-                    sf::Color blobColor;
-                    if (stackFlashing) {
-                        blobColor = sf::Color(255U, 50U, 50U, 220U);
-                    } else if (hasBucketheadInStack) {
-                        blobColor = sf::Color(136U, 136U, 136U, 220U);
-                    } else if (teamOne) {
-                        blobColor = sf::Color(235U, 162U, 155U, 220U);
-                    } else {
-                        blobColor = sf::Color(116U, 215U, 128U, 220U);
+                // Draw representative unit texture instead of 3 blobs
+                bool drewSprite = false;
+#if TCP_VISUAL_SFML_TEXTURES
+                const auto repId = members.front();
+                const bool isSunProducer = sunProducers.find(repId) != sunProducers.end();
+                const auto idItRep = identities.find(repId);
+                const bool isBuckethead = idItRep != identities.end() && idItRep->second.archetypeId == kBucketheadZombieArchetypeId;
+                const bool isRegularZombie = idItRep != identities.end() && idItRep->second.archetypeId == kRegularZombieArchetypeId;
+                const sf::Texture* texture = nullptr;
+                if (isRegularZombie && hasZombieTexture) {
+                    texture = &texZombieSoldier;
+                } else if (isBuckethead && hasArmyZombieTexture) {
+                    texture = &texArmyZombieSoldier;
+                } else if (isBuckethead && hasBucketheadTexture) {
+                    texture = &texBucketheadZombie;
+                } else if (isSunProducer && hasSunflowerTexture) {
+                    texture = &texSunflower;
+                } else if (hasPeaTexture) {
+                    texture = &texPeaMilitia;
+                }
+                if (texture != nullptr) {
+                    sf::Sprite sprite(*texture);
+                    const auto size = texture->getSize();
+                    if (size.x > 0U && size.y > 0U) {
+                        sprite.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
+                        sprite.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
                     }
-                    blob.setFillColor(blobColor);
-                    blob.setOutlineColor(sf::Color(26U, 26U, 26U));
-                    blob.setOutlineThickness(1.5F);
-                    window.draw(blob);
+                    if (stackFlashing) {
+                        sprite.setColor(sf::Color(255U, 50U, 50U));
+                    } else if (teamOne) {
+                        sprite.setColor(sf::Color(255U, 170U, 170U));
+                    } else {
+                        sprite.setColor(sf::Color(220U, 255U, 220U));
+                    }
+                    sprite.setPosition(screen);
+                    window.draw(sprite);
+                    drewSprite = true;
+                }
+#endif
+                if (!drewSprite) {
+                    sf::CircleShape unit(kEntityRadius);
+                    unit.setOrigin(sf::Vector2f{kEntityRadius, kEntityRadius});
+                    unit.setPosition(screen);
+                    if (stackFlashing) {
+                        unit.setFillColor(sf::Color(255U, 50U, 50U));
+                    } else if (hasBucketheadInStack) {
+                        unit.setFillColor(sf::Color(136U, 136U, 136U));
+                    } else if (teamOne) {
+                        unit.setFillColor(sf::Color(240U, 160U, 155U));
+                    } else {
+                        unit.setFillColor(sf::Color(118U, 220U, 128U));
+                    }
+                    unit.setOutlineColor(sf::Color(20U, 20U, 20U));
+                    unit.setOutlineThickness(2.0F);
+                    window.draw(unit);
                 }
 
                 sf::RectangleShape countBg(sf::Vector2f{18.0F, 14.0F});

@@ -513,6 +513,13 @@ void runProductionPhase(World& world, std::int64_t tick) {
         world.setProduction(entityId, Production{});
     }
 
+    // Collect grid positions of all existing entities so spawns avoid stacking
+    std::set<path::GridCoord> occupiedByEntities;
+    for (const auto& [entityId, transform] : transforms) {
+        (void)entityId;
+        occupiedByEntities.insert(toGridCoord(transform));
+    }
+
     const auto findSpawnPos = [&](const Transform& campTransform) -> Transform {
         const path::GridCoord campCell = toGridCoord(campTransform);
         for (std::int32_t r = 1; r <= 4; ++r) {
@@ -520,7 +527,7 @@ void runProductionPhase(World& world, std::int64_t tick) {
                 for (std::int32_t dx = -r; dx <= r; ++dx) {
                     if (std::abs(dx) != r && std::abs(dy) != r) continue;
                     const path::GridCoord cell{campCell.x + dx, campCell.y + dy};
-                    if (!isCellOccupied(world, cell)) {
+                    if (!isCellOccupied(world, cell) && occupiedByEntities.find(cell) == occupiedByEntities.end()) {
                         return toTransform(cell);
                     }
                 }
@@ -531,9 +538,11 @@ void runProductionPhase(World& world, std::int64_t tick) {
 
     for (const auto& spawn : spawns) {
         const auto newEntity = world.createEntity();
+        const auto spawnPos = findSpawnPos(spawn.transform);
+        occupiedByEntities.insert(toGridCoord(spawnPos));
 
         world.setTeam(newEntity, Team{spawn.teamId});
-        world.setTransform(newEntity, findSpawnPos(spawn.transform));
+        world.setTransform(newEntity, spawnPos);
         world.setIdentity(newEntity, Identity{spawn.archetypeId, 1});
 
         Health hp{};
@@ -579,12 +588,45 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
     const auto& buildings = world.buildings();
 
     const bool useTilemap = tilemap.width > 0 && tilemap.height > 0;
-    const path::GridBounds pathBounds{
-        useTilemap ? 0 : -32,
-        useTilemap ? tilemap.width - 1 : 32,
-        useTilemap ? 0 : -32,
-        useTilemap ? tilemap.height - 1 : 32,
-    };
+    const path::GridBounds pathBounds = [&]() -> path::GridBounds {
+        if (useTilemap) {
+            return {0, tilemap.width - 1, 0, tilemap.height - 1};
+        }
+        std::int32_t minX = 0, maxX = 0, minY = 0, maxY = 0;
+        bool hasAny = false;
+        for (const auto& [entityId, transform] : transforms) {
+            (void)entityId;
+            const auto g = toGridCoord(transform);
+            if (!hasAny) {
+                minX = maxX = g.x;
+                minY = maxY = g.y;
+                hasAny = true;
+            } else {
+                minX = std::min(minX, g.x);
+                maxX = std::max(maxX, g.x);
+                minY = std::min(minY, g.y);
+                maxY = std::max(maxY, g.y);
+            }
+        }
+        for (const auto& [entityId, target] : targets) {
+            (void)entityId;
+            if (!hasAny) {
+                minX = maxX = target.x;
+                minY = maxY = target.y;
+                hasAny = true;
+            } else {
+                minX = std::min(minX, target.x);
+                maxX = std::max(maxX, target.x);
+                minY = std::min(minY, target.y);
+                maxY = std::max(maxY, target.y);
+            }
+        }
+        if (!hasAny) {
+            return {-32, 32, -32, 32};
+        }
+        constexpr std::int32_t kPadding = 32;
+        return {minX - kPadding, maxX + kPadding, minY - kPadding, maxY + kPadding};
+    }();
 
     // Build blocked set once per tick — shared by all entities
     std::set<path::GridCoord> blocked;

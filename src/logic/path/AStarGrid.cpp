@@ -4,8 +4,8 @@
 #include <array>
 #include <cstdint>
 #include <limits>
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace tcp::logic::path {
@@ -31,6 +31,12 @@ namespace {
     };
 }
 
+struct GridCoordHash {
+    [[nodiscard]] std::size_t operator()(GridCoord c) const noexcept {
+        return static_cast<std::size_t>(c.x) * 31U + static_cast<std::size_t>(c.y);
+    }
+};
+
 }  // namespace
 
 std::vector<GridCoord> findPathAStar(GridCoord start, GridCoord goal,
@@ -48,55 +54,61 @@ std::vector<GridCoord> findPathAStar(GridCoord start, GridCoord goal,
         return {start};
     }
 
-    std::set<GridCoord> openSet;
-    openSet.insert(start);
+    // Build flat blocked bool array for O(1) lookup
+    const std::int32_t width = bounds.maxX - bounds.minX + 1;
+    const std::int32_t height = bounds.maxY - bounds.minY + 1;
+    std::vector<bool> blockedGrid(static_cast<std::size_t>(width * height), false);
+    for (const auto& b : blocked) {
+        if (inBounds(b, bounds)) {
+            const auto idx = static_cast<std::size_t>((b.y - bounds.minY) * width + (b.x - bounds.minX));
+            blockedGrid[idx] = true;
+        }
+    }
+    const auto isBlocked = [&](GridCoord p) -> bool {
+        if (!inBounds(p, bounds)) return true;
+        return blockedGrid[static_cast<std::size_t>((p.y - bounds.minY) * width + (p.x - bounds.minX))];
+    };
 
-    std::set<GridCoord> closedSet;
-    std::map<GridCoord, GridCoord> cameFrom;
-    std::map<GridCoord, std::int32_t> gScore;
-    std::map<GridCoord, std::int32_t> fScore;
+    using OpenEntry = std::pair<std::int32_t, GridCoord>;  // fScore, coord
+    std::vector<OpenEntry> openHeap;
+    std::unordered_set<GridCoord, GridCoordHash> openSet;
+
+    std::unordered_set<GridCoord, GridCoordHash> closedSet;
+    std::unordered_map<GridCoord, GridCoord, GridCoordHash> cameFrom;
+    std::unordered_map<GridCoord, std::int32_t, GridCoordHash> gScore;
+    std::unordered_map<GridCoord, std::int32_t, GridCoordHash> fScore;
 
     gScore[start] = 0;
     fScore[start] = manhattan(start, goal);
+    openHeap.emplace_back(fScore[start], start);
+    std::push_heap(openHeap.begin(), openHeap.end(), std::greater<>{});
+    openSet.insert(start);
 
-    while (!openSet.empty()) {
-        GridCoord current{};
-        bool hasCurrent = false;
-        std::int32_t bestF = std::numeric_limits<std::int32_t>::max();
-        for (const auto& node : openSet) {
-            const auto it = fScore.find(node);
-            const auto nodeF = (it == fScore.end())
-                                   ? std::numeric_limits<std::int32_t>::max()
-                                   : it->second;
-            if (!hasCurrent || nodeF < bestF ||
-                (nodeF == bestF && node < current)) {
-                current = node;
-                bestF = nodeF;
-                hasCurrent = true;
-            }
-        }
+    while (!openHeap.empty()) {
+        std::pop_heap(openHeap.begin(), openHeap.end(), std::greater<>{});
+        const auto [currentF, node] = openHeap.back();
+        openHeap.pop_back();
+        openSet.erase(node);
 
-        if (!hasCurrent) {
-            return {};
-        }
-
-        if (current == goal) {
+        if (node == goal) {
             std::vector<GridCoord> path;
-            path.push_back(current);
-            while (cameFrom.find(current) != cameFrom.end()) {
-                current = cameFrom[current];
-                path.push_back(current);
+            GridCoord cur = node;
+            path.push_back(cur);
+            auto it = cameFrom.find(cur);
+            while (it != cameFrom.end()) {
+                cur = it->second;
+                path.push_back(cur);
+                it = cameFrom.find(cur);
             }
             std::reverse(path.begin(), path.end());
             return path;
         }
 
-        openSet.erase(current);
-        closedSet.insert(current);
+        closedSet.insert(node);
 
-        const auto currentG = gScore[current];
-        for (const auto& nb : neighbors(current)) {
-            if (!inBounds(nb, bounds) || blocked.find(nb) != blocked.end()) {
+        const auto currentG = gScore[node];
+        for (const auto& nb : neighbors(node)) {
+            if (isBlocked(nb)) {
                 continue;
             }
 
@@ -110,10 +122,18 @@ std::vector<GridCoord> findPathAStar(GridCoord start, GridCoord goal,
                 (gIt == gScore.end()) ? std::numeric_limits<std::int32_t>::max()
                                       : gIt->second;
             if (tentativeG < bestKnown) {
-                cameFrom[nb] = current;
+                cameFrom[nb] = node;
                 gScore[nb] = tentativeG;
-                fScore[nb] = tentativeG + manhattan(nb, goal);
-                openSet.insert(nb);
+                const auto newF = tentativeG + manhattan(nb, goal);
+                fScore[nb] = newF;
+
+                if (openSet.find(nb) == openSet.end()) {
+                    openSet.insert(nb);
+                    openHeap.emplace_back(newF, nb);
+                    std::push_heap(openHeap.begin(), openHeap.end(), std::greater<>{});
+                }
+                // If already in open set, we still push a duplicate entry with better fScore;
+                // the stale entry will be skipped when popped (detected via closedSet).
             }
         }
     }
