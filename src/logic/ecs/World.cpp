@@ -11,18 +11,22 @@ EntityId World::createEntity() {
     const auto entityId = nextEntityId_;
     ++nextEntityId_;
     entities_.push_back(entityId);
+    entitySet_.insert(entityId);
     ++telemetry_.spawnedEntities;
     TCP_DEBUG("ENTITY", currentTick_, "entity %u created", entityId);
     return entityId;
 }
 
 bool World::destroyEntity(EntityId entityId) {
-    const auto it = std::find(entities_.begin(), entities_.end(), entityId);
-    if (it == entities_.end()) {
+    if (entitySet_.find(entityId) == entitySet_.end()) {
         return false;
     }
 
-    entities_.erase(it);
+    const auto it = std::find(entities_.begin(), entities_.end(), entityId);
+    if (it != entities_.end()) {
+        entities_.erase(it);
+    }
+    entitySet_.erase(entityId);
     removeComponents(entityId);
     ++telemetry_.destroyedEntities;
     TCP_DEBUG("ENTITY", currentTick_, "entity %u destroyed", entityId);
@@ -209,6 +213,22 @@ bool World::setZombieAIFSM(EntityId entityId, const ZombieAIFSM& component) {
     return true;
 }
 
+bool World::setFlashComponent(EntityId entityId, const FlashComponent& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    flashComponents_[entityId] = component;
+    return true;
+}
+
+bool World::setExplosionEffect(EntityId entityId, const ExplosionEffect& component) {
+    if (!hasEntity(entityId)) {
+        return false;
+    }
+    explosionEffects_[entityId] = component;
+    return true;
+}
+
 const std::map<EntityId, Transform>& World::transforms() const noexcept {
     return transforms_;
 }
@@ -281,6 +301,14 @@ const std::map<EntityId, ZombieAIFSM>& World::zombieAIFSMs() const noexcept {
     return zombieAIFSMs_;
 }
 
+const std::map<EntityId, FlashComponent>& World::flashComponents() const noexcept {
+    return flashComponents_;
+}
+
+const std::map<EntityId, ExplosionEffect>& World::explosionEffects() const noexcept {
+    return explosionEffects_;
+}
+
 std::map<EntityId, Transform>& World::mutableTransforms() noexcept {
     return transforms_;
 }
@@ -319,6 +347,18 @@ std::map<EntityId, PowerConsumer>& World::mutablePowerConsumers() noexcept {
 
 std::map<EntityId, ZombieAIFSM>& World::mutableZombieAIFSMs() noexcept {
     return zombieAIFSMs_;
+}
+
+std::map<EntityId, SunProducer>& World::mutableSunProducers() noexcept {
+    return sunProducers_;
+}
+
+std::map<EntityId, FlashComponent>& World::mutableFlashComponents() noexcept {
+    return flashComponents_;
+}
+
+std::map<EntityId, ExplosionEffect>& World::mutableExplosionEffects() noexcept {
+    return explosionEffects_;
 }
 
 std::int32_t World::sunForTeam(std::uint8_t teamId) const noexcept {
@@ -451,6 +491,18 @@ std::uint64_t World::lastStateHash() const noexcept {
 
 void World::setTilemap(const logic::map::Tilemap& tm) {
     tilemap_ = tm;
+    terrainBlockedCache_.clear();
+    if (tm.width > 0 && tm.height > 0) {
+        terrainBlockedCache_.reserve(static_cast<std::size_t>(tm.width * tm.height) / 4);
+        for (std::int32_t gy = 0; gy < tm.height; ++gy) {
+            for (std::int32_t gx = 0; gx < tm.width; ++gx) {
+                const auto t = tm.tileAt(gx, gy);
+                if (t == logic::map::TileType::Obstacle || t == logic::map::TileType::Water) {
+                    terrainBlockedCache_.push_back({gx, gy});
+                }
+            }
+        }
+    }
 }
 
 const logic::map::Tilemap& World::tilemap() const noexcept {
@@ -459,6 +511,10 @@ const logic::map::Tilemap& World::tilemap() const noexcept {
 
 logic::map::Tilemap& World::mutableTilemap() noexcept {
     return tilemap_;
+}
+
+const std::vector<path::GridCoord>& World::terrainBlockedCache() const noexcept {
+    return terrainBlockedCache_;
 }
 
 void World::initFogOfWar() {
@@ -483,7 +539,7 @@ const logic::map::FogOfWar& World::fogOfWarForTeam(std::uint8_t teamId) const {
 }
 
 bool World::hasEntity(EntityId entityId) const noexcept {
-    return std::find(entities_.begin(), entities_.end(), entityId) != entities_.end();
+    return entitySet_.find(entityId) != entitySet_.end();
 }
 
 void World::removeComponents(EntityId entityId) {
@@ -505,6 +561,8 @@ void World::removeComponents(EntityId entityId) {
     headquarters_.erase(entityId);
     buildings_.erase(entityId);
     zombieAIFSMs_.erase(entityId);
+    flashComponents_.erase(entityId);
+    explosionEffects_.erase(entityId);
     moveTargets_.erase(entityId);
     attackTargets_.erase(entityId);
 

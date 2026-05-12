@@ -2,6 +2,7 @@
 
 #include "../map/FogOfWar.h"
 #include "../map/Tilemap.h"
+#include "../path/AStarGrid.h"
 #include "components/Components.h"
 #include "systems/SystemPipeline.h"
 
@@ -9,6 +10,7 @@
 #include <cstdint>
 #include <functional>
 #include <map>
+#include <unordered_set>
 #include <vector>
 
 namespace tcp::logic::ecs {
@@ -75,6 +77,7 @@ public:
     [[nodiscard]] const std::map<EntityId, PowerConsumer>& powerConsumers() const noexcept;
     [[nodiscard]] const std::map<EntityId, CommandBuffer>& commandBuffers() const noexcept;
     [[nodiscard]] const std::map<EntityId, SunProducer>& sunProducers() const noexcept;
+    [[nodiscard]] std::map<EntityId, SunProducer>& mutableSunProducers() noexcept;
     [[nodiscard]] const std::map<EntityId, Headquarters>& headquarters() const noexcept;
     [[nodiscard]] const std::map<EntityId, Building>& buildings() const noexcept;
     [[nodiscard]] const std::map<EntityId, ZombieAIFSM>& zombieAIFSMs() const noexcept;
@@ -89,6 +92,13 @@ public:
     [[nodiscard]] std::map<EntityId, FrozenState>& mutableFrozenStates() noexcept;
     [[nodiscard]] std::map<EntityId, PowerConsumer>& mutablePowerConsumers() noexcept;
     [[nodiscard]] std::map<EntityId, ZombieAIFSM>& mutableZombieAIFSMs() noexcept;
+
+    bool setFlashComponent(EntityId entityId, const FlashComponent& component);
+    bool setExplosionEffect(EntityId entityId, const ExplosionEffect& component);
+    [[nodiscard]] const std::map<EntityId, FlashComponent>& flashComponents() const noexcept;
+    [[nodiscard]] const std::map<EntityId, ExplosionEffect>& explosionEffects() const noexcept;
+    [[nodiscard]] std::map<EntityId, FlashComponent>& mutableFlashComponents() noexcept;
+    [[nodiscard]] std::map<EntityId, ExplosionEffect>& mutableExplosionEffects() noexcept;
 
     [[nodiscard]] std::int32_t sunForTeam(std::uint8_t teamId) const noexcept;
     void setSunForTeam(std::uint8_t teamId, std::int32_t value) noexcept;
@@ -125,6 +135,7 @@ public:
     void setTilemap(const logic::map::Tilemap& tm);
     [[nodiscard]] const logic::map::Tilemap& tilemap() const noexcept;
     [[nodiscard]] logic::map::Tilemap& mutableTilemap() noexcept;
+    [[nodiscard]] const std::vector<path::GridCoord>& terrainBlockedCache() const noexcept;
 
     void initFogOfWar();
     [[nodiscard]] logic::map::FogOfWar& fogOfWarForTeam(std::uint8_t teamId);
@@ -137,6 +148,7 @@ private:
     EntityId nextEntityId_{1};
     std::int64_t currentTick_{0};
     std::vector<EntityId> entities_{};
+    std::unordered_set<EntityId> entitySet_{};
     std::array<std::vector<SystemCallback>, systemPhaseCount()> systems_{};
 
     std::map<EntityId, Transform> transforms_{};
@@ -157,6 +169,8 @@ private:
     std::map<EntityId, Headquarters> headquarters_{};
     std::map<EntityId, Building> buildings_{};
     std::map<EntityId, ZombieAIFSM> zombieAIFSMs_{};
+    std::map<EntityId, FlashComponent> flashComponents_{};
+    std::map<EntityId, ExplosionEffect> explosionEffects_{};
 
     std::map<EntityId, GridTarget> moveTargets_{};
     std::map<EntityId, EntityId> attackTargets_{};
@@ -171,6 +185,7 @@ private:
 
     logic::map::Tilemap tilemap_{};
     std::map<std::uint8_t, logic::map::FogOfWar> teamFogOfWar_{};
+    std::vector<path::GridCoord> terrainBlockedCache_{};
 };
 
 }  // namespace tcp::logic::ecs

@@ -78,6 +78,16 @@ struct FrozenState {
     std::int32_t slowPermille{1000};
 };
 
+struct FlashComponent {
+    std::int32_t ticksLeft{0};
+};
+
+struct ExplosionEffect {
+    int currentRadius{0};
+    int maxRadius{150};
+    int alpha{255};
+};
+
 struct Vision {
     std::int32_t radiusCells{0};
 };
@@ -89,6 +99,8 @@ struct PowerConsumer {
 
 struct SunProducer {
     std::int32_t amountPerTick{0};
+    std::int32_t cycleTicks{0};
+    std::int32_t maxCycleTicks{0};
 };
 
 struct Headquarters {

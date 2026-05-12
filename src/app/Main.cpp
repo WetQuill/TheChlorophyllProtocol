@@ -98,7 +98,7 @@ tcp::logic::ecs::World makeDemoWorld() {
     world.setTeam(hq0, tcp::logic::ecs::Team{0});
     world.setTeam(hq1, tcp::logic::ecs::Team{1});
     world.setTransform(hq0, at(0, 0));
-    world.setTransform(hq1, at(8, 0));
+    world.setTransform(hq1, at(58, 4));
     world.setHealth(hq0, tcp::logic::ecs::Health{200, 200});
     world.setHealth(hq1, tcp::logic::ecs::Health{200, 200});
     world.setHeadquarters(hq0, tcp::logic::ecs::Headquarters{true});
@@ -111,20 +111,22 @@ tcp::logic::ecs::World makeDemoWorld() {
     world.setTeam(p0Unit, tcp::logic::ecs::Team{0});
     world.setTeam(p1Unit, tcp::logic::ecs::Team{1});
     world.setTransform(p0Unit, at(0, 1));
-    world.setTransform(p1Unit, at(8, 1));
-    world.setHealth(p0Unit, tcp::logic::ecs::Health{30, 30});
-    world.setHealth(p1Unit, tcp::logic::ecs::Health{30, 30});
-    world.setWeapon(p0Unit, tcp::logic::ecs::Weapon{tcp::logic::math::FixedPoint::fromInt(2), 5, 1, 0});
-    world.setWeapon(p1Unit, tcp::logic::ecs::Weapon{tcp::logic::math::FixedPoint::fromInt(2), 5, 1, 0});
+    world.setTransform(p1Unit, at(58, 5));
+    world.setHealth(p0Unit, tcp::logic::ecs::Health{150000, 150000});
+    world.setHealth(p1Unit, tcp::logic::ecs::Health{150000, 150000});
+    world.setWeapon(p0Unit, tcp::logic::ecs::Weapon{tcp::logic::math::FixedPoint::fromInt(250), 5000, 30, 0});
+    world.setWeapon(p1Unit, tcp::logic::ecs::Weapon{tcp::logic::math::FixedPoint::fromInt(250), 5000, 30, 0});
     world.setVision(p0Unit, tcp::logic::ecs::Vision{4});
     world.setVision(p1Unit, tcp::logic::ecs::Vision{4});
     world.setCommandBuffer(p0Unit, tcp::logic::ecs::CommandBuffer{});
     world.setCommandBuffer(p1Unit, tcp::logic::ecs::CommandBuffer{});
+    world.setVelocity(p0Unit, tcp::logic::ecs::Velocity{});
+    world.setVelocity(p1Unit, tcp::logic::ecs::Velocity{});
 
-    world.setSunForTeam(0, 6000000);
-    world.setSunForTeam(1, 6000000);
-    world.setPowerForTeam(0, 160000);
-    world.setPowerForTeam(1, 160000);
+    world.setSunForTeam(0, 1000000);
+    world.setSunForTeam(1, 1000000);
+    world.setPowerForTeam(0, 150000);
+    world.setPowerForTeam(1, 150000);
 
     return world;
 }
@@ -353,10 +355,12 @@ bool runLockstep(const std::int64_t ticks) {
 bool runVisualSingle(const AppOptions& options) {
 #if TCP_VISUAL_SFML_ENABLED
     constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
+    constexpr std::uint32_t kPeaMilitiaArchetypeId = 101U;
     constexpr std::uint32_t kSunPowerPlantArchetypeId = 902U;
     constexpr std::uint32_t kCornCannonBastionArchetypeId = 903U;
-    constexpr std::int32_t kPeaMilitaryCampCostSun = 20;
-    constexpr std::int32_t kSunPowerPlantCostSun = 25;
+    constexpr std::uint32_t kBucketheadZombieArchetypeId = 202U;
+    constexpr std::int32_t kPeaMilitaryCampCostSun = 300000;
+    constexpr std::int32_t kSunPowerPlantCostSun = 150000;
     constexpr std::int32_t kCornCannonBastionCostSun = 1200000;
     constexpr std::int64_t kCampConstructionTicks = 300;
     constexpr std::int64_t kSolarConstructionTicks = 600;
@@ -492,11 +496,18 @@ bool runVisualSingle(const AppOptions& options) {
     std::optional<BuildMenuState> buildMenu;
     std::optional<ProductionMenuState> productionMenu;
     std::optional<GroupMenuState> groupMenu;
+    struct SpawnEffect {
+        sf::Vector2f screenPos{};
+        std::int64_t expireTick{0};
+    };
     std::map<tcp::logic::ecs::EntityId, std::int64_t> constructionTimers;
     std::map<tcp::logic::ecs::EntityId, std::int64_t> constructionTotalTicks;
-    std::map<tcp::logic::ecs::EntityId, std::int32_t> pausedSunProducerAmounts;
+    std::map<tcp::logic::ecs::EntityId, tcp::logic::ecs::SunProducer> pausedSunProducers;
     std::vector<PendingConstructionArm> pendingConstructionArms;
+    std::vector<SpawnEffect> spawnEffects;
+    std::size_t previousEntityCount{0};
     std::mt19937 smokeRng{0xC0FFEEu};
+    std::mt19937 spawnRng{0xFEEDC0u};
     auto previousFrameTime = std::chrono::steady_clock::now();
 
 #if TCP_VISUAL_SFML_TEXTURES
@@ -507,6 +518,7 @@ bool runVisualSingle(const AppOptions& options) {
     sf::Texture texSunPowerPlant;
     sf::Texture texPeaMilitaryCamp;
     sf::Texture texCornCannonBastion;
+    sf::Texture texBucketheadZombie;
     sf::Texture texGrass;
     sf::Texture texSelectionRing;
     sf::Texture texMoveMarker;
@@ -540,6 +552,7 @@ bool runVisualSingle(const AppOptions& options) {
     const bool hasCornCannonBastionTexture =
         loadTexture(texCornCannonBastion, "assets/visual/buildings/corn_cannon_bastion.png") ||
         loadTexture(texCornCannonBastion, "assets/visual/buildings/pea_military_camp.png");
+    const bool hasBucketheadTexture = loadTexture(texBucketheadZombie, "assets/visual/units/buckethead_zombie.png");
     const bool hasGrassTexture = loadTexture(texGrass, "assets/visual/environment/grass_camouflage_64x64.png");
     if (hasGrassTexture) {
         texGrass.setRepeated(true);
@@ -663,16 +676,34 @@ bool runVisualSingle(const AppOptions& options) {
                                 productionMenu.reset();
                                 groupMenu.reset();
                             } else if (slotDef && !slotDef->isBuilding) {
-                                // Infantry production: queue kProducePea on an active camp
+                                // Infantry production: prefer selected camp, otherwise find any active camp
                                 const auto& world = driver.world();
-                                const auto& identities = world.identities();
-                                const auto& teams = world.teams();
-                                const auto& buildings = world.buildings();
-                                const auto issuer = findBuildIssuer();
-                                if (issuer.has_value()) {
+                                const auto isActiveCamp = [&](tcp::logic::ecs::EntityId entityId) {
+                                    const auto idIt = world.identities().find(entityId);
+                                    if (idIt == world.identities().end() || idIt->second.archetypeId != kPeaMilitaryCampArchetypeId) return false;
+                                    if (world.buildings().find(entityId) == world.buildings().end()) return false;
+                                    const auto teamIt = world.teams().find(entityId);
+                                    if (teamIt == world.teams().end() || teamIt->second.value != 0U) return false;
+                                    if (isUnderConstruction(entityId)) return false;
+                                    const auto prodIt = world.productions().find(entityId);
+                                    if (prodIt != world.productions().end() && prodIt->second.buildTicks > 0) return false;
+                                    return true;
+                                };
+                                std::optional<tcp::logic::ecs::EntityId> campIssuer;
+                                if (selectedGroup.size() == 1 && isActiveCamp(selectedGroup.front())) {
+                                    campIssuer = selectedGroup.front();
+                                } else {
+                                    for (const auto& [entityId, id] : world.identities()) {
+                                        if (isActiveCamp(entityId)) {
+                                            campIssuer = entityId;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (campIssuer.has_value()) {
                                     driver.queueLocalCommand(
                                         0,
-                                        issuer.value(),
+                                        campIssuer.value(),
                                         tcp::logic::ecs::CommandType::kProducePea,
                                         0, 0,
                                         slotDef->sunCost);
@@ -992,10 +1023,10 @@ bool runVisualSingle(const AppOptions& options) {
                     }
                 }
                 for (const auto entityId : done) {
-                    const auto pausedIt = pausedSunProducerAmounts.find(entityId);
-                    if (pausedIt != pausedSunProducerAmounts.end()) {
-                        driver.world().setSunProducer(entityId, tcp::logic::ecs::SunProducer{pausedIt->second});
-                        pausedSunProducerAmounts.erase(pausedIt);
+                    const auto pausedIt = pausedSunProducers.find(entityId);
+                    if (pausedIt != pausedSunProducers.end()) {
+                        driver.world().setSunProducer(entityId, pausedIt->second);
+                        pausedSunProducers.erase(pausedIt);
                     }
                     constructionTimers.erase(entityId);
                     constructionTotalTicks.erase(entityId);
@@ -1038,8 +1069,8 @@ bool runVisualSingle(const AppOptions& options) {
 
                             const auto sunIt = world.sunProducers().find(entityId);
                             if (sunIt != world.sunProducers().end()) {
-                                pausedSunProducerAmounts[entityId] = sunIt->second.amountPerTick;
-                                driver.world().setSunProducer(entityId, tcp::logic::ecs::SunProducer{0});
+                                pausedSunProducers[entityId] = sunIt->second;
+                                driver.world().setSunProducer(entityId, tcp::logic::ecs::SunProducer{});
                             }
                         }
                         found = true;
@@ -1068,8 +1099,43 @@ bool runVisualSingle(const AppOptions& options) {
                 for (const auto entityId : stale) {
                     constructionTimers.erase(entityId);
                     constructionTotalTicks.erase(entityId);
-                    pausedSunProducerAmounts.erase(entityId);
+                    pausedSunProducers.erase(entityId);
                 }
+            }
+
+            // Detect newly spawned units for visual effects
+            {
+                const auto& world = driver.world();
+                const auto& identities = world.identities();
+                const auto& transforms = world.transforms();
+                const auto& buildings = world.buildings();
+                const auto& hqs = world.headquarters();
+                const auto currentCount = world.entityCount();
+                if (currentCount > previousEntityCount) {
+                    for (const auto entityId : world.entities()) {
+                        const auto idIt = identities.find(entityId);
+                        if (idIt == identities.end()) continue;
+                        if (idIt->second.archetypeId != kPeaMilitiaArchetypeId) continue;
+                        if (buildings.find(entityId) != buildings.end()) continue;
+                        if (hqs.find(entityId) != hqs.end()) continue;
+                        const auto trIt = transforms.find(entityId);
+                        if (trIt == transforms.end()) continue;
+                        const auto scr = worldToScreen(trIt->second);
+                        spawnEffects.push_back(SpawnEffect{scr, world.currentTick() + 20});
+                    }
+                }
+                previousEntityCount = currentCount;
+            }
+
+            // Age out expired spawn effects
+            {
+                const auto currentTick = driver.world().currentTick();
+                spawnEffects.erase(
+                    std::remove_if(spawnEffects.begin(), spawnEffects.end(),
+                                   [currentTick](const SpawnEffect& e) {
+                                       return e.expireTick < currentTick;
+                                   }),
+                    spawnEffects.end());
             }
 
             if (options.ticksProvided && driver.world().currentTick() >= options.ticks) {
@@ -1281,6 +1347,8 @@ bool runVisualSingle(const AppOptions& options) {
                 (idIt != identities.end() && idIt->second.archetypeId == kSunPowerPlantArchetypeId);
             const bool isCornCannonBastion =
                 (idIt != identities.end() && idIt->second.archetypeId == kCornCannonBastionArchetypeId);
+            const bool isBucketheadZombie =
+                (idIt != identities.end() && idIt->second.archetypeId == kBucketheadZombieArchetypeId);
 
             bool drewSprite = false;
 #if TCP_VISUAL_SFML_TEXTURES
@@ -1308,6 +1376,18 @@ bool runVisualSingle(const AppOptions& options) {
                     }
                     if (isUnderConstruction(entityId)) {
                         sprite.setColor(sf::Color(255U, 255U, 255U, 80U));
+                    } else if (teamIt != teams.end()) {
+                        if (teamIt->second.value == 1U) {
+                            sprite.setColor(sf::Color(255U, 170U, 170U));
+                        } else {
+                            sprite.setColor(sf::Color(220U, 255U, 220U));
+                        }
+                    }
+                    {
+                        const auto flashIt = world.flashComponents().find(entityId);
+                        if (flashIt != world.flashComponents().end() && flashIt->second.ticksLeft > 0) {
+                            sprite.setColor(sf::Color(255U, 50U, 50U));
+                        }
                     }
                     sprite.setPosition(screen);
                     window.draw(sprite);
@@ -1315,7 +1395,9 @@ bool runVisualSingle(const AppOptions& options) {
                 }
             } else {
                 const sf::Texture* texture = nullptr;
-                if (isSunProducer && hasSunflowerTexture) {
+                if (isBucketheadZombie && hasBucketheadTexture) {
+                    texture = &texBucketheadZombie;
+                } else if (isSunProducer && hasSunflowerTexture) {
                     texture = &texSunflower;
                 } else if (hasPeaTexture) {
                     texture = &texPeaMilitia;
@@ -1328,6 +1410,19 @@ bool runVisualSingle(const AppOptions& options) {
                         sprite.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
                         sprite.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
                     }
+                    if (teamIt != teams.end()) {
+                        if (teamIt->second.value == 1U) {
+                            sprite.setColor(sf::Color(255U, 170U, 170U));
+                        } else {
+                            sprite.setColor(sf::Color(220U, 255U, 220U));
+                        }
+                    }
+                    {
+                        const auto flashIt = world.flashComponents().find(entityId);
+                        if (flashIt != world.flashComponents().end() && flashIt->second.ticksLeft > 0) {
+                            sprite.setColor(sf::Color(255U, 50U, 50U));
+                        }
+                    }
                     sprite.setPosition(screen);
                     window.draw(sprite);
                     drewSprite = true;
@@ -1335,22 +1430,44 @@ bool runVisualSingle(const AppOptions& options) {
             }
 #endif
 
-            if ((isHq || isBuilding) && !drewSprite) {
+            if (isBucketheadZombie && !drewSprite) {
+                sf::CircleShape unit(kEntityRadius);
+                unit.setOrigin(sf::Vector2f{kEntityRadius, kEntityRadius});
+                unit.setPosition(screen);
+                unit.setFillColor(sf::Color(136U, 136U, 136U));
+                unit.setOutlineColor(sf::Color(20U, 20U, 20U));
+                unit.setOutlineThickness(2.0F);
+                {
+                    const auto flashIt = world.flashComponents().find(entityId);
+                    if (flashIt != world.flashComponents().end() && flashIt->second.ticksLeft > 0) {
+                        unit.setFillColor(sf::Color(255U, 50U, 50U));
+                    }
+                }
+                window.draw(unit);
+                drewSprite = true;
+            } else if ((isHq || isBuilding) && !drewSprite) {
                 sf::RectangleShape hq(sf::Vector2f{54.0F, 54.0F});
                 hq.setOrigin(sf::Vector2f{27.0F, 27.0F});
                 hq.setPosition(screen);
+                const bool isUnderCon = isUnderConstruction(entityId);
                 if (isPeaMilitaryCamp) {
-                    hq.setFillColor(teamOne ? sf::Color(170U, 137U, 63U, isUnderConstruction(entityId) ? 80U : 255U)
-                                            : sf::Color(65U, 133U, 81U, isUnderConstruction(entityId) ? 80U : 255U));
+                    hq.setFillColor(teamOne ? sf::Color(205U, 130U, 120U, isUnderCon ? 80U : 255U)
+                                            : sf::Color(60U, 140U, 85U, isUnderCon ? 80U : 255U));
                 } else if (isSunPowerPlant) {
-                    hq.setFillColor(teamOne ? sf::Color(221U, 183U, 84U, isUnderConstruction(entityId) ? 80U : 255U)
-                                            : sf::Color(171U, 194U, 88U, isUnderConstruction(entityId) ? 80U : 255U));
+                    hq.setFillColor(teamOne ? sf::Color(235U, 170U, 150U, isUnderCon ? 80U : 255U)
+                                            : sf::Color(165U, 210U, 85U, isUnderCon ? 80U : 255U));
                 } else if (isCornCannonBastion) {
-                    hq.setFillColor(teamOne ? sf::Color(118U, 138U, 86U, isUnderConstruction(entityId) ? 80U : 255U)
-                                            : sf::Color(92U, 128U, 86U, isUnderConstruction(entityId) ? 80U : 255U));
+                    hq.setFillColor(teamOne ? sf::Color(160U, 125U, 130U, isUnderCon ? 80U : 255U)
+                                            : sf::Color(85U, 135U, 80U, isUnderCon ? 80U : 255U));
                 } else {
-                    hq.setFillColor(teamOne ? sf::Color(176U, 110U, 32U, isUnderConstruction(entityId) ? 80U : 255U)
-                                            : sf::Color(58U, 162U, 74U, isUnderConstruction(entityId) ? 80U : 255U));
+                    hq.setFillColor(teamOne ? sf::Color(195U, 105U, 115U, isUnderCon ? 80U : 255U)
+                                            : sf::Color(55U, 170U, 75U, isUnderCon ? 80U : 255U));
+                }
+                {
+                    const auto flashIt = world.flashComponents().find(entityId);
+                    if (flashIt != world.flashComponents().end() && flashIt->second.ticksLeft > 0) {
+                        hq.setFillColor(sf::Color(255U, 50U, 50U, isUnderCon ? 80U : 255U));
+                    }
                 }
                 hq.setOutlineColor(sf::Color(22U, 22U, 22U));
                 hq.setOutlineThickness(2.0F);
@@ -1376,27 +1493,20 @@ bool runVisualSingle(const AppOptions& options) {
             }
 
             if (isPeaMilitaryCamp && !isUnderConstruction(entityId)) {
-                const auto cmdIt = commandBuffers.find(entityId);
-                if (cmdIt != commandBuffers.end()) {
-                    bool hasProduceQueued = false;
-                    for (const auto& queued : cmdIt->second.queued) {
-                        if (queued.type == tcp::logic::ecs::CommandType::kProducePea) {
-                            hasProduceQueued = true;
-                            break;
-                        }
-                    }
+                const auto prodIt = world.productions().find(entityId);
+                if (prodIt != world.productions().end() && prodIt->second.buildTicks > 0) {
+                    const float prodRatio = std::max(0.0F, std::min(1.0F,
+                        static_cast<float>(prodIt->second.progressTicks) / static_cast<float>(prodIt->second.buildTicks)));
 
-                    if (hasProduceQueued) {
-                        sf::RectangleShape pBack(sf::Vector2f{34.0F, 5.0F});
-                        pBack.setPosition(sf::Vector2f{screen.x - 17.0F, screen.y - 40.0F});
-                        pBack.setFillColor(sf::Color(28U, 33U, 28U, 220U));
-                        window.draw(pBack);
+                    sf::RectangleShape pBack(sf::Vector2f{40.0F, 5.0F});
+                    pBack.setPosition(sf::Vector2f{screen.x - 20.0F, screen.y - 40.0F});
+                    pBack.setFillColor(sf::Color(28U, 33U, 28U, 220U));
+                    window.draw(pBack);
 
-                        sf::RectangleShape pFill(sf::Vector2f{22.0F, 5.0F});
-                        pFill.setPosition(sf::Vector2f{screen.x - 17.0F, screen.y - 40.0F});
-                        pFill.setFillColor(sf::Color(238U, 202U, 94U, 230U));
-                        window.draw(pFill);
-                    }
+                    sf::RectangleShape pFill(sf::Vector2f{40.0F * prodRatio, 5.0F});
+                    pFill.setPosition(sf::Vector2f{screen.x - 20.0F, screen.y - 40.0F});
+                    pFill.setFillColor(sf::Color(238U, 202U, 94U, 230U));
+                    window.draw(pFill);
                 }
             }
         }
@@ -1449,6 +1559,69 @@ bool runVisualSingle(const AppOptions& options) {
                 progressFill.setPosition(sf::Vector2f{center.x - 20.0F, center.y - 34.0F});
                 progressFill.setFillColor(sf::Color(238U, 202U, 94U, 230U));
                 window.draw(progressFill);
+            }
+        }
+
+        // Spawn particle effects
+        {
+            const auto currentTick = world.currentTick();
+            for (const auto& effect : spawnEffects) {
+                const auto remaining = effect.expireTick - currentTick;
+                if (remaining <= 0) continue;
+                const float life = static_cast<float>(remaining) / 20.0F;
+                const float alpha = life * 200.0F;
+                const float radius = (1.0F - life) * 24.0F + 4.0F;
+
+                sf::CircleShape ring(radius);
+                ring.setOrigin(sf::Vector2f{radius, radius});
+                ring.setPosition(effect.screenPos);
+                ring.setFillColor(sf::Color(0U, 0U, 0U, 0U));
+                ring.setOutlineColor(sf::Color(118U, 220U, 93U, static_cast<sf::Uint8>(alpha)));
+                ring.setOutlineThickness(2.5F * life);
+                window.draw(ring);
+
+                // Inner particles
+                std::uniform_real_distribution<float> angleDist(0.0F, 6.28318F);
+                std::uniform_real_distribution<float> speedDist(radius * 0.3F, radius * 1.2F);
+                for (int p = 0; p < 5; ++p) {
+                    const float angle = angleDist(spawnRng);
+                    const float dist = speedDist(spawnRng);
+                    const float px = effect.screenPos.x + std::cos(angle) * dist;
+                    const float py = effect.screenPos.y + std::sin(angle) * dist;
+                    sf::CircleShape dot(2.0F * life);
+                    dot.setOrigin(sf::Vector2f{2.0F * life, 2.0F * life});
+                    dot.setPosition(sf::Vector2f{px, py});
+                    dot.setFillColor(sf::Color(180U, 240U, 140U, static_cast<sf::Uint8>(alpha * 0.7F)));
+                    window.draw(dot);
+                }
+            }
+        }
+
+        // Procedural explosion effects
+        {
+            const auto& explosionEffects = world.explosionEffects();
+            for (const auto& [entityId, effect] : explosionEffects) {
+                const auto trIt = world.transforms().find(entityId);
+                if (trIt == world.transforms().end()) continue;
+                const auto screen = worldToScreen(trIt->second);
+
+                const float radius = static_cast<float>(effect.currentRadius);
+                sf::CircleShape shockwave(radius);
+                shockwave.setOrigin(sf::Vector2f{radius, radius});
+                shockwave.setPosition(screen);
+                shockwave.setFillColor(sf::Color(0U, 0U, 0U, 0U));
+                shockwave.setOutlineColor(sf::Color(255U, 180U, 60U,
+                    static_cast<sf::Uint8>(std::max(0, effect.alpha))));
+                shockwave.setOutlineThickness(3.0F);
+                window.draw(shockwave);
+
+                const float innerR = radius * 0.55f;
+                sf::CircleShape fill(innerR);
+                fill.setOrigin(sf::Vector2f{innerR, innerR});
+                fill.setPosition(screen);
+                fill.setFillColor(sf::Color(255U, 210U, 90U,
+                    static_cast<sf::Uint8>(std::max(0, effect.alpha / 2))));
+                window.draw(fill);
             }
         }
 
@@ -1549,8 +1722,12 @@ bool runVisualSingle(const AppOptions& options) {
 #if TCP_VISUAL_SFML_TEXTURES
                 const auto member = members.front();
                 const bool isSunProducer = sunProducers.find(member) != sunProducers.end();
+                const auto idItStack = identities.find(member);
+                const bool isBuckethead = idItStack != identities.end() && idItStack->second.archetypeId == kBucketheadZombieArchetypeId;
                 const sf::Texture* texture = nullptr;
-                if (isSunProducer && hasSunflowerTexture) {
+                if (isBuckethead && hasBucketheadTexture) {
+                    texture = &texBucketheadZombie;
+                } else if (isSunProducer && hasSunflowerTexture) {
                     texture = &texSunflower;
                 } else if (hasPeaTexture) {
                     texture = &texPeaMilitia;
@@ -1562,6 +1739,17 @@ bool runVisualSingle(const AppOptions& options) {
                         sprite.setOrigin(sf::Vector2f{static_cast<float>(size.x) * 0.5F, static_cast<float>(size.y) * 0.5F});
                         sprite.setScale(sf::Vector2f{34.0F / static_cast<float>(size.x), 34.0F / static_cast<float>(size.y)});
                     }
+                    if (teamOne) {
+                        sprite.setColor(sf::Color(255U, 170U, 170U));
+                    } else {
+                        sprite.setColor(sf::Color(220U, 255U, 220U));
+                    }
+                    {
+                        const auto flashIt = world.flashComponents().find(member);
+                        if (flashIt != world.flashComponents().end() && flashIt->second.ticksLeft > 0) {
+                            sprite.setColor(sf::Color(255U, 50U, 50U));
+                        }
+                    }
                     sprite.setPosition(screen);
                     window.draw(sprite);
                     drewSprite = true;
@@ -1571,17 +1759,46 @@ bool runVisualSingle(const AppOptions& options) {
                     sf::CircleShape unit(kEntityRadius);
                     unit.setOrigin(sf::Vector2f{kEntityRadius, kEntityRadius});
                     unit.setPosition(screen);
-                    unit.setFillColor(teamOne ? sf::Color(237U, 170U, 74U) : sf::Color(118U, 206U, 122U));
+                    unit.setFillColor(isBuckethead ? sf::Color(136U, 136U, 136U)
+                        : (teamOne ? sf::Color(240U, 160U, 155U) : sf::Color(118U, 220U, 128U)));
                     unit.setOutlineColor(sf::Color(20U, 20U, 20U));
                     unit.setOutlineThickness(2.0F);
+                    {
+                        const auto flashIt = world.flashComponents().find(members.front());
+                        if (flashIt != world.flashComponents().end() && flashIt->second.ticksLeft > 0) {
+                            unit.setFillColor(sf::Color(255U, 50U, 50U));
+                        }
+                    }
                     window.draw(unit);
                 }
             } else {
+                bool hasBucketheadInStack = false;
+                bool stackFlashing = false;
+                for (const auto m : members) {
+                    auto idItM = identities.find(m);
+                    if (idItM != identities.end() && idItM->second.archetypeId == kBucketheadZombieArchetypeId) {
+                        hasBucketheadInStack = true;
+                    }
+                    const auto flashIt = world.flashComponents().find(m);
+                    if (flashIt != world.flashComponents().end() && flashIt->second.ticksLeft > 0) {
+                        stackFlashing = true;
+                    }
+                }
                 for (int i = 0; i < 3; ++i) {
                     sf::CircleShape blob(7.0F);
                     blob.setOrigin(sf::Vector2f{7.0F, 7.0F});
                     blob.setPosition(sf::Vector2f{screen.x + (static_cast<float>(i) - 1.0F) * 7.0F, screen.y + static_cast<float>((i % 2) * 5)});
-                    blob.setFillColor(teamOne ? sf::Color(230U, 166U, 80U, 220U) : sf::Color(116U, 203U, 126U, 220U));
+                    sf::Color blobColor;
+                    if (stackFlashing) {
+                        blobColor = sf::Color(255U, 50U, 50U, 220U);
+                    } else if (hasBucketheadInStack) {
+                        blobColor = sf::Color(136U, 136U, 136U, 220U);
+                    } else if (teamOne) {
+                        blobColor = sf::Color(235U, 162U, 155U, 220U);
+                    } else {
+                        blobColor = sf::Color(116U, 215U, 128U, 220U);
+                    }
+                    blob.setFillColor(blobColor);
                     blob.setOutlineColor(sf::Color(26U, 26U, 26U));
                     blob.setOutlineThickness(1.5F);
                     window.draw(blob);

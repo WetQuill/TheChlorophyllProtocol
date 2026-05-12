@@ -18,19 +18,20 @@ namespace tcp::logic::ecs {
 namespace {
 
 constexpr std::int32_t kBuildRadiusCells = 4;
-constexpr std::int32_t kDefaultBuildCostSun = 20;
-constexpr std::int32_t kDefaultSunPowerPlantCostSun = 25;
-constexpr std::int32_t kBuildingHealth = 20;
+constexpr std::int32_t kDefaultBuildCostSun = 300000;
+constexpr std::int32_t kDefaultSunPowerPlantCostSun = 150000;
+constexpr std::int32_t kBuildingHealth = 1000000;
 constexpr std::uint32_t kPeaMilitaryCampArchetypeId = 901U;
 constexpr std::uint32_t kSunPowerPlantArchetypeId = 902U;
 constexpr std::uint32_t kCornCannonBastionArchetypeId = 903U;
-constexpr std::int32_t kSunPowerPlantPerTick = 3;
+constexpr std::int32_t kSunPowerPlantPerTick = 25000;
+constexpr std::int32_t kSunPowerPlantCycleTicks = 60;
 constexpr std::uint32_t kPeaMilitiaArchetypeId = 101U;
-constexpr std::int32_t kPeaMilitiaHealth = 30;
-constexpr std::int32_t kPeaMilitiaDamage = 5;
-constexpr std::int32_t kPeaMilitiaAttackCooldown = 1;
+constexpr std::int32_t kPeaMilitiaHealth = 150000;
+constexpr std::int32_t kPeaMilitiaDamage = 5000;
+constexpr std::int32_t kPeaMilitiaAttackCooldown = 30;
 constexpr std::int32_t kPeaMilitiaVisionRadius = 4;
-constexpr std::int32_t kProducePeaCostSun = 20;
+constexpr std::int32_t kProducePeaCostSun = 100000;
 constexpr std::int32_t kCornCannonCostSun = 1200000;
 constexpr std::int32_t kCornCannonPowerRequirement = 80000;
 constexpr std::int32_t kCornCannonHealth = 2500000;
@@ -40,7 +41,8 @@ constexpr std::int32_t kCornCannonReloadTicks = 150;
 constexpr std::int32_t kCornCannonFrozenTicks = 150;
 constexpr std::int32_t kCornCannonProjectileTravelTicks = 24;
 constexpr std::int32_t kCornCannonHeDamage = 1000000;
-constexpr std::int32_t kCornCannonHeAoeRadiusRaw = 250000;
+constexpr std::int32_t kCornCannonHeAoeRadiusRaw = 2000;
+constexpr std::int32_t kCornCannonConstructionTicks = 1800;
 
 struct BuildBlueprint {
     std::uint32_t archetypeId{0};
@@ -54,6 +56,8 @@ struct BuildBlueprint {
     ArtilleryWeapon artilleryWeapon{};
     bool grantsSunProduction{false};
     std::int32_t sunPerTick{0};
+    std::int32_t sunCycleTicks{0};
+    std::int32_t powerBonus{0};
 };
 
 [[nodiscard]] path::GridCoord toGridCoord(const Transform& transform) noexcept {
@@ -173,6 +177,7 @@ void applyButterAoeAt(World& world,
         }
 
         health.current -= mitigatedDamage(world, entityId, damage);
+        world.setFlashComponent(entityId, FlashComponent{5});
         if (frozenTicks > 0) {
             world.setFrozenState(entityId, FrozenState{frozenTicks, 1000});
         }
@@ -285,7 +290,14 @@ void tryHandleBuildCommand(World& world,
         world.setArtilleryWeapon(buildingEntity, blueprint.artilleryWeapon);
     }
     if (blueprint.grantsSunProduction && blueprint.sunPerTick > 0) {
-        world.setSunProducer(buildingEntity, SunProducer{blueprint.sunPerTick});
+        world.setSunProducer(buildingEntity, SunProducer{
+            blueprint.sunPerTick,
+            blueprint.sunCycleTicks,
+            blueprint.sunCycleTicks,
+        });
+    }
+    if (blueprint.powerBonus > 0) {
+        world.addPowerForTeam(teamIt->second.value, blueprint.powerBonus);
     }
 
     if (world.tilemap().width > 0 && world.tilemap().height > 0) {
@@ -312,25 +324,24 @@ void tryHandleProducePeaCommand(World& world, EntityId issuerId, const QueuedCom
         return;
     }
 
+    // Cannot queue another production while one is in progress
+    const auto existingProd = world.productions().find(issuerId);
+    if (existingProd != world.productions().end() && existingProd->second.buildTicks > 0) {
+        return;
+    }
+
     if (!world.spendSunForTeam(issuerTeamIt->second.value, kProducePeaCostSun)) {
         return;
     }
 
-    const auto spawnBase = toGridCoord(issuerTrIt->second);
-    const path::GridCoord spawnCell{spawnBase.x + 1, spawnBase.y};
-
-    const auto unitEntity = world.createEntity();
-    world.setTeam(unitEntity, Team{issuerTeamIt->second.value});
-    world.setTransform(unitEntity, toTransform(spawnCell));
-    world.setHealth(unitEntity, Health{kPeaMilitiaHealth, kPeaMilitiaHealth});
-    world.setIdentity(unitEntity, Identity{kPeaMilitiaArchetypeId, 1});
-    world.setCommandBuffer(unitEntity, CommandBuffer{});
-    world.setVision(unitEntity, Vision{kPeaMilitiaVisionRadius});
-    world.setWeapon(unitEntity,
-                    Weapon{math::FixedPoint::fromInt(2),
-                           kPeaMilitiaDamage,
-                           kPeaMilitiaAttackCooldown,
-                           0});
+    // Use Production component for timed production (60 ticks = 2 sec)
+    world.setProduction(issuerId, Production{
+        0,                       // costSun already spent
+        60,                      // buildTicks
+        0,                       // progressTicks
+        kPeaMilitiaArchetypeId,
+        kPeaMilitiaHealth,
+    });
 }
 
 }  // namespace
@@ -357,14 +368,16 @@ void runInputPhase(World& world, std::int64_t tick) {
                 const BuildBlueprint campBlueprint{
                     kPeaMilitaryCampArchetypeId,
                     kDefaultBuildCostSun,
-                    10,
+                    20000,
                     kBuildingHealth,
                     0,
-                    0,
+                    20000,
                     false,
                     false,
                     ArtilleryWeapon{},
                     false,
+                    0,
+                    0,
                     0,
                 };
                 tryHandleBuildCommand(world, entityId, cmd, campBlueprint);
@@ -372,7 +385,7 @@ void runInputPhase(World& world, std::int64_t tick) {
                 const BuildBlueprint sunPlantBlueprint{
                     kSunPowerPlantArchetypeId,
                     kDefaultSunPowerPlantCostSun,
-                    12,
+                    0,
                     kBuildingHealth,
                     0,
                     0,
@@ -381,6 +394,8 @@ void runInputPhase(World& world, std::int64_t tick) {
                     ArtilleryWeapon{},
                     true,
                     kSunPowerPlantPerTick,
+                    kSunPowerPlantCycleTicks,
+                    150000,
                 };
                 tryHandleBuildCommand(world, entityId, cmd, sunPlantBlueprint);
             } else if (cmd.type == CommandType::kBuildCornCannonBastion) {
@@ -394,16 +409,18 @@ void runInputPhase(World& world, std::int64_t tick) {
                     true,
                     true,
                     ArtilleryWeapon{
-                        math::FixedPoint::fromRaw(400000),
-                        math::FixedPoint::fromRaw(1800000),
+                        math::FixedPoint::fromInt(3),
+                        math::FixedPoint::fromInt(20),
                         math::FixedPoint::fromRaw(kCornCannonHeAoeRadiusRaw),
                         kCornCannonHeDamage,
                         kCornCannonReloadTicks,
-                        0,
+                        kCornCannonConstructionTicks,
                         kCornCannonProjectileTravelTicks,
                         0,
                     },
                     false,
+                    0,
+                    0,
                     0,
                 };
                 tryHandleBuildCommand(world, entityId, cmd, bastionBlueprint);
@@ -417,7 +434,7 @@ void runInputPhase(World& world, std::int64_t tick) {
                     weapon.isButterMode = !weapon.isButterMode;
                     if (weapon.isButterMode) {
                         weapon.damage = kCornCannonButterDamage;
-                        weapon.aoeRadius = math::FixedPoint::fromRaw(200000);
+                        weapon.aoeRadius = math::FixedPoint::fromInt(2);
                         weapon.frozenTicks = kCornCannonFrozenTicks;
                     } else {
                         weapon.damage = kCornCannonHeDamage;
@@ -450,6 +467,7 @@ void runProductionPhase(World& world, std::int64_t tick) {
     };
 
     std::vector<SpawnPlan> spawns;
+    std::vector<EntityId> completed;
     spawns.reserve(productions.size());
 
     for (const auto& [entityId, productionConst] : productions) {
@@ -481,23 +499,58 @@ void runProductionPhase(World& world, std::int64_t tick) {
                 prod.producedArchetypeId,
                 prod.producedHealth,
             });
-            prod.progressTicks = 0;
+            if (prod.costSun == 0) {
+                completed.push_back(entityId);
+            } else {
+                prod.progressTicks = 0;
+            }
         }
 
         world.setProduction(entityId, prod);
     }
 
+    for (const auto entityId : completed) {
+        world.setProduction(entityId, Production{});
+    }
+
+    const auto findSpawnPos = [&](const Transform& campTransform) -> Transform {
+        const path::GridCoord campCell = toGridCoord(campTransform);
+        for (std::int32_t r = 1; r <= 4; ++r) {
+            for (std::int32_t dy = -r; dy <= r; ++dy) {
+                for (std::int32_t dx = -r; dx <= r; ++dx) {
+                    if (std::abs(dx) != r && std::abs(dy) != r) continue;
+                    const path::GridCoord cell{campCell.x + dx, campCell.y + dy};
+                    if (!isCellOccupied(world, cell)) {
+                        return toTransform(cell);
+                    }
+                }
+            }
+        }
+        return campTransform;
+    };
+
     for (const auto& spawn : spawns) {
         const auto newEntity = world.createEntity();
 
         world.setTeam(newEntity, Team{spawn.teamId});
-        world.setTransform(newEntity, spawn.transform);
+        world.setTransform(newEntity, findSpawnPos(spawn.transform));
         world.setIdentity(newEntity, Identity{spawn.archetypeId, 1});
 
         Health hp{};
         hp.current = spawn.health;
         hp.max = spawn.health;
         world.setHealth(newEntity, hp);
+
+        if (spawn.archetypeId == kPeaMilitiaArchetypeId) {
+            world.setCommandBuffer(newEntity, CommandBuffer{});
+            world.setVision(newEntity, Vision{kPeaMilitiaVisionRadius});
+            world.setWeapon(newEntity,
+                            Weapon{math::FixedPoint::fromInt(250),
+                                   kPeaMilitiaDamage,
+                                   kPeaMilitiaAttackCooldown,
+                                   0});
+            world.setVelocity(newEntity, Velocity{});
+        }
     }
 }
 
@@ -533,6 +586,32 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
         useTilemap ? tilemap.height - 1 : 32,
     };
 
+    // Build blocked set once per tick — shared by all entities
+    std::set<path::GridCoord> blocked;
+    if (useTilemap) {
+        // Terrain obstacles are pre-computed once when the map is loaded
+        const auto& terrainBlocked = world.terrainBlockedCache();
+        blocked.insert(terrainBlocked.begin(), terrainBlocked.end());
+        // Add building positions (occupancy changes each tick)
+        for (const auto& [entityId, building] : buildings) {
+            (void)building;
+            const auto trIt = transforms.find(entityId);
+            if (trIt == transforms.end()) {
+                continue;
+            }
+            blocked.insert(toGridCoord(trIt->second));
+        }
+    } else {
+        for (const auto& [blockEntity, marker] : buildings) {
+            (void)marker;
+            const auto blockTrIt = transforms.find(blockEntity);
+            if (blockTrIt == transforms.end()) {
+                continue;
+            }
+            blocked.insert(toGridCoord(blockTrIt->second));
+        }
+    }
+
     std::vector<EntityId> clearTargets;
     clearTargets.reserve(targets.size());
 
@@ -559,27 +638,12 @@ void runPathfindingPhase(World& world, std::int64_t tick) {
             continue;
         }
 
-        std::set<path::GridCoord> blocked;
+        // Remove self from blocked set so entity doesn't block itself
         if (useTilemap) {
-            for (std::int32_t gy = pathBounds.minY; gy <= pathBounds.maxY; ++gy) {
-                for (std::int32_t gx = pathBounds.minX; gx <= pathBounds.maxX; ++gx) {
-                    if (!tilemap.isWalkable(gx, gy)) {
-                        blocked.insert({gx, gy});
-                    }
-                }
-            }
+            blocked.erase(start);
         } else {
-            for (const auto& [blockEntity, marker] : buildings) {
-                (void)marker;
-                if (blockEntity == entityId) {
-                    continue;
-                }
-                const auto blockTrIt = transforms.find(blockEntity);
-                if (blockTrIt == transforms.end()) {
-                    continue;
-                }
-                blocked.insert(toGridCoord(blockTrIt->second));
-            }
+            // In non-tilemap mode, blocked contains buildings; no self-removal needed
+            // since buildings are already excluded for non-building entities above
         }
 
         const auto path = path::findPathAStar(start, goal, blocked, pathBounds);
@@ -658,6 +722,11 @@ void runCombatPhase(World& world, std::int64_t tick) {
                 projectile.aoeRadius,
                 projectile.damage,
                 projectile.frozenTicks);
+            {
+                const EntityId explosionEntity = world.createEntity();
+                world.setTransform(explosionEntity, Transform{projectile.targetX, projectile.targetY});
+                world.setExplosionEffect(explosionEntity, ExplosionEffect{0, 150, 255});
+            }
             detonated.push_back(projectileId);
         }
 
@@ -725,6 +794,7 @@ void runCombatPhase(World& world, std::int64_t tick) {
         }
 
         targetHealthIt->second.current -= mitigatedDamage(world, targetId, weapon.damage);
+        world.setFlashComponent(targetId, FlashComponent{5});
         weapon.remainingCooldownTicks = std::max(0, weapon.cooldownTicks);
         TCP_DEBUG("COMBAT", tick, "entity %u melee hit %u for %d dmg (HP: %d/%d)",
                   attackerId, targetId, weapon.damage, targetHealthIt->second.current, targetHealthIt->second.max);
@@ -836,14 +906,22 @@ void runCombatPhase(World& world, std::int64_t tick) {
 
 void runResourcePhase(World& world, std::int64_t tick) {
     (void)tick;
-    const auto& producers = world.sunProducers();
+    auto& producers = world.mutableSunProducers();
     const auto& teams = world.teams();
-    for (const auto& [entityId, producer] : producers) {
+    for (auto& [entityId, producer] : producers) {
         const auto teamIt = teams.find(entityId);
         if (teamIt == teams.end()) {
             continue;
         }
-        world.addSunForTeam(teamIt->second.value, producer.amountPerTick);
+        if (producer.maxCycleTicks > 0) {
+            if (producer.cycleTicks <= 0) {
+                world.addSunForTeam(teamIt->second.value, producer.amountPerTick);
+                producer.cycleTicks = producer.maxCycleTicks;
+            }
+            --producer.cycleTicks;
+        } else {
+            world.addSunForTeam(teamIt->second.value, producer.amountPerTick);
+        }
     }
 }
 
@@ -928,16 +1006,66 @@ void runFogOfWarSystem(World& world, std::int64_t tick) {
     }
 }
 
+void runSpeedSystem(World& world, std::int64_t) {
+    auto& velocities = world.mutableVelocities();
+    const auto& identities = world.identities();
+    for (auto& [entityId, vel] : velocities) {
+        if (vel.xPerTick == math::FixedPoint{} && vel.yPerTick == math::FixedPoint{}) {
+            continue;
+        }
+        auto idIt = identities.find(entityId);
+        if (idIt == identities.end()) {
+            continue;
+        }
+        std::int32_t speedRaw = 1000;
+        switch (idIt->second.archetypeId) {
+            case 101U: speedRaw = 450; break;   // 0.45 cells/tick
+            case 200U: speedRaw = 250; break;   // 0.25 cells/tick
+            case 202U: speedRaw = 120; break;   // 0.12 cells/tick
+            default: continue;
+        }
+        const auto factor = math::FixedPoint::fromRaw(speedRaw);
+        vel.xPerTick = vel.xPerTick * factor;
+        vel.yPerTick = vel.yPerTick * factor;
+    }
+}
+
+void runEffectsSystem(World& world, std::int64_t) {
+    auto& flashes = world.mutableFlashComponents();
+    for (auto it = flashes.begin(); it != flashes.end();) {
+        --it->second.ticksLeft;
+        if (it->second.ticksLeft <= 0) {
+            it = flashes.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    auto& explosions = world.mutableExplosionEffects();
+    std::vector<EntityId> toDestroy;
+    for (auto& [entityId, effect] : explosions) {
+        effect.currentRadius += 10;
+        effect.alpha -= 15;
+        if (effect.alpha <= 0) {
+            toDestroy.push_back(entityId);
+        }
+    }
+    for (const auto entityId : toDestroy) {
+        world.destroyEntity(entityId);
+    }
+}
+
 void registerCoreSystems(World& world) {
     world.registerSystem(SystemPhase::kInput, runSpawnerSystem);
     world.registerSystem(SystemPhase::kInput, runInputPhase);
     world.registerSystem(SystemPhase::kInput, runZombieAISystem);
     world.registerSystem(SystemPhase::kProduction, runProductionPhase);
     world.registerSystem(SystemPhase::kPathfinding, runPathfindingPhase);
-    world.registerSystem(SystemPhase::kPathfinding, runZombieSpeedLimiter);
+    world.registerSystem(SystemPhase::kPathfinding, runSpeedSystem);
     world.registerSystem(SystemPhase::kMovement, runMovementPhase);
     world.registerSystem(SystemPhase::kCombat, runCombatPhase);
     world.registerSystem(SystemPhase::kResource, runResourcePhase);
+    world.registerSystem(SystemPhase::kCleanup, runEffectsSystem);
     world.registerSystem(SystemPhase::kCleanup, runCleanupPhase);
     world.registerSystem(SystemPhase::kResource, runFogOfWarSystem);
 }
